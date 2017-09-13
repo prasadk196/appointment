@@ -1,26 +1,78 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE>
 <html>
 	<head>
 		<!-- all styles included here -->
-		<link rel='stylesheet' type='text/css' href='/webresources1/hub_/appointment/css/fullcalendar.css' />
-		<link rel='stylesheet' type='text/css' href='/webresources1/hub_/appointment/css/fullcalendar.print.css' media='print' />
-		<link rel='stylesheet' type='text/css' href='/webresources1/hub_/appointment/css/style.css' />
-		<script type='text/javascript' src='/webresources1/hub_/appointment/js/jquery_1.9.0.min.js'></script>
-		<script type='text/javascript' src='/webresources1/hub_/appointment/js/widget.js'></script>
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/font.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/fullcalendar.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/SylCalDef.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/jquery_ui_1.8.23.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/context_menu.min.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/style.css">
+		<link rel="stylesheet" type="text/css" href="/webresources/hub_/calendar/css/common.css">
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/jquery_1.9.0.min.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/widget.js"></script>
+		<link rel='stylesheet' type='text/css' href='/webresources/hub_/appointment/css/common.css' />
+		<link rel='stylesheet' type='text/css' href='/webresources/hub_/appointment/css/style.css' />
 	</head>
 	<body>
 
+		<div class="header-container">
+			<div class="padding-left-m display-inline-block">
+				<div class="loc-dropdown btn-group">
+					<button class="btn dropdown-toggle selectedCenter" data-toggle="dropdown">
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu"></ul>
+				</div>
+				<span> 
+				<i class="prevBtn icon-chevron-left"></i>
+				<span class="headerDate"></span>
+				<i class="nextBtn icon-chevron-right"></i>
+				<input type="hidden" id="datepicker">
+				</span>
+			</div>
+			<div class="margin-left-l display-inline-block">
+				<ul class="view-change-container">
+				<li>
+					<input type="radio" id="dayBtn" name="amount" checked=checked/>
+					<label class="dayView" for="dayBtn">Day</label>
+				</li>
+				<li>
+					<input type="radio" id="weekBtn" name="amount" />
+					<label class="wkView" for="weekBtn">WK</label>
+				</li>
+				</ul>
+			</div>
+			<div class="margin-left-xxl padding-left-xl display-inline-block">
+				<button class="btn font-20" id="addAppointment">
+				+
+				</button>
+				<button class="share-btn btn">
+				Share
+				</button>
+			</div>
+			<div class="padding-left-m float-right padding-right-m display-inline-block">
+				<i class="material-icons cursor float-right list-icon">list</i>
+				<i class="material-icons cursor float-right refresh-icon">autorenew</i>
+				<i class="material-icons cursor float-right info-icon">info</i>
+			</div>
+		</div>
 		<div id='appointment'></div>
 		
 		<!-- all script's included here -->
-		<script type='text/javascript' src='/webresources1/hub_/appointment/js/jquery_ui_1.9.2.min.js'></script>
-		<script type='text/javascript' src='/webresources1/hub_/appointment/js/moment.min.js'></script>
-		<script type="text/javascript" src="/webresources1/hub_/appointment/js/jquery_timepicker_1.3.5.min.js"></script>
-		<script type="text/javascript" src="/webresources1/hub_/appointment/js/context_menu.min.js"></script>
-		<script type="text/javascript" src="/webresources1/hub_/appointment/js/context_menu_position.min.js"></script>
-		<script type='text/javascript' src='/webresources1/hub_/appointment/js/fullcalendar.js'></script>
-		<script type="text/javascript" src="/webresources1/hub_/appointment/js/calendarInterface.js"></script> 
-		<script type="text/javascript" src="/webresources1/hub_/appointment/js/instruction_view.js"></script>
-		<script type='text/javascript' src='/webresources1/hub_/appointment/js/plugin.js'></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/moment.min.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/jquery_ui_1.9.2.min.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/jquery_timepicker_1.3.5.min.js"></script>
+		<!-- <script type="text/javascript" src="../../../ClientGlobalContext.js.aspx" ></script> -->
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/fullcalendar.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/context_menu.min.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/context_menu_position.min.js"></script>
+		<script type="text/javascript" src="/webresources/hub_/js/commonWebAPI.js"></script>    
+		<script type="text/javascript" src="/webresources/hub_/calendar/js/calendarInterface.js"></script> 
+		<script type="text/javascript" src="/webresources/hub_/appointment/js/calendarInterface.js"></script> 
+		<script type="text/javascript" src="/webresources/hub_/appointment/js/instruction_view.js"></script>
+		<script type='text/javascript' src='/webresources/hub_/appointment/js/plugin.js'></script>
 	</body>
 </html>

@@ -666,7 +666,7 @@ function Calendar(element, options, eventSources, resourceSources) {
 			.bind('dragstart', function(ev, ui) {
 				var _e = ev.target;
 				var e = $(_e);
-				if (!e.parents('.fc').length) { // not already inside a calendar
+				if (!e.parents('.fc').length || e.hasClass("draggable")) { // not already inside a calendar
 					var accept = options.dropAccept;
 					if ($.isFunction(accept) ? accept.call(_e, e) : e.is(accept)) {
 						_dragElement = _e;
@@ -1043,18 +1043,22 @@ function EventManager(options, _sources) {
 	
 
 	function removeEventSource(source) {
-		sources = $.grep(sources, function(src) {
-			return !isSourcesEqual(src, source);
-		});
-		// remove all client events from that source
-		cache = $.grep(cache, function(e) {
-			return !isSourcesEqual(e.source, source);
-		});
+		if(source == undefined){
+			sources = [];			
+			cache = [];	
+		}else{
+			sources = $.grep(sources, function(src) {
+				return !isSourcesEqual(src, source);
+			});
+			// remove all client events from that source
+			cache = $.grep(cache, function(e) {
+				return !isSourcesEqual(e.source, source);
+			});
+		}
 		reportEvents(cache);
 	}
 	
-	
-	
+
 	/* Manipulation
 	-----------------------------------------------------------------------------*/
 	
@@ -1261,7 +1265,7 @@ function EventManager(options, _sources) {
 
 
 function ResourceManager(options) {
-	var t = this;
+    var t = this;
 	
     // exports
     t.fetchResources = fetchResources;
@@ -1405,6 +1409,8 @@ function ResourceManager(options) {
             normalizers[i](source);
         }
     }
+
+
 }
 
 
@@ -3151,6 +3157,8 @@ function ResourceView(element, calendar, viewName) {
 		
         axisFirstCells = dayHead.find('th:first');
         gutterCells = dayTable.find('.fc-agenda-gutter');
+
+        dayHead.find('tr').css("height","40px");
 		
         slotLayer =
         $("<div style='position:absolute;z-index:2;left:0;width:100%'/>")
@@ -3193,7 +3201,7 @@ function ResourceView(element, calendar, viewName) {
         }
 		
         slotScroller =
-        $("<div style='position:absolute;width:100%;overflow-x:hidden;overflow-y:auto'/>")
+        $("<div id='scrollarea' style='position:absolute;width:100%;overflow-x:hidden;overflow-y:auto'/>")
         .appendTo(slotLayer);
 				
         slotContent =
@@ -3238,7 +3246,7 @@ function ResourceView(element, calendar, viewName) {
 	
 	
 	
-   function updateCells() {
+    function updateCells() {
         var i;
         var headCell;
         var bodyCell;
@@ -3300,7 +3308,7 @@ function ResourceView(element, calendar, viewName) {
             axisFirstCells
             .width('')
             .each(function(i, _cell) {
-                axisWidth = Math.max(axisWidth, $(_cell).outerWidth());
+                axisWidth = Math.max(axisWidth , $(_cell).outerWidth() + 20);
             }),
             axisWidth
             );
@@ -3408,7 +3416,7 @@ function ResourceView(element, calendar, viewName) {
     }
 	
 
-    function renderSlotOverlay(overlayStart, overlayEnd) {
+    function renderSlotOverlay(overlayStart, overlayEnd,cell) {
         var dayStart = cloneDate(t.visStart);
         var dayEnd = addDays(cloneDate(dayStart), 1);
         for (var i=0; i<colCnt; i++) {
@@ -3416,7 +3424,7 @@ function ResourceView(element, calendar, viewName) {
             var stretchEnd = new Date(Math.min(dayEnd, overlayEnd));
             if (stretchStart < stretchEnd) {
                 var col = i*dis+dit;
-                var rect = coordinateGrid.rect(0, col, 0, col, slotContent); // only use it for horizontal coords
+                var rect = coordinateGrid.rect(0, cell == undefined ? col : cell.col , 0, cell == undefined ? col : cell.col, slotContent); // only use it for horizontal coords
                 var top = timePosition(dayStart, stretchStart);
                 var bottom = timePosition(dayStart, stretchEnd);
                 rect.top = top;
@@ -3460,11 +3468,20 @@ function ResourceView(element, calendar, viewName) {
             return Math.max(slotScrollerTop, Math.min(slotScrollerBottom, n));
         }
         for (var i=0; i<slotCnt; i++) {
-            rows.push([
-                constrain(slotTableTop + slotHeight*i),
-                constrain(slotTableTop + slotHeight*(i+1))
-                ]);
+        	if(i == 0){
+        		rows.push([
+	                slotScrollerTop,
+	                slotScrollerTop + slotHeight
+                ]);	
+        	}
+        	else{
+        		rows.push([
+        			parseInt(rows[rows.length - 1][1]),
+        			parseInt(rows[rows.length - 1][1] + slotHeight)
+        		]);
+        	}
         }
+            
     });
 	
 	
@@ -3742,7 +3759,7 @@ function ResourceView(element, calendar, viewName) {
                 }else{
                     var d1 = cellDate(cell);
                     var d2 = addMinutes(cloneDate(d1), opt('defaultEventMinutes'));
-                    renderSlotOverlay(d1, d2);
+                    renderSlotOverlay(d1, d2,cell);
                 }
             }
         }, ev);
@@ -3753,7 +3770,7 @@ function ResourceView(element, calendar, viewName) {
         var cell = hoverListener.stop();
         clearOverlays();
         if (cell) {
-            trigger('drop', _dragElement, cellDate(cell), cellIsAllDay(cell), ev, ui);
+            trigger('drop', _dragElement, cellDate(cell), cellIsAllDay(cell), ev, ui,resources[cell.col]);
         }
     }
 
@@ -3957,7 +3974,7 @@ function ResourceEventRenderer() {
             forward = seg.forward || 0;
             leftmost = colContentLeft(colI*dis + dit);
             availWidth = colContentRight(colI*dis + dit) - leftmost;
-            availWidth = Math.min(availWidth-6, availWidth*.95); // TODO: move this to CSS
+            //availWidth = Math.min(availWidth-6, availWidth*.95); // TODO: move this to CSS
             if (levelI) {
                 // indented and thin
                 outerWidth = availWidth / (levelI + forward + 1);
@@ -3975,7 +3992,7 @@ function ResourceEventRenderer() {
             * dis + (rtl ? availWidth - outerWidth : 0);   // rtl
             seg.top = top;
             seg.left = left;
-            seg.outerWidth = outerWidth;
+            seg.outerWidth = outerWidth - 10;
             seg.outerHeight = bottom - top;
             html += slotSegHtml(event, seg);
         }
@@ -4032,7 +4049,7 @@ function ResourceEventRenderer() {
         for (i=0; i<segCnt; i++) {
             seg = segs[i];
             if (eventElement = seg.element) {
-                eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
+                eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides + 10) + 'px';
                 height = Math.max(0, seg.outerHeight - seg.vsides);
                 eventElement[0].style.height = height + 'px';
                 event = seg.event;
@@ -4046,7 +4063,6 @@ function ResourceEventRenderer() {
                 trigger('eventAfterRender', event, event, eventElement);
             }
         }
-					
     }
 	
 	
@@ -4080,13 +4096,13 @@ function ResourceEventRenderer() {
         ">" +
         "<div class='fc-event-inner fc-event-skin'" + skinCssAttr + ">" +
         "<div class='fc-event-head fc-event-skin'" + skinCssAttr + ">" +
-        "<div class='fc-event-time'>" +
-        htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) +
-        "</div>" +
+        // "<div class='fc-event-time'>" +
+        // htmlEscape(formatDates(event.start, event.end, opt('timeFormat'))) +
+        // "</div>" +
         "</div>" +
         "<div class='fc-event-content'>" +
         "<div class='fc-event-title'>" +
-        htmlEscape(event.title) +
+        event.title+
         "</div>" +
         "</div>" +
         "<div class='fc-event-bg'></div>" +
@@ -4467,7 +4483,7 @@ setDefaults({
 	allDayText: 'all-day',
 	firstHour: 6,
 	slotMinutes: 30,
-	defaultEventMinutes: 120,
+	defaultEventMinutes: 60,
 	axisFormat: 'h(:mm)tt',
 	timeFormat: {
 		agenda: 'h:mm{ - h:mm}'
@@ -5435,7 +5451,44 @@ function AgendaEventRenderer() {
 			dis = 1;
 			dit = 0;
 		}
-			
+
+		for (i=0; i<segCnt; i++) {
+			seg = segs[i];
+			event = seg.event;
+			var newWidthIdentification = [];
+			var level = 0,a = 0;
+			for (a = 0; a < segCnt; a++) {
+				if(segs[a].event.start.getTime() == event.start.getTime() && 
+					segs[a].event.deliveryType != event.deliveryType && 
+					!segs[a].hasOwnProperty('newLevel')){
+					newWidthIdentification.push(a);
+				}
+			}
+			if(newWidthIdentification.length){
+				if(newWidthIdentification.length == 1){
+					level = 1;
+					seg.level = 1;
+					for (var b = 0; b < newWidthIdentification.length; b++) {
+						segs[newWidthIdentification[b]].level = level;
+						segs[newWidthIdentification[b]].newLevel = b+1;
+						segs[newWidthIdentification[b]].forward =0;
+					}
+				seg.forward = 0;
+				}
+				else if(newWidthIdentification.length == 2){
+					level = 2;
+					seg.level = 2;
+					for (var b = 0; b < newWidthIdentification.length; b++) {
+						segs[newWidthIdentification[b]].level = level;
+						segs[newWidthIdentification[b]].newLevel = b+1;
+						segs[newWidthIdentification[b]].forward = b==0 ? 1.1 : 0;
+					}
+				seg.forward = 0.3;
+				}
+				seg.newLevel = 0;
+			}
+		}
+
 		// calculate position/dimensions, create html
 		for (i=0; i<segCnt; i++) {
 			seg = segs[i];
@@ -5447,7 +5500,7 @@ function AgendaEventRenderer() {
 			forward = seg.forward || 0;
 			leftmost = colContentLeft(colI*dis + dit);
 			availWidth = colContentRight(colI*dis + dit) - leftmost;
-			availWidth = Math.min(availWidth-6, availWidth*.95); // TODO: move this to CSS
+			availWidth = Math.min(availWidth-6, availWidth*.96); // TODO: move this to CSS
 			if (levelI) {
 				// indented and thin
 				outerWidth = availWidth / (levelI + forward + 1);
@@ -5463,6 +5516,17 @@ function AgendaEventRenderer() {
 			left = leftmost +                                  // leftmost possible
 				(availWidth / (levelI + forward + 1) * levelI) // indentation
 				* dis + (rtl ? availWidth - outerWidth : 0);   // rtl
+			if(seg.hasOwnProperty('newLevel')){
+				left = leftmost +                                  // leftmost possible
+					(availWidth / (seg.newLevel + forward + 1) * seg.newLevel) // indentation
+					* dis + (rtl ? availWidth - outerWidth : 0);   // rtl
+					if(seg.newLevel > 0){
+						left += 3;
+					}
+					if(seg.newLevel == 1 && seg.level == 2){
+						outerWidth += 10;
+					}
+			}
 			seg.top = top;
 			seg.left = left;
 			seg.outerWidth = outerWidth;
@@ -5576,7 +5640,7 @@ function AgendaEventRenderer() {
 			"</div>" +
 			"<div class='fc-event-content'>" +
 			"<div class='fc-event-title'>" +
-			htmlEscape(event.title) +
+			 event.title +
 			"</div>" +
 			"</div>" +
 			"<div class='fc-event-bg'></div>" +
@@ -5952,7 +6016,7 @@ function View(element, calendar, viewName) {
 	
 	
 	function isEventResizable(event) { // but also need to make sure the seg.isEnd == true
-		return isEventEditable(event) && !opt('disableResizing');
+		return !opt('disableResizing');
 	}
 	
 	
@@ -6346,7 +6410,7 @@ function DayEventRenderer() {
                 "</span>";
             }
             html +=
-            "<span class='fc-event-title'>" + htmlEscape(event.title) + "</span>" +
+            "<span class='fc-event-title'>" + event.title + "</span>" +
             "</div>";
             if (seg.isEnd && isEventResizable(event)) {
                 html +=
@@ -6842,7 +6906,10 @@ function HoverListener(coordinateGrid) {
 	
 	function mouse(ev) {
 		_fixUIEvent(ev); // see below
-		var newCell = coordinateGrid.cell(ev.pageX, ev.pageY);
+        var parentOffset = wjQuery('#scrollarea div').offset(); 
+	    var relX = ev.pageX - parentOffset.left;
+	    var relY = ev.pageY - parentOffset.top + 100;
+		var newCell = coordinateGrid.cell(relX, relY);
 		if (!newCell != !cell || newCell && (newCell.row != cell.row || newCell.col != cell.col)) {
 			if (newCell) {
 				if (!firstCell) {

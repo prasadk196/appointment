@@ -1,0 +1,526 @@
+body{
+    overflow: hidden;
+    position: relative;
+}
+#calendar
+{
+    margin: auto;
+    position: relative;
+    width: 100%;
+}
+.no-margin{
+    margin: 0;
+}
+.nextBtn,.prevBtn{
+    cursor: pointer;
+}
+.fc-agenda .fc-agenda-axis{
+    padding: 4px;
+    vertical-align: top;
+}
+
+div label input {
+   margin-right:100px;
+}
+body {
+    font-family:sans-serif;
+}
+.delivery-type-container{
+    position: relative;
+    top: 10px;
+}
+#gi-btn{
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+#pi-btn{
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+#pi-btn,#gi-btn {
+    background-color:#EFEFEF;
+    border:1px solid #D0D0D0;
+    overflow:auto;
+    float:left;
+}
+#pi-btn label,#gi-btn label{
+    float:left;
+    width:4.0em;
+    margin-bottom: 0px;
+}
+
+#pi-btn label span,#gi-btn label span {
+    text-align:center;
+    padding:3px 0px;
+    display:block;
+}
+.fc-view.fc-view-agendaWeek.fc-agenda .fc-event-title {
+    font-size: 16px;
+}
+i.material-icons.cursor.float-right {
+    margin: 14px 5px;
+    font-size: 20px;
+    color: #333;
+}
+.open > .dropdown-menu {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+#pi-btn label input,#gi-btn label input {
+    position:absolute;
+    top:-20px;
+    visibility: hidden;
+}
+
+#pi-btn input:checked + span,#gi-btn input:checked + span{
+    background-color:#777;
+    color:#fff;
+}
+.header-container{
+    padding: 8px 0;
+}
+.today{
+    background: #ccc;
+}
+.headerDate{
+    padding: 2px 4px;
+}
+
+.view-change-container {
+     list-style-type:none;
+     padding:0;
+     position: relative;
+     top:13px;
+}
+
+.view-change-container li {
+    float:left;
+    margin:0 0px 0 0;
+    width:50px;
+    height:33px;
+    position:relative;
+    text-align:center;
+}
+
+.view-change-container label, .view-change-container input {
+    display:block;
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;  
+    margin-bottom: 3px; 
+}
+.dayView{
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.wkView{
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.view-change-container input[type="radio"] {
+    opacity:0.011;
+    z-index:100;
+}
+
+.view-change-container input[type="radio"]:checked + label {
+    background-color: #777;
+    color: #fff
+}
+
+.view-change-container label {
+     padding:3px;
+     border:1px solid #CCC; 
+     cursor:pointer;
+    z-index:90;
+}
+
+.view-change-container label:hover {
+     background:#DDD;
+}
+
+
+.fc-sun.fc-widget-header,
+.fc-mon.fc-widget-header,
+.fc-tue.fc-widget-header,
+.fc-wed.fc-widget-header,
+.fc-thu.fc-widget-header,
+.fc-fri.fc-widget-header,
+.fc-sat.fc-widget-header {
+    padding: 10px 0;
+}
+.filter-section{
+    width: 300px;
+    background: #fff;
+    z-index: 10;
+    border: 1px solid;
+    position: absolute;
+    margin-left: -275px;
+}
+.filter-label{
+    transform: rotate(-90deg);
+    text-align: center;
+    position: relative;
+    top: 50%;
+    width: 60px;
+    left: -18px;
+}
+#ui-datepicker-div{
+   z-index: 9000 !important;
+   width: 17em !important; 
+   padding: .2em .2em 0 !important;
+}
+.ui-widget-header {
+    border: none !important;
+    background: none !important;
+    border-bottom: 1px solid #DCDCDC !important;
+    border-radius: 1px;
+    
+}
+.ui-dialog .ui-dialog-buttonpane{
+    border-width: 0 !important;
+}
+
+.custom-datepicker{
+    width: 103px;  
+}
+.custom-timepicker{
+    width: 103px;
+    margin-left: 10px;
+    margin-top: 6px;
+}
+/*.custom-toggle{
+    width: 10px;
+}*/
+
+#error_block{
+	color: red;
+}
+#excuseSave{
+    margin-top: 10px;
+    float: right;
+}
+#studentNameofExcuse{
+    padding: 8px 0;
+}
+.textAlign{
+    padding-right: 22px;
+}
+.custom-input{
+    width: 30px;
+}
+.up-arrow, .from-up-arrow, .to-up-arrow{
+    position: relative;
+    top: -10px;
+}
+.down-arrow, .from-down-arrow, .to-down-arrow{
+    position: relative;
+    right: 20px;
+}
+.btn-modal{
+    background: none;
+}
+.filter-container{
+    width:calc(100% - 26px);
+    display: inline-block;
+}
+.filter-label-outer{
+    width: 25px;
+    height: inherit;
+    cursor: pointer;
+    display: inline;
+    float: right;
+    border-left: 1px solid #ddd;
+}
+.filter-header{
+    text-transform: capitalize;
+
+}
+.filter-header-container{
+    padding: 5px 10px;
+}
+.ssplace,.stplace{
+    padding-bottom: 10px;
+}
+.filter-nav-icon{
+    display: inline-block;
+    height: 15px;
+    width: 16px;
+    background: url(../images/chevron_right.png) no-repeat;
+    vertical-align: text-bottom;
+}
+.filter-nav-icon.open{
+   background: url(../images/chevron_down.png) no-repeat; 
+}
+.filter-slide-icon{
+    display: inline-block;
+    height: 15px;
+    width: 16px;
+    background: url(../images/chevron_right.png) no-repeat;
+}
+.filter-slide-icon.open{
+   background: url(../images/chevron_left.png) no-repeat; 
+}
+.filter-title{
+    display: inline-block;
+}
+.option-header-container {
+    padding: 3px;
+    margin-left: 20px;
+}
+.ui-timepicker-container.ui-timepicker-standard{
+    height: 200px !important;
+    width: 190px !important;
+    position: absolute;
+    overflow-x: hidden;
+    z-index: 1200 !important;
+    border: 1px solid rgb(221, 221, 221);
+}
+div.ui-widget{
+    width: 350px !important;
+}
+.ui-timepicker.ui-widget.ui-widget-content.ui-menu.ui-corner-all,.ui-timepicker .ui-timepicker-viewport{
+    width: 170px !important;
+}
+.ui-timepicker-viewport .ui-menu-item{
+    width: 145px !important;
+}
+.fc-agenda-slots td div {
+    height: 160px;
+}
+button{
+    outline: none;
+}
+.sof-pane,.ta-pane{
+    width: 250px;
+    height: 200px;
+    margin-right: -260px;
+    border: 1px solid #ddd;
+    right: 0;
+    position: absolute;
+    z-index: 3;
+    background: #fff; 
+}
+.sof-pane.open,.ta-pane.open{
+    display: block;
+}
+.fc-event{
+    overflow-y: auto;
+}
+
+.fc-event-title, .fc-event-time{
+    text-align: center;
+}
+.teacher-container{
+    z-index: 500;
+}
+.subject-identifier{
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: inline-block;
+    margin: -3px 3px;
+}
+.ta-header,.sof-header{
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    /*margin-bottom: 38px;*/
+    position: fixed;
+    width: 200px;
+    height: 60px;
+    background-color: #f4f4f4;
+}
+.teacher-block{
+    padding: 10px 10px 0px;
+}
+.student-overflow,.teacher-availability{
+    border-right: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+}
+#student_block_0, #teacher_block_0 {
+	margin-top: 81px;
+}
+.loc-dropdown.btn-group .btn {
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.draggable{
+    z-index: 100;
+    display: block;
+    text-align: left;
+}
+.drag-student{
+    text-align: left;
+    display: block;
+    z-index: 100;
+    font-weight: normal;
+}
+
+.drag-teacher{
+    z-index: 100;
+    display: block;
+    text-align: center;
+    font-weight: bold;
+}
+.sof-pi{
+    background: #ebf5fb;
+    padding: 3px;
+    border: 1px solid #9acaea;
+    display: inline-table;
+    width: calc(50% - 8px);
+    height: calc(100% - 8px);
+}
+.sof-gi{
+    padding: 3px;
+    border: 1px solid #f88e50;
+    background: #fedeb7;
+    display: inline-table;
+    width: calc(50% - 8px);
+    height: calc(100% - 8px);
+}
+.sof-gf{
+    padding: 3px;
+    border: 1px solid #7bc143;
+    background: #dff0d5;
+    display: inline-table;
+    width: calc(50% - 8px);
+    height: calc(100% - 8px);
+}
+.placeholder{
+    opacity: 0.5;
+    display: block;
+}
+.student-placeholder-Personal-Instruction, .student-placeholder-Group-Facilitation, .student-placeholder-Group-Instruction{
+    opacity: 0.5;
+    display: block;
+    text-align: left;
+}
+.context-menu-list{
+    z-index: 10 !important;
+}
+.onetoone{
+    position: absolute;
+    left: 0;
+    top:0;
+    padding: 2px;
+    z-index: 1;
+}
+.student-container{
+    z-index: 500;
+}
+.conflict{
+    position: absolute;
+    right: 0;
+    vertical-align: middle;
+    top: 5%;
+    /*transform: translateY(-50%);*/
+}
+.loading{
+    width: 100%;
+    background: rgba(141, 139, 139, 0.28);
+    position: absolute;
+    top: 0;
+    height: 100%;
+    z-index: 2003;
+    display: none;
+}
+.loading > img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+}
+.info-tooltip{
+    border: 1px solid #c5c5c5;
+    padding: 5px;
+    background: #ffffff;
+    color: #333333;
+    border-radius: 3px;
+    max-width: 150px;
+    webkit-box-shadow: 0px 0px 5px #666666;
+    box-shadow: 0px 0px 5px #666666;
+}
+
+.overflow-info{
+    background-image: linear-gradient(to bottom,#F44336,#F44336);
+    color: white;
+    outline: none;
+    background-color: #F44336;
+}
+
+.overflow-info:hover, .overflow-info:focus{
+    background-position: 0 0px;
+    color: white;
+    outline: none;
+    background-color: #F44336;
+}
+/*.sof-btn:focus, .sof-btn:active, .sof-btn.active{
+    background-color: #F44336;
+}*/
+
+.sof-btn[disabled]:hover{
+    background-color: #e6e6e6;
+    color: #333333;
+}
+
+.overflow-info[disabled]{
+    background-color: #F44336;
+    color: white;
+    opacity: 1;
+}
+
+.overflow-info[disabled]:hover{
+    background-color: #F44336;
+    color: white;
+}
+
+.fc-event-inner{
+    overflow-y: auto;
+}
+.drag-student i.material-icons {
+    font-size: 14px;
+    padding: 4px;
+    position: relative;
+    top: 2px;
+}
+.custom-conflict{
+    z-index: 5000;
+    max-width: 250px;
+    border: 1px solid #c5c5c5;
+    -webkit-box-shadow: 0px 0px 5px #666666;
+    box-shadow: 0px 0px 5px #666666;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #333333;
+    padding: 5px;
+}
+
+
+ul{
+    list-style-type: none;
+}
+
+.makeup-item{
+    padding: 5px 2px;
+    cursor: pointer;
+    list-style-type: none;
+    transition: all 0.2s;
+}
+.makeup-item:hover{
+    color: #fff;
+    text-decoration: none;
+    background-color: #0081c2;
+    /*background-image: -moz-linear-gradient(top,#08c,#0077b3);
+    background-image: -webkit-gradient(linear,0 0,0 100%,from(#08c),to(#0077b3));
+    background-image: -webkit-linear-gradient(top,#08c,#0077b3);
+    background-image: -o-linear-gradient(top,#08c,#0077b3);
+    background-image: linear-gradient(to bottom,#08c,#0077b3);
+    background-repeat: repeat-x;*/
+}
