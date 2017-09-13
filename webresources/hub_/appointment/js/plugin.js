@@ -32,37 +32,30 @@ setTimeout(function () {
 
     setTimeout(function () {
     	function fetchResources(locationId, fetchData) {
-    		wjQuery(".loading").show();
+    		// wjQuery(".loading").show();
     		sylvanAppointment.locationId = locationId;
-    		var staffList = [];
     		if(fetchData){
-    			var tempStaffList = data.getStaffAvailable(locationId);
-                staffList = tempStaffList == null ? [] : tempStaffList;
-                if(staffList.length){
-	                if(sylvanAppointment.appointment == undefined || sylvanAppointment.appointment.fullCalendar('getView').name == 'resourceDay'){
-	                	sylvanAppointment.populateStaff(staffList, fetchData);
-		            }else{
-		                sylvanAppointment.staffList = [];
-		                var firstClm = true;
-		                for (var i = 0; i < staffList.length; i++) {
-		                	if(firstClm){
-		                		this.staffList.push({
-			                        name: "Unasigned",
-			                        id:"unasignedId",
-			                        // capacity: staffData[i]["hub_capacity"]
-			                    });	
-			                    firstClm = false;
-		                	}
-				                sylvanAppointment.staffList.push({
-		                        name: staffData[i]['_hub_staffid_value@OData.Community.Display.V1.FormattedValue'],
-                        		id: staffData[i]._hub_staffid_value,
-		                    });
-		                }
-		            }
-                }
-
+    			var convertedStaffList = sylvanAppointment.formatObjects(data.getStaffAvailable(locationId), "staffList");
+                if(sylvanAppointment.appointment == undefined || sylvanAppointment.appointment.fullCalendar('getView').name == 'resourceDay'){
+                	sylvanAppointment.populateStaff(convertedStaffList, fetchData);
+	            }else{
+	                sylvanAppointment.staffList = [];
+	                var firstClm = true;
+	                for (var i = 0; i < convertedStaffList.length; i++) {
+	                	if(firstClm){
+	                		sylvanAppointment.staffList.push({
+		                        name: "Unasigned",
+		                        id:"unasignedId",
+		                    });	
+		                    firstClm = false;
+	                	}
+		                sylvanAppointment.staffList.push({
+	                        name: staffData[i]['_hub_staffid_value@OData.Community.Display.V1.FormattedValue'],
+                    		id: staffData[i]._hub_staffid_value,
+	                    });
+	                }
+	            }
     		}
-
     	}
     	fetchResources(locationId, true);
     }, 500);
@@ -74,6 +67,33 @@ function SylvanAppointment(){
 	this.staffList = [];
     this.appointment = undefined;
     this.locationId = "";
+    this.filters = [];
+
+    this.formatObjects = function(args, label){
+    	var self = this;
+    	var tempList = [];
+    	args = args == null ? [] : args; 
+    	if(label == "staffList"){
+    		var firstColm = true;
+    		var obj = [];
+    		wjQuery.each(args, function(index, staffObj) {
+    			var availableList = [];
+    			if(firstColm){
+            		obj.push({
+                        id:"unasignedId",
+                        name: "Unasigned",
+                    });	
+                    firstColm = false;
+            	}
+            	obj.push({
+                    id: staffObj["_hub_staffid_value"],
+                    name:staffObj["_hub_staffid_value@OData.Community.Display.V1.FormattedValue"],
+                });
+    		});
+    		tempList = obj;
+    	}
+    	return tempList;
+    }
 
 	this.populateLocation = function (args) {
         if (args != null) {
@@ -112,45 +132,21 @@ function SylvanAppointment(){
     }
 
     this.populateStaff = function (args, isFetch) {
+    	var self = this;
         var currentCalendarDate;
-        if (this.appointment != undefined) {
-            currentCalendarDate = this.appointment.fullCalendar('getDate');
+        if (self.appointment != undefined) {
+            currentCalendarDate = self.appointment.fullCalendar('getDate');
         }
-        // this.clearAll();
-        if (args != null) {
-            var staffData = [];
-            if (args[0] != undefined) {
-                args[0][0] == undefined ? staffData = args : staffData = args[0];
-                this.staffList = [];
-                var firstClm = true;
-                for (var i = 0; i < staffData.length; i++) {
-                	if(firstClm){
-                		this.staffList.push({
-	                        name: "Unasigned",
-	                        id:"unasignedId",
-	                        // capacity: staffData[i]["hub_capacity"]
-	                    });	
-	                    firstClm = false;
-                	}
-                    this.staffList.push({
-                        name: staffData[i]['_hub_staffid_value@OData.Community.Display.V1.FormattedValue'],
-                        id: staffData[i]._hub_staffid_value,
-                        // capacity: staffData[i]["hub_capacity"]
-                    });
-                }
-                this.loadCalendar(currentCalendarDate);
-            }
-        }
+
+        self.staffList = args;
+        self.loadCalendar(currentCalendarDate);
     }
 
     this.loadCalendar = function (args) {
+        var self = this;
 
         // assign filter object to local scope filter to avoid this conflict
-        var filters = this.filters;
-        var t = this;
-        var self = this;
         var date = new Date();
-
         var d = date.getDate();
         var m = date.getMonth();
         var y = date.getFullYear();
@@ -162,10 +158,10 @@ function SylvanAppointment(){
             minTime: 8,
             maxTime: 20,
             allDayText: '',
-            allDaySlot:false,
+            // allDaySlot:false,
             droppable: true,
             drop: function (date, allDay, ev, ui, resource) {
-                t.createEventOnDrop(t, date, allDay, ev, ui, resource, this);
+                self.createEventOnDrop(self, date, allDay, ev, ui, resource, this);
             },
             handleWindowResize: true,
             height: window.innerHeight - 60,
@@ -190,13 +186,13 @@ function SylvanAppointment(){
                 this.appointment.fullCalendar('unselect');
             },
             eventClick: function(calEvent, jsEvent, view) {
-                self.renderWeekModal(calEvent, jsEvent, view);
+                // self.renderWeekModal(calEvent, jsEvent, view);
             },
             editable: false,
             resources: this.staffList,
             // events: this.eventList,
             windowResize: function (view) {
-                self.appointment.fullCalendar('option', 'height', window.innerHeight - 60);
+                // self.appointment.fullCalendar('option', 'height', window.innerHeight - 60);
             }
         };
 
@@ -206,132 +202,130 @@ function SylvanAppointment(){
             this.calendarOptions.date = args.getDate();
         }
         this.appointment = wjQuery('#appointment').fullCalendar(this.calendarOptions);
-        // this.loadMasterInformation();
+        this.loadMasterInformation();
+    }
 
-        wjQuery("#addResource").click(function () {
-            var newStaff = {
-                name: "Resource " + (this.staffList.length + 1),
-                id: "resource" + (this.staffList.length + 1)
-            };
-            this.staffList.push(newStaff);
-            this.appointment.fullCalendar("addResource", [newStaff]);
+    this.loadMasterInformation = function () {
+        var self = this;
+        var checkedList = [];
+        var currentCalendarDate = self.appointment.fullCalendar('getDate');
+        wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+        if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+            wjQuery('.headerDate').addClass('today');
+        }
+        else {
+            wjQuery('.headerDate').removeClass('today');
+        }
+        if (wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').length) {
+            var dayOfWeek = moment(currentCalendarDate).format('dddd');
+            var dayofMonth = moment(currentCalendarDate).format('M/D');
+            wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').css('text-align', 'center');
+            wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
+        }
+
+        if (wjQuery('.filter-section').length == 0){
+	        wjQuery(".fc-agenda-divider.fc-widget-header").after("<div class='filter-section'></div>");
+	        self.buildFilterBody();
+	        self.filterSlide(false);
+	        wjQuery('.filter-header').on('click', function () {
+	            var id = wjQuery(this).parent().attr('id');
+	            var flag = wjQuery("#" + id).hasClass("open");
+	            if (flag) {
+	                wjQuery(this).parent().children('.option-header-container').remove();
+	                wjQuery('#' + id).removeClass('open');
+	                wjQuery("#" + id).find('.filter-nav-icon').removeClass('open');
+	            }
+	            else {
+	                var indices = id.split('_');
+	                var index = indices[1];
+	                for (var i = 0; i < self.filters[index].length; i++) {
+	                    if (self.filters[index][i].radio) {
+	                        wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].id + ' option-header-container">' +
+	                        '<label class="cursor option-title">' +
+	                            '<input type="radio" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].id + '">' + self.filters[index][i].name +
+	                        '</label>' +
+	                    '</div>');
+	                    } else {
+	                        if (index == "subject") {
+	                            wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].id + ' option-header-container">' +
+	                               '<label class="cursor option-title">' +
+	                                   '<input type="checkbox" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].name + '">' + self.filters[index][i].name +
+	                               '</label>' +
+	                           '</div>');
+	                        } else {
+	                            wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].id + ' option-header-container">' +
+	                              '<label class="cursor option-title">' +
+	                                  '<input type="checkbox" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].id + '">' + self.filters[index][i].name +
+	                              '</label>' +
+	                          '</div>');
+	                        }
+	                    }
+
+	                }
+	                wjQuery('#' + id).addClass('open');
+	                wjQuery("#" + id).find('.filter-nav-icon').addClass('open');
+
+	                // wjQuery(".filterCheckBox").click(function () {
+	                //     wjQuery(".loading").show();
+	                //     if (wjQuery(this).is(':checked')) {
+	                //         self.eventList = [];
+	                //         self.calendar.fullCalendar('removeEvents');
+	                //         self.calendar.fullCalendar('removeEventSource');
+	                //         var index = checkedList.map(function (y) {
+	                //             return y;
+	                //         }).indexOf(wjQuery(this).val());
+	                //         if (index == -1) {
+	                //             checkedList.push(wjQuery(this).val());
+	                //         }
+	                //         self.calendar.fullCalendar('refetchEvents');
+	                //     } else {
+	                //         self.eventList = [];
+	                //         self.calendar.fullCalendar('removeEvents');
+	                //         self.calendar.fullCalendar('removeEventSource');
+	                //         var index = checkedList.map(function (y) {
+	                //             return y;
+	                //         }).indexOf(wjQuery(this).val());
+	                //         if (index != -1) {
+	                //             checkedList.splice(checkedList.indexOf(wjQuery(this).val()), 1);
+	                //         }
+	                //         self.calendar.fullCalendar('refetchEvents');
+	                //     }
+	                // });
+	            }
+	        });
+        }
+
+    }
+
+    this.buildFilterBody = function () {
+    	var self = this;
+        wjQuery('.filter-section').html('<div class="filter-container"></div>' +
+            '<div class="filter-label-outer">' +
+                '<span class="filter-slide-icon"></span>' +
+                '<div class="filter-label">FILTERS' +
+                '</div>' +
+            '</div>');
+        wjQuery.each(self.filters, function (filterKey, filterValue) {
+            wjQuery('.filter-container').append(
+                '<div id="filter_' + filterKey + '" class="filter-header-container">' +
+                    '<div class="filter-header cursor">' +
+                        '<div class="filter-title">' + filterKey + '</div>' +
+                        '<span class="filter-nav-icon"></span>' +
+                    '</div>' +
+                '</div>'
+            );
         });
+        wjQuery('.filter-section').css('height', wjQuery('.filter-section').next().height() - 2 + "px");
+        wjQuery('.filter-container').css({ 'height': wjQuery('.filter-section').next().height() - 2 + "px", "overflow-y": "auto" });
+    }
 
-        // From date for new appointment
-        wjQuery(".from-datepicker-input").datepicker();
-        var selectedFromDate;
-        wjQuery(".from-datepicker-input").on("change", function () {
-            selectedFromDate = wjQuery(this).val();
-        });
-
-        wjQuery(".from-up-arrow").on("click", function () {
-            var date = new Date(selectedFromDate);
-            date.setDate(date.getDate() + 1);
-            selectedFromDate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
-            wjQuery(".from-datepicker-input").val(selectedFromDate);
-        });
-
-        wjQuery(".from-down-arrow").on("click", function () {
-            var date = new Date(selectedFromDate);
-            date.setDate(date.getDate() - 1);
-            selectedFromDate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
-            wjQuery(".from-datepicker-input").val(selectedFromDate);
-        });
-
-        // To date for new appointment
-        wjQuery(".to-datepicker-input").datepicker();
-        var selectedToDate;
-        wjQuery(".to-datepicker-input").on("change", function () {
-            selectedToDate = wjQuery(this).val();
-        });
-
-        wjQuery(".to-up-arrow").on("click", function () {
-            var date = new Date(selectedFromDate);
-            date.setDate(date.getDate() + 1);
-            selectedToDate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
-            wjQuery(".to-datepicker-input").val(selectedToDate);
-        });
-
-        wjQuery(".to-down-arrow").on("click", function () {
-            var date = new Date(selectedToDate);
-            date.setDate(date.getDate() - 1);
-            selectedToDate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
-            wjQuery(".to-datepicker-input").val(selectedToDate);
-        });
-
-        wjQuery("#save").click(function () {
-            // alert("success");
-            var fromDate = wjQuery("#fromDate").val();
-            var fromTime = wjQuery("#fromTime").val();
-            var toDate = wjQuery("#toDate").val();
-            var toTime = wjQuery("#toTime").val();
-            var type = wjQuery("#type").val();
-            var capacity = wjQuery("#capacity").val();
-            var staff = wjQuery("#staff").val();
-            var location = wjQuery("#location").val();
-            var notes = wjQuery("#notes").val();
+    this.filterSlide = function (expanded) {
+        wjQuery('.filter-label-outer').click(function () {
+            wjQuery('.filter-section').animate(expanded ? { 'marginLeft': '-275px' } : { marginLeft: '0px' }, 500);
+            expanded ? wjQuery('.filter-slide-icon').removeClass('open') : wjQuery('.filter-slide-icon').addClass('open');
+            expanded = !expanded;
         });
     }
 
 }
 
-
-// wjQuery(document).ready(function() {
-// 	var date = new Date();
-// 	var d = date.getDate();
-// 	var m = date.getMonth();
-// 	var y = date.getFullYear();
-	
-// 	wjQuery('#appointment').fullCalendar({
-// 		editable: true,
-// 		header:false,
-
-// 		events: [
-// 			{
-// 				title: 'All Day Event',
-// 				start: new Date(y, m, 1)
-// 			},
-// 			{
-// 				title: 'Long Event',
-// 				start: new Date(y, m, d-5),
-// 				end: new Date(y, m, d-2)
-// 			},
-// 			{
-// 				id: 999,
-// 				title: 'Repeating Event',
-// 				start: new Date(y, m, d-3, 16, 0),
-// 				allDay: false
-// 			},
-// 			{
-// 				id: 999,
-// 				title: 'Repeating Event',
-// 				start: new Date(y, m, d+4, 16, 0),
-// 				allDay: false
-// 			},
-// 			{
-// 				title: 'Meeting',
-// 				start: new Date(y, m, d, 10, 30),
-// 				allDay: false
-// 			},
-// 			{
-// 				title: 'Lunch',
-// 				start: new Date(y, m, d, 12, 0),
-// 				end: new Date(y, m, d, 14, 0),
-// 				allDay: false
-// 			},
-// 			{
-// 				title: 'Birthday Party',
-// 				start: new Date(y, m, d+1, 19, 0),
-// 				end: new Date(y, m, d+1, 22, 30),
-// 				allDay: false
-// 			},
-// 			{
-// 				title: 'Click for Google',
-// 				start: new Date(y, m, 28),
-// 				end: new Date(y, m, 29),
-// 				url: 'http://google.com/'
-// 			}
-// 		]
-// 	});
-	
-// });
