@@ -7,30 +7,51 @@ setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
     var locationId = sylvanAppointment.populateLocation(data.getLocation());
     wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
-    // wjQuery('#datepicker').datepicker('destroy');
-    // wjQuery('#datepicker').datepicker({
-    //     buttonImage: "/webresources/hub_/calendar/images/calendar.png",
-    //     buttonImageOnly: true,
-    //     changeMonth: true,
-    //     changeYear: true,
-    //     showOn: 'button',
-    //     onSelect: function (date) {
-    //         wjQuery(".loading").show();
-    //         sylvanAppointment.dateFromCalendar(date, locationId);
-    //         wjQuery('#datepicker').hide();
-    //     }
-    // });
-
-    wjQuery(".loc-dropdown .dropdown-menu").on('click', 'li a', function () {
-        if (wjQuery(".loc-dropdown .selectedCenter").val() != wjQuery(this).attr('value-id')) {
-            wjQuery(".loc-dropdown .selectedCenter").text(wjQuery(this).text());
-            wjQuery(".loc-dropdown .selectedCenter").val(wjQuery(this).attr('value-id'));
-            locationId = wjQuery(this).attr('value-id');
-            return fetchResources(locationId, true);
-        }
-    });
     
     setTimeout(function () {
+
+        wjQuery(".loc-dropdown .dropdown-menu").on('click', 'li a', function () {
+            if (wjQuery(".location-btn").val() != wjQuery(this).attr('value-id')) {
+                wjQuery(".location-btn").text(wjQuery(this).text());
+                wjQuery(".location-btn").val(wjQuery(this).attr('value-id'));
+                locationId = wjQuery(this).attr('value-id');
+                wjQuery('#datepicker').datepicker('destroy');
+                wjQuery('#datepicker').datepicker({
+                    buttonImage: "/webresources/hub_/calendar/images/calendar.png",
+                    buttonImageOnly: true,
+                    changeMonth: true,
+                    changeYear: true,
+                    showOn: 'button',
+                    onSelect: function (date) {
+                        wjQuery(".loading").show();
+                        sylvanAppointment.dateFromCalendar(date, locationId);
+                        wjQuery('#datepicker').hide();
+                    }
+                });
+                return fetchResources(locationId, true);
+            }
+        });
+
+        var rtime;
+        var timeout = false;
+        var delta = 300;
+        wjQuery(window).resize(function() {
+            rtime = new Date();
+            if (timeout === false) {
+                timeout = true;
+                setTimeout(resizeend, delta);
+            }
+        });
+
+        function resizeend() {
+            if (new Date() - rtime < delta) {
+                setTimeout(resizeend, delta);
+            } else {
+                timeout = false;
+                fetchResources(locationId, true);
+            }               
+        }
+
         function fetchResources(locationId, fetchData) {
             wjQuery(".loading").show();
             sylvanAppointment.locationId = locationId;
@@ -86,29 +107,11 @@ setTimeout(function () {
                 }
             }
         }
+        
         fetchResources(locationId, true);
-        var rtime;
-        var timeout = false;
-        var delta = 300;
-        wjQuery(window).resize(function() {
-            rtime = new Date();
-            if (timeout === false) {
-                timeout = true;
-                setTimeout(resizeend, delta);
-            }
-        });
-
-        function resizeend() {
-            if (new Date() - rtime < delta) {
-                setTimeout(resizeend, delta);
-            } else {
-                timeout = false;
-                fetchResources(locationId, true);
-            }               
-        }
     }, 500);        
 }, 500);
-
+    
 
 function SylvanAppointment(){
     this.staffList = [];
