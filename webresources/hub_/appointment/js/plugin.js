@@ -29,29 +29,10 @@ setTimeout(function () {
             return fetchResources(locationId, true);
         }
     });
-    var rtime;
-    var timeout = false;
-    var delta = 300;
-    wjQuery(window).resize(function() {
-        rtime = new Date();
-        if (timeout === false) {
-            timeout = true;
-            setTimeout(resizeend, delta);
-        }
-    });
-
-    function resizeend() {
-        if (new Date() - rtime < delta) {
-            setTimeout(resizeend, delta);
-        } else {
-            timeout = false;
-            fetchResources(locationId, true);
-        }               
-    }
-
+    
     setTimeout(function () {
         function fetchResources(locationId, fetchData) {
-            // wjQuery(".loading").show();
+            wjQuery(".loading").show();
             sylvanAppointment.locationId = locationId;
             if(fetchData){
                 var convertedStaffList = sylvanAppointment.formatObjects(data.getStaffAvailable(locationId), "staffList");
@@ -86,7 +67,6 @@ setTimeout(function () {
                         sylvanAppointment.prev(locationId);
                     });
 
-                    wjQuery('#datepicker').datepicker('destroy');
                     wjQuery('#datepicker').datepicker({
                         buttonImage: "/webresources/hub_/calendar/images/calendar.png",
                         buttonImageOnly: true,
@@ -107,6 +87,25 @@ setTimeout(function () {
             }
         }
         fetchResources(locationId, true);
+        var rtime;
+        var timeout = false;
+        var delta = 300;
+        wjQuery(window).resize(function() {
+            rtime = new Date();
+            if (timeout === false) {
+                timeout = true;
+                setTimeout(resizeend, delta);
+            }
+        });
+
+        function resizeend() {
+            if (new Date() - rtime < delta) {
+                setTimeout(resizeend, delta);
+            } else {
+                timeout = false;
+                fetchResources(locationId, true);
+            }               
+        }
     }, 500);        
 }, 500);
 
@@ -259,7 +258,7 @@ function SylvanAppointment(){
         var dayOfWeek = moment(date).format('dddd');
         var dayofMonth = moment(date).format('M/D');
         wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
-        // self.clearEvents();
+        self.clearEvents();
         var currentCalendarDate = moment(date).format("YYYY-MM-DD");
         self.refreshCalendarEvent(this.locationId, true);
     }
@@ -268,16 +267,15 @@ function SylvanAppointment(){
         var self = this;
         var currentCalendarDate;
         if (self.appointment != undefined) {
+            self.clearEvents();
             currentCalendarDate = self.appointment.fullCalendar('getDate');
         }
-
         self.staffList = args;
         self.loadCalendar(currentCalendarDate);
     }
 
     this.loadCalendar = function (args) {
         var self = this;
-
         // assign filter object to local scope filter to avoid this conflict
         var date = new Date();
         var d = date.getDate();
