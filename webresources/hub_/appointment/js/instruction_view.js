@@ -25,6 +25,75 @@ var locations =  [
     }
   ];
 
+  var appointmentType = [
+    {
+      type:0,
+      name:"Instructional",
+      borderColor:"red",
+      backgroundColor:"red"
+    },
+    {
+      type:1,
+      name:"Center Visit",
+      borderColor:"#7bc143",
+      backgroundColor:"#dff0d5"
+    },
+    {
+      type:2,
+      name:"Practice Test",
+      borderColor:"#9acaea",
+      backgroundColor:"#ebf5fb"
+    },
+    {
+      type:3,
+      name:"School Visit",
+      borderColor:"red",
+      backgroundColor:"red"
+    },
+    {
+      type:4,
+      name:"Welcome Conference",
+      borderColor:"#7bc143",
+      backgroundColor:"#dff0d5"
+    },
+    {
+      type:5,
+      name:"Enrollment Conference",
+      borderColor:"#7bc143",
+      backgroundColor:"#dff0d5"
+    },
+    {
+      type:6,
+      name:"Initial Assessment",
+      borderColor:"#9acaea",
+      backgroundColor:"#ebf5fb"
+    },
+    {
+      type:7,
+      name:"Progress Assessment",
+      borderColor:"#9acaea",
+      backgroundColor:"#ebf5fb"
+    },
+    {
+      type:8,
+      name:"Ongoing Conference",
+      borderColor:"red",
+      backgroundColor:"red"
+    },
+    {
+      type:9,
+      name:"Care Call",
+      borderColor:"red",
+      backgroundColor:"red"
+    },
+    {
+      type:10,
+      name:"Event",
+      borderColor:"red",
+      backgroundColor:"red"
+    }
+  ];
+
   var staffAvailableList = [
       {
       "@odata.etag": "W/\"1497385\"",
@@ -261,11 +330,10 @@ var appointment = [
   },
   {
     "@odata.etag": "W/\"3711475\"",
-    "_hub_staff_value@OData.Community.Display.V1.FormattedValue": "John Smith",
-    "_hub_staff_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_staff_Appointment",
-    "_hub_staff_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_staff",
-    "_hub_staff_value": "5886bcbd-ab77-e711-80f3-c4346bad526c",
-    "activityid": "a54e1c6f-7a97-e711-80f9-c4346badc680",
+    "_hub_staffid_value@OData.Community.Display.V1.FormattedValue": "Simon",
+    "_hub_staffid_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_staffid",
+    "_hub_staffid_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_staff",
+    "_hub_staffid_value": "7ea9ed74-2f66-e711-80f2-c4346bacfbbc",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
     "hub_endtime@OData.Community.Display.V1.FormattedValue": "10:00 AM",
@@ -341,11 +409,6 @@ var appointment = [
   },
   {
     "@odata.etag": "W/\"3711524\"",
-    "activityid": "5fc05bc3-7a97-e711-80f9-c4346badc680",
-    "_hub_staff_value@OData.Community.Display.V1.FormattedValue": "John Smith",
-    "_hub_staff_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_staff_Appointment",
-    "_hub_staff_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_staff",
-    "_hub_staff_value": "5886bcbd-ab77-e711-80f3-c4346bad526c",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
     "hub_endtime@OData.Community.Display.V1.FormattedValue": "12:00 PM",
@@ -630,6 +693,10 @@ function Data(){
 
   this.getAppointment = function(locationId){
     return appointment;
+  }
+
+  this.getAppointmentType = function(){
+    return appointmentType;
   }
 }
 

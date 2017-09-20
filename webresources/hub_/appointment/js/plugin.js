@@ -7,19 +7,19 @@ setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
     var locationId = sylvanAppointment.populateLocation(data.getLocation());
     wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
-    wjQuery('#datepicker').datepicker('destroy');
-    wjQuery('#datepicker').datepicker({
-        buttonImage: "/webresources/hub_/calendar/images/calendar.png",
-        buttonImageOnly: true,
-        changeMonth: true,
-        changeYear: true,
-        showOn: 'button',
-        onSelect: function (date) {
-            wjQuery(".loading").show();
-            sylvanAppointment.dateFromCalendar(date, locationId);
-            wjQuery('#datepicker').hide();
-        }
-    });
+    // wjQuery('#datepicker').datepicker('destroy');
+    // wjQuery('#datepicker').datepicker({
+    //     buttonImage: "/webresources/hub_/calendar/images/calendar.png",
+    //     buttonImageOnly: true,
+    //     changeMonth: true,
+    //     changeYear: true,
+    //     showOn: 'button',
+    //     onSelect: function (date) {
+    //         wjQuery(".loading").show();
+    //         sylvanAppointment.dateFromCalendar(date, locationId);
+    //         wjQuery('#datepicker').hide();
+    //     }
+    // });
 
     wjQuery(".loc-dropdown .dropdown-menu").on('click', 'li a', function () {
         if (wjQuery(".loc-dropdown .selectedCenter").val() != wjQuery(this).attr('value-id')) {
@@ -74,7 +74,36 @@ setTimeout(function () {
                         });
                     }
                 }
-                sylvanAppointment.refreshCalendarEvent(locationId, true);
+                if(sylvanAppointment.staffList.length){
+                    sylvanAppointment.refreshCalendarEvent(locationId, true);
+                    wjQuery('.nextBtn').off('click').on('click', function () {
+                        wjQuery(".loading").show();
+                        sylvanAppointment.next(locationId);
+                    });
+
+                    wjQuery('.prevBtn').off('click').on('click', function () {
+                        wjQuery(".loading").show();
+                        sylvanAppointment.prev(locationId);
+                    });
+
+                    wjQuery('#datepicker').datepicker('destroy');
+                    wjQuery('#datepicker').datepicker({
+                        buttonImage: "/webresources/hub_/calendar/images/calendar.png",
+                        buttonImageOnly: true,
+                        changeMonth: true,
+                        changeYear: true,
+                        showOn: 'button',
+                        onSelect: function (date) {
+                            wjQuery(".loading").show();
+                            sylvanAppointment.clearEvents();
+                            sylvanAppointment.dateFromCalendar(date, locationId);
+                            wjQuery('#datepicker').hide();
+                        }
+                    });
+
+                }else{
+                    wjQuery(".loading").hide();
+                }
             }
         }
         fetchResources(locationId, true);
@@ -89,6 +118,16 @@ function SylvanAppointment(){
     this.filters = [];
     this.appointmentList = [];
     this.eventList = [];
+
+    this.clearEvents = function () {
+        var self = this;
+        self.filters = new Object();
+        self.eventList = [];
+        self.staffList = [];
+        self.appointmentList = [];
+        self.appointment.fullCalendar('removeEvents');
+        self.appointment.fullCalendar('removeEventSource');
+    }
 
     this.formatObjects = function(args, label){
         args = args == null ? [] : args; 
@@ -140,9 +179,13 @@ function SylvanAppointment(){
                     startTime:appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue'],
                     endDate:appointmentObj['hub_end_date@OData.Community.Display.V1.FormattedValue'],
                     endTime:appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue'],
-                    isFullDay:appointmentObj['hub_fulldayappointment'],
+                    allDay:appointmentObj['hub_fulldayappointment'],
                     locationId:appointmentObj['_hub_location_value'],
-                    status:appointmentObj['hub_appointmentstatus']
+                    status:appointmentObj['hub_appointmentstatus'],
+                    studentId:appointmentObj['_hub_student_value'],
+                    studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
+                    parentId:appointmentObj['_regardingobjectid_value'],
+                    parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
                 });
             });
         }
@@ -386,6 +429,48 @@ function SylvanAppointment(){
         }
     }
 
+    this.next = function (locationId) {
+        this.appointment.fullCalendar('next');
+        var currentCalendarDate = this.appointment.fullCalendar('getDate');
+        wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+        if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+            wjQuery('.headerDate').addClass('today');
+        }
+        else {
+            wjQuery('.headerDate').removeClass('today');
+        }
+        var currentView = this.appointment.fullCalendar('getView');
+        if (currentView.name == 'resourceDay') {
+            var dayOfWeek = moment(currentCalendarDate).format('dddd');
+            var dayofMonth = moment(currentCalendarDate).format('M/D');
+            wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
+        }
+        this.clearEvents();
+        currentCalendarDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+        this.refreshCalendarEvent(this.locationId, true);
+    }
+
+    this.prev = function (locationId) {
+        this.appointment.fullCalendar('prev');
+        var currentCalendarDate = this.appointment.fullCalendar('getDate');
+        wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+        if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+            wjQuery('.headerDate').addClass('today');
+        }
+        else {
+            wjQuery('.headerDate').removeClass('today');
+        }
+        var currentView = this.appointment.fullCalendar('getView');
+        if (currentView.name == 'resourceDay') {
+            var dayOfWeek = moment(currentCalendarDate).format('dddd');
+            var dayofMonth = moment(currentCalendarDate).format('M/D');
+            wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
+        }
+        this.clearEvents();
+        currentCalendarDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+        this.refreshCalendarEvent(this.locationId, true);
+    }
+
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
         setTimeout(function () {
@@ -434,17 +519,41 @@ function SylvanAppointment(){
            wjQuery.each(args, function (index, appointmentObj) {
             var start = new Date(appointmentObj["startDate"]+" "+ appointmentObj["startTime"]);
             var end = new Date(appointmentObj["endDate"] +" "+ appointmentObj["endTime"]);
+            var titleText = "<span class='draggable' >"+appointmentObj['parentName']+"</span>"+
+                            "<span class='draggable' >"+appointmentObj['studentName']+"</span>";
+            var eventColorObj = self.getEventColor(appointmentObj["type"]);
             var eventObj = {
-                id:appointmentObj['staffId']+start,
+                id:appointmentObj['staffId']+"_"+start,
                 start:start,
                 resourceId:appointmentObj['staffId'],
                 end:end,
-                title:"<p>prasad</p>",
-                allDay : false
+                title:titleText,
+                allDay : false,
+                type:appointmentObj['staffId'],
+                borderColor:eventColorObj.borderColor,
+                color:"#333",
+                backgroundColor:eventColorObj.backgroundColor
             }
+
+            if(appointmentObj['staffId'] == undefined){
+                eventObj['resourceId'] = "unasignedId";
+            }else{
+                eventObj['resourceId'] = appointmentObj['staffId'];
+            }
+
             appointmentEventList.push(eventObj);
            }); 
            return appointmentEventList;
+        }
+    }
+
+    this.getEventColor = function(eventType){
+        var eventTypeList = data.getAppointmentType();
+        for (var i = 0 ; i < eventTypeList.length; i++) {
+            if(eventType == eventTypeList[i]["type"]){
+                return eventTypeList[i];
+                break;
+            }
         }
     }
 
@@ -464,6 +573,7 @@ function SylvanAppointment(){
             self.appointment.fullCalendar('removeEventSource');
             self.appointment.fullCalendar('addEventSource', { events: self.eventList });
             self.appointment.fullCalendar('refetchEvents');
+            wjQuery(".loading").hide();
         }
     }
 

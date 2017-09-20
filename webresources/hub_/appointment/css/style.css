@@ -10,3 +10,7 @@ body {
 	width: 25px;
 	cursor: pointer;
 }
+
+.draggable{
+	color: #333;
+}
