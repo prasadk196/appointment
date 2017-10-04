@@ -9,7 +9,6 @@ setTimeout(function () {
     wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
     
     setTimeout(function () {
-
         wjQuery(".loc-dropdown .dropdown-menu").on('click', 'li a', function () {
             if (wjQuery(".location-btn").val() != wjQuery(this).attr('value-id')) {
                 wjQuery(".location-btn").text(wjQuery(this).text());
@@ -96,7 +95,7 @@ setTimeout(function () {
                         showOn: 'button',
                         onSelect: function (date) {
                             wjQuery(".loading").show();
-                            sylvanAppointment.clearEvents();
+                            //sylvanAppointment.clearEvents();
                             sylvanAppointment.dateFromCalendar(date, locationId);
                             wjQuery('#datepicker').hide();
                         }
@@ -122,6 +121,16 @@ function SylvanAppointment(){
     this.appointmentHours = [];
 
     this.clearEvents = function () {
+        var self = this;
+        self.filters = new Object();
+        self.eventList = [];
+        self.appointmentList = [];
+        self.appointmentHours = [];
+        self.appointment.fullCalendar('removeEvents');
+        self.appointment.fullCalendar('removeEventSource');
+    }
+
+    this.clearAll = function () {
         var self = this;
         self.filters = new Object();
         self.eventList = [];
@@ -170,7 +179,8 @@ function SylvanAppointment(){
                 }
                 tempList.push(obj);
             });
-        }else if(label == "appointmentList"){
+        }
+        else if(label == "appointmentList"){
             tempList = [];
             wjQuery.each(args, function(index, appointmentObj) {
                 var startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
@@ -190,22 +200,60 @@ function SylvanAppointment(){
                     parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
                 });
             });
-        }else if(label == "appointmentHours"){
+        }
+        else if(label == "appointmentHours"){
             tempList = [];
+            var currentCalendarDate = self.appointment.fullCalendar('getDate');
             wjQuery.each(args, function(index, appointmentHour) {
-                var startObj = new Date(appointmentHour['hub_effectivestartdate']+" "+appointmentHour['hub_starttime@OData.Community.Display.V1.FormattedValue']); 
-                var endObj = new Date(appointmentHour['hub_effectivestartdate']+" "+appointmentHour['hub_endtime@OData.Community.Display.V1.FormattedValue']); 
-                tempList.push({
-                    type:appointmentHour['aworkhours_x002e_hub_type'],
-                    typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
-                    startObj:startObj,
-                    endObj:endObj,
-                    capacity:appointmentHour['aworkhours_x002e_hub_capacity']
-                });
+                var appEffectiveStartDate = appointmentHour['hub_effectivestartdate'];
+                var appEffectiveEndDate,addAppFlag = false;
+                if(appointmentHour['hub_effectiveenddate'] != undefined){
+                    appEffectiveEndDate = moment(appointmentHour['hub_effectiveenddate']).format("YYYY-MM-DD");
+                }
+                else{
+                    appEffectiveEndDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+                }
+                appEffectiveStartDate = new Date(appEffectiveStartDate + ' ' + '00:00').getTime();
+                appEffectiveEndDate = new Date(appEffectiveEndDate + ' ' + '23:59').getTime();
+                if (currentCalendarDate.getTime() >= appEffectiveStartDate && currentCalendarDate.getTime() <= appEffectiveEndDate) {
+                    addAppFlag = true;
+                }
+                if(addAppFlag && appointmentHour['hub_days'] == self.getDayValue(currentCalendarDate)){
+                    var duration = 60;
+                    for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
+                        var startObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
+                        var endObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
+                        tempList.push({
+                            type:appointmentHour['aworkhours_x002e_hub_type'],
+                            typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
+                            startObj:startObj,
+                            endObj:endObj,
+                            capacity:appointmentHour['aworkhours_x002e_hub_capacity'],
+                            duration : duration
+
+                        });
+                    }
+                }
+
             });
             this.appointmentHours = tempList;
         }
         return tempList;
+    }
+
+    this.convertMinsNumToTime = function(minsNum){
+      if(minsNum){
+        // var mins_num = parseFloat(this, 10); // don't forget the second param
+        var hours   = Math.floor(minsNum / 60);
+        var minutes = Math.floor((minsNum - ((hours * 3600)) / 60));
+        var seconds = Math.floor((minsNum * 60) - (hours * 3600) - (minutes * 60));
+
+        // Appends 0 when unit is less than 10
+        if (hours   < 10) {hours   = "0"+hours;}
+        if (minutes < 10) {minutes = "0"+minutes;}
+        if (seconds < 10) {seconds = "0"+seconds;}
+        return hours+':'+minutes;
+      }
     }
 
     this.getStaffSubjects = function (teacherObj) {
@@ -278,6 +326,34 @@ function SylvanAppointment(){
         self.clearEvents();
         var currentCalendarDate = moment(date).format("YYYY-MM-DD");
         self.refreshCalendarEvent(this.locationId, true);
+    }
+
+    this.getDayValue = function (date) {
+        if (date != undefined) {
+            switch (moment(date).format('dddd').toLowerCase()) {
+                case 'monday':
+                    return 1;
+                    break;
+                case 'tuesday':
+                    return 2;
+                    break;
+                case 'wednesday':
+                    return 3;
+                    break;
+                case 'thursday':
+                    return 4;
+                    break;
+                case 'friday':
+                    return 5;
+                    break;
+                case 'saturday':
+                    return 6;
+                    break;
+                case 'sunday':
+                    return 7;
+                    break;
+            }
+        }
     }
 
     this.populateStaff = function (args, isFetch) {
@@ -647,7 +723,7 @@ function SylvanAppointment(){
                 }
             }
             self.eventList.push(eventObj);
-            self.appointment.fullCalendar( 'addEvent', eventObj );
+            self.appointment.fullCalendar( 'renderEvent', eventObj, true );
             self.appointment.fullCalendar('refetchEvents');
     }
 
@@ -656,9 +732,9 @@ function SylvanAppointment(){
         if(appointmentList.length){
             wjQuery.each(appointmentList, function(index, appointmentObj) {
                 if(appointmentObj['staffId'] == undefined){
-                    var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+"unassignedId";
+                    var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+"unassignedId";
                 }else{
-                    var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['staffId'];
+                    var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
                 }
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
                 if(populatedEvent.length){
@@ -681,29 +757,38 @@ function SylvanAppointment(){
                 var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
                 wjQuery.each(self.staffList, function(key, staffObj){
                     if(staffObj['id'] != "unassignedId"){
-                        var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj']+"_"+staffObj['id']
+                        var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj']+"_"+appointmentHrObj['endObj']+"_"+staffObj['id']
                         var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
-                        var eventObj = {};
-                        eventObj = {
-                            id:eventId,
-                            resourceId:staffObj['id'],
-                            start:appointmentHrObj['startObj'],
-                            end:appointmentHrObj['endObj'],
-                            allDay : false,
-                            type:appointmentHrObj['type'],
-                            typeValue:appointmentHrObj['typeValue'],
-                            borderColor:eventColorObj.borderColor,
-                            color:"#333",
-                            title:"",
-                            backgroundColor:eventColorObj.backgroundColor,
-                            studentList:[],
-                            parentList:[]
+                        if(eventPopulated.length){
+                            eventPopulated[0].capacity += appointmentHrObj['capacity'];
+                            self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
+                        }else{
+                            var eventObj = {};
+                            eventObj = {
+                                id:eventId,
+                                resourceId:staffObj['id'],
+                                capacity : appointmentHrObj['capacity'],
+                                start:appointmentHrObj['startObj'],
+                                end:appointmentHrObj['endObj'],
+                                allDay : false,
+                                type:appointmentHrObj['type'],
+                                typeValue:appointmentHrObj['typeValue'],
+                                borderColor:eventColorObj.borderColor,
+                                color:"#333",
+                                title:"",
+                                backgroundColor:eventColorObj.backgroundColor,
+                                studentList:[],
+                                parentList:[]
+                            }
+                            self.eventList.push(eventObj);
+                            self.appointment.fullCalendar( 'removeEventSource');
+                            self.appointment.fullCalendar( 'removeEvents');
+                            self.appointment.fullCalendar( 'addEventSource', self.eventList );
+                            self.appointment.fullCalendar('refetchEvents');
                         }
-                        self.eventList.push(eventObj);
-                        self.appointment.fullCalendar( 'addEvent', eventObj );
-                        self.appointment.fullCalendar('refetchEvents');
                     }
                 });
+
             });
             wjQuery(".loading").hide();
             this.draggable('draggable');

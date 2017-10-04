@@ -50,8 +50,8 @@ var locations =  [
     {
       type:3,
       name:"School Visit",
-      borderColor:"red",
-      backgroundColor:"red",
+      orderColor:"#9acaea",
+      backgroundColor:"#ebf5fb",
       display:"customer"
     },
     {
@@ -321,7 +321,7 @@ var appointmentHours = [
     "hub_effectiveenddate@OData.Community.Display.V1.FormattedValue": "10/31/2017",
     "hub_effectiveenddate": "2017-10-31",
     "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",
-    "aworkhours_x002e_hub_type": 4,
+    "aworkhours_x002e_hub_type": 3,
     "aworkhours_x002e_hub_capacity@OData.Community.Display.V1.FormattedValue": "5",
     "aworkhours_x002e_hub_capacity": 5
   }
