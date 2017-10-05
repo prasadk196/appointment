@@ -14,3 +14,12 @@ body {
 .draggable{
 	color: #333;
 }
+.app-placeholder{
+	color: #333;
+    opacity: 0.5;
+    display: block;
+    text-align: left;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
