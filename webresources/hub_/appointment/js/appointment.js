@@ -179,6 +179,7 @@ function SylvanAppointment(){
         self.appointmentHours = [];
         self.appointment.fullCalendar('removeEvents');
         self.appointment.fullCalendar('removeEventSource');
+        self.appointment.fullCalendar('destroy');
     }
 
     this.formatObjects = function(args, label){
@@ -222,11 +223,10 @@ function SylvanAppointment(){
             wjQuery.each(args, function(index, appointmentObj) {
                 var startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
                 var endObj = new Date(appointmentObj['hub_end_date']+" "+appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue']);
-                tempList.push({
+                var obj = {
+                    id: appointmentObj['activityid'],
                     type:appointmentObj['hub_type'],
                     typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
-                    staffId:appointmentObj['_hub_staff_value'],
-                    staffValue:appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'],
                     startObj:startObj,
                     endObj:endObj,
                     locationId:appointmentObj['_hub_location_value'],
@@ -235,7 +235,24 @@ function SylvanAppointment(){
                     studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
                     parentId:appointmentObj['_regardingobjectid_value'],
                     parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
-                });
+                };
+                if(appointmentObj['_hub_staff_value'] != undefined){
+                    obj.staffId = appointmentObj['_hub_staff_value'];
+                    obj.staffValue = appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'];
+                }
+                else{
+                    obj.staffId = 'unassignedId';
+                    obj.staffValue = 'unassignedId'
+                }
+                var index = -1;
+                for (var i = 0; i < tempList.length; i++) {
+                    if(tempList[i].id == obj.id){
+                        index = i;
+                        break;
+                    }
+                }
+                if(index == -1)
+                    tempList.push(obj);    
             });
         }
         else if(label == "appointmentHours"){
@@ -256,7 +273,7 @@ function SylvanAppointment(){
                     addAppFlag = true;
                 }
                 if(addAppFlag && appointmentHour['hub_days'] == self.getDayValue(currentCalendarDate)){
-                    var duration = 60;
+                    var duration = appointmentHour['aworkhours_x002e_hub_duration'];
                     for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
                         var startObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
                         var endObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
@@ -265,13 +282,12 @@ function SylvanAppointment(){
                             typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
                             startObj:startObj,
                             endObj:endObj,
-                            capacity:appointmentHour['aworkhours_x002e_hub_capacity'],
+                            capacity:appointmentHour['hub_capacity'],
                             duration : duration
 
                         });
                     }
                 }
-
             });
             this.appointmentHours = tempList;
         }
@@ -390,7 +406,7 @@ function SylvanAppointment(){
     this.populateStaff = function (args, isFetch) {
         var self = this;
         if (self.appointment != undefined) {
-            self.clearEvents();
+            self.clearAll();
         }
         if(args.length){
             self.staffList = args;
@@ -410,6 +426,7 @@ function SylvanAppointment(){
             header: false,
             defaultView: 'resourceDay',
             disableResizing: true,
+            defaultEventMinutes : 30,
             minTime: 8,
             maxTime: 20,
             allDayText: '',
@@ -426,7 +443,6 @@ function SylvanAppointment(){
             selectHelper: true,
             select: function (start, end, allDay, event, resourceId) {
                 if (title) {
-                    console.log("@@ adding event " + title + ", start " + start + ", end " + end + ", allDay " + allDay + ", resource " + resourceId);
                     this.appointment.fullCalendar('renderEvent',
                     {
                         title: title,
@@ -521,7 +537,7 @@ function SylvanAppointment(){
                     appointmentHours = [];
                 }
                 self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
-                self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(data.getAppointment(locationId), "appointmentList") : self.appointmentList;
+                self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(data.getAppointment(locationId,self.startDate,self.endDate), "appointmentList") : self.appointmentList;
                 if (self.appointmentList == null) {
                     self.appointmentList = [];
                 }
@@ -549,40 +565,59 @@ function SylvanAppointment(){
     }
 
     this.createEventOnDrop = function (self, date, allDay, ev, ui, resource, elm) {
-        var type= wjQuery(elm).attr("type");
-        var idLabel = "";
-        //----- uniqIdArry has ----//
+        var type = wjQuery(elm).attr("type");
+        var uniqueId = '';
+        /*----- uniqIdArry has ----*/
         // 0. student/parent Id
         // 1. start time
-        // 2. staff id only for assigned type 
-        var uniqIdArry = [];
+        // 2. end time
+        // 3. staff id only for assigned type 
+        var index = -1;
         if(elm.hasAttribute("parentid")){
-            uniqIdArry = wjQuery(elm).attr("parentid").split("_");
-            idLabel = "parentId";
-        }else if(elm.hasAttribute("studentid")){
-            uniqIdArry = wjQuery(elm).attr("studentid").split("_");
-            idLabel = "studentId";
-        }
-
-        if(type == "unassigned"){
-            var index = -1;
+            uniqueId = wjQuery(elm).attr("parentid").split('_');
             for(var i=0; i< self.appointmentList.length; i++){
-                if(uniqIdArry[0] == self.appointmentList[i][idLabel] &&
-                    self.appointmentList[i]["staffId"] == undefined && 
-                    uniqIdArry[1] == self.appointmentList[i]['startObj'] ){
+                if(uniqueId[0] == self.appointmentList[i]['type'] &&
+                    uniqueId[1] == self.appointmentList[i]["parentId"] && 
+                    uniqueId[2] == self.appointmentList[i]['startObj'] &&
+                    uniqueId[3] == self.appointmentList[i]['endObj'] &&
+                    uniqueId[4] == self.appointmentList[i]['staffId']){
                     index = i;
                     break;
                 }
             }
-            if(index != -1){
-                elm.remove();
-                self.appointmentList[index]['staffId'] = resource.id;
-                self.appointmentList[index]['staffValue'] = resource.name;
-                self.appointmentList[index]['startObj'] = date;
-                console.log(self.appointmentList[index]);
-                self.appointment.fullCalendar( 'updateEvent', self.generateEventObject([self.appointmentList[index]], "appointment") )
+            
+        }else if(elm.hasAttribute("studentid")){
+            uniqueId = wjQuery(elm).attr("studentid").split('_');
+            for(var i=0; i< self.appointmentList.length; i++){
+                if(uniqueId[0] == self.appointmentList[i]['type'] &&
+                    uniqueId[1] == self.appointmentList[i]["studentId"] && 
+                    uniqueId[2] == self.appointmentList[i]['startObj'] &&
+                    uniqueId[3] == self.appointmentList[i]['endObj'] &&
+                    uniqueId[4] == self.appointmentList[i]['staffId']){
+                    index = i;
+                    break;
+                }
             }
         }
+        if(index != -1){
+            elm.remove();
+            self.appointmentList[index]['staffId'] = resource.id;
+            self.appointmentList[index]['staffValue'] = resource.name;
+            self.appointmentList[index]['endObj'] = self.findAppointmentDuration(self.appointmentList[index]['startObj'],self.appointmentList[index]['endObj'],date);
+            self.appointmentList[index]['startObj'] = date;
+            self.populateAppointmentEvent([self.appointmentList[index]]);
+        }
+    }
+
+    this.findAppointmentDuration = function(start, end, newStart){
+        var timeDiff = Math.abs(end.getTime() - start.getTime());
+        var diffMins = Math.ceil(timeDiff / (60 * 1000));
+        diffMins %= 60; 
+        var diffHours = Math.ceil(timeDiff / (3600 * 1000));
+        var newEnd = new Date(newStart);
+        newEnd = new Date(newEnd.setHours(newEnd.getHours() + diffHours));
+        newEnd = new Date(newEnd.setMinutes(newEnd.getMinutes() + diffMins));
+        return newEnd;
     }
 
     this.getEventColor = function(eventType){
@@ -595,66 +630,17 @@ function SylvanAppointment(){
         }
     }
 
-    this.generateEventObject = function(args, label){
-        if(label == "appointment"){
-           var appointmentEventList = [];
-           wjQuery.each(args, function (index, appointmentObj) {
-            var eventColorObj = self.getEventColor(appointmentObj["type"]);
-            var eventObj = {
-                start:appointmentObj['startObj'],
-                end:appointmentObj['endObj'],
-                allDay : false,
-                type:appointmentObj['type'],
-                borderColor:eventColorObj.borderColor,
-                color:"#333",
-                backgroundColor:eventColorObj.backgroundColor
-            }
-
-            if(appointmentObj['staffId'] == undefined){
-                var parentId = appointmentObj['parentId']+"_"+appointmentObj['startObj'];
-                var studentId = appointmentObj['studentId']+"_"+appointmentObj['startObj'];
-                eventObj["id"] = appointmentObj['startObj']+"_"+"unassignedId";
-                eventObj['resourceId'] = "unassignedId";
-                if( eventColorObj.display == "student"){
-                    eventObj['title'] = "<span class='draggable drag-student' type='unassigned' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-                }else{
-                    eventObj['title'] = "<span class='draggable drag-parent' type='unassigned' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                }
-            }else{
-                var parentId = appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['staffId'];
-                var studentId = appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['staffId'];
-                eventObj["id"] = appointmentObj['startObj']+"_"+appointmentObj["staffId"];
-                eventObj['resourceId'] = appointmentObj['staffId'];
-                if( eventColorObj.display == "student"){
-                    eventObj['title'] = "<span class='draggable drag-student' type='assigned' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-                }else{
-                    eventObj['title'] = "<span class='draggable drag-parent' type='assigned' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                }
-            }
-            appointmentEventList.push(eventObj);
-           }); 
-           return appointmentEventList;
-        }
-    }
-
     this.updateEventObj = function (appointmentObj, populatedEvent){
         var self = this;
         var eventColorObj = self.getEventColor(appointmentObj["type"]);
-        if( eventColorObj.display == "student"){
-            populatedEvent.studentList.push({
-                                            id:appointmentObj['studentId'], 
-                                            name:appointmentObj['studentName']
-                                            })
-            populatedEvent.title += "<span class='draggable drag-student' type='unassigned' id='"+appointmentObj['studentId']+"' >"+appointmentObj['studentName']+"</span>";
-        }else{
-            populatedEvent.parentList.push({
-                                            id:appointmentObj['parentId'], 
-                                            name:appointmentObj['parentName']
-                                        });
-            populatedEvent.title += "<span class='draggable drag-parent' type='assigned' id='"+appointmentObj['parentId']+"' >"+appointmentObj['parentName']+"</span>";
-        }
+        var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+        var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+        populatedEvent.parentList.push({
+                                        id:appointmentObj['parentId'], 
+                                        name:appointmentObj['parentName']
+                                    });
+        populatedEvent.title += "<span class='draggable drag-parent' type='assigned' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
         self.appointment.fullCalendar('updateEvent', populatedEvent);
-
     } 
 
     this.addEventObj = function(appointmentObj){
@@ -669,26 +655,14 @@ function SylvanAppointment(){
                 color:"#333",
                 backgroundColor:eventColorObj.backgroundColor
             }
-            if(appointmentObj['staffId'] == undefined){
-                var parentId = appointmentObj['parentId']+"_"+appointmentObj['startObj'];
-                var studentId = appointmentObj['studentId']+"_"+appointmentObj['startObj'];
-                eventObj["id"] = appointmentObj['startObj']+"_"+"unassignedId";
-                eventObj['resourceId'] = "unassignedId";
-                if( eventColorObj.display == "student"){
-                    eventObj['title'] = "<span class='draggable drag-student' type='unassigned' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-                }else{
-                    eventObj['title'] = "<span class='draggable drag-parent' type='unassigned' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                }
+            var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+            var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+            eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
+            eventObj['resourceId'] = appointmentObj['staffId'];
+            if( eventColorObj.display == "student"){
+                eventObj['title'] = "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
             }else{
-                var parentId = appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['staffId'];
-                var studentId = appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['staffId'];
-                eventObj["id"] = appointmentObj['startObj']+"_"+appointmentObj["staffId"];
-                eventObj['resourceId'] = appointmentObj['staffId'];
-                if( eventColorObj.display == "student"){
-                    eventObj['title'] = "<span class='draggable drag-student' type='assigned' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-                }else{
-                    eventObj['title'] = "<span class='draggable drag-parent' type='assigned' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                }
+                eventObj['title'] = "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
             }
             self.eventList.push(eventObj);
             self.appointment.fullCalendar( 'renderEvent', eventObj, true );
@@ -699,11 +673,7 @@ function SylvanAppointment(){
         var self = this;
         if(appointmentList.length){
             wjQuery.each(appointmentList, function(index, appointmentObj) {
-                if(appointmentObj['staffId'] == undefined){
-                    var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+"unassignedId";
-                }else{
-                    var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
-                }
+                var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
                 if(populatedEvent.length){
                     self.updateEventObj(appointmentObj, populatedEvent[0], eventId);
@@ -727,7 +697,7 @@ function SylvanAppointment(){
                 var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
                 if(eventPopulated.length){
                     eventPopulated[0].capacity += appointmentHrObj['capacity'];
-                    eventPopulated[0].title = self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
+                    eventPopulated[0].title = self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
                 }else{
                     var eventObj = {};

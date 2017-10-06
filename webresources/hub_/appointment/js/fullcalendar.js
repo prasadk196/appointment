@@ -666,7 +666,7 @@ function Calendar(element, options, eventSources, resourceSources) {
 			.bind('dragstart', function(ev, ui) {
 				var _e = ev.target;
 				var e = $(_e);
-				if (!e.parents('.fc').length) { // not already inside a calendar
+				if (!e.parents('.fc').length || e.hasClass("draggable")) {// not already inside a calendar
 					var accept = options.dropAccept;
 					if ($.isFunction(accept) ? accept.call(_e, e) : e.is(accept)) {
 						_dragElement = _e;
@@ -3193,7 +3193,7 @@ function ResourceView(element, calendar, viewName) {
         }
 		
         slotScroller =
-        $("<div style='position:absolute;width:100%;overflow-x:hidden;overflow-y:auto'/>")
+        $("<div id='scrollarea' style='position:absolute;width:100%;overflow-x:hidden;overflow-y:auto'/>")
         .appendTo(slotLayer);
 				
         slotContent =
@@ -3406,9 +3406,8 @@ function ResourceView(element, calendar, viewName) {
         var rect = coordinateGrid.rect(row0, col0, row1, col1, slotLayer);
         return renderOverlay(rect, slotLayer);
     }
-	
 
-    function renderSlotOverlay(overlayStart, overlayEnd) {
+    function renderSlotOverlay(overlayStart, overlayEnd,cell) {
         var dayStart = cloneDate(t.visStart);
         var dayEnd = addDays(cloneDate(dayStart), 1);
         for (var i=0; i<colCnt; i++) {
@@ -3416,7 +3415,7 @@ function ResourceView(element, calendar, viewName) {
             var stretchEnd = new Date(Math.min(dayEnd, overlayEnd));
             if (stretchStart < stretchEnd) {
                 var col = i*dis+dit;
-                var rect = coordinateGrid.rect(0, col, 0, col, slotContent); // only use it for horizontal coords
+                var rect = coordinateGrid.rect(0, cell == undefined ? col : cell.col , 0, cell == undefined ? col : cell.col, slotContent); // only use it for horizontal coords
                 var top = timePosition(dayStart, stretchStart);
                 var bottom = timePosition(dayStart, stretchEnd);
                 rect.top = top;
@@ -3436,7 +3435,7 @@ function ResourceView(element, calendar, viewName) {
 	-----------------------------------------------------------------------------*/
 	
 	
-    coordinateGrid = new CoordinateGrid(function(rows, cols) {
+	coordinateGrid = new CoordinateGrid(function(rows, cols) {
         var e, n, p;
         dayHeadCells.each(function(i, _e) {
             e = $(_e);
@@ -3460,11 +3459,20 @@ function ResourceView(element, calendar, viewName) {
             return Math.max(slotScrollerTop, Math.min(slotScrollerBottom, n));
         }
         for (var i=0; i<slotCnt; i++) {
-            rows.push([
-                constrain(slotTableTop + slotHeight*i),
-                constrain(slotTableTop + slotHeight*(i+1))
-                ]);
+        	if(i == 0){
+        		rows.push([
+	                slotScrollerTop,
+	                slotScrollerTop + slotHeight
+                ]);	
+        	}
+        	else{
+        		rows.push([
+        			parseInt(rows[rows.length - 1][1]),
+        			parseInt(rows[rows.length - 1][1] + slotHeight)
+        		]);
+        	}
         }
+            
     });
 	
 	
@@ -3732,8 +3740,8 @@ function ResourceView(element, calendar, viewName) {
     /* External Dragging
 	--------------------------------------------------------------------------------*/
 	
-	
-    function dragStart(_dragElement, ev, ui) {
+
+	 function dragStart(_dragElement, ev, ui) {
         hoverListener.start(function(cell) {
             clearOverlays();
             if (cell) {
@@ -3742,7 +3750,7 @@ function ResourceView(element, calendar, viewName) {
                 }else{
                     var d1 = cellDate(cell);
                     var d2 = addMinutes(cloneDate(d1), opt('defaultEventMinutes'));
-                    renderSlotOverlay(d1, d2);
+                    renderSlotOverlay(d1, d2, cell);
                 }
             }
         }, ev);
@@ -3753,7 +3761,7 @@ function ResourceView(element, calendar, viewName) {
         var cell = hoverListener.stop();
         clearOverlays();
         if (cell) {
-            trigger('drop', _dragElement, cellDate(cell), cellIsAllDay(cell), ev, ui);
+            trigger('drop', _dragElement, cellDate(cell), cellIsAllDay(cell), ev, ui,resources[cell.col]);
         }
     }
 
@@ -6842,7 +6850,10 @@ function HoverListener(coordinateGrid) {
 	
 	function mouse(ev) {
 		_fixUIEvent(ev); // see below
-		var newCell = coordinateGrid.cell(ev.pageX, ev.pageY);
+        var parentOffset = wjQuery('#scrollarea div').offset(); 
+	    var relX = ev.pageX - parentOffset.left;
+	    var relY = ev.pageY - parentOffset.top + 100;
+		var newCell = coordinateGrid.cell(relX, relY);
 		if (!newCell != !cell || newCell && (newCell.row != cell.row || newCell.col != cell.col)) {
 			if (newCell) {
 				if (!firstCell) {
