@@ -763,4 +763,12 @@ function Data(){
   this.getAppointmentType = function(){
     return appointmentType;
   }
+
+  this.updateAppointment = function(oldAppointmentObj,newAppointmentObj){
+    return true;
+  }
+
+  this.cancelAppointment = function(cancelAppointmentObj){
+    return true;
+  }
 }
