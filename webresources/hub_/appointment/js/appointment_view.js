@@ -30,77 +30,88 @@ var locations =  [
       name:"Instructional",
       borderColor:"red",
       backgroundColor:"red",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     },
     {
       type:1,
       name:"Center Visit",
       borderColor:"#7bc143",
       backgroundColor:"#dff0d5",
-      display:"customer"
+      display:"customer",
+      appointmentHour:true
     },
     {
       type:2,
       name:"Practice Test",
       borderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
-      display:"student"
+      display:"student",
+      appointmentHour:true
     },
     {
       type:3,
       name:"School Visit",
       orderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     },
     {
       type:4,
       name:"Welcome Conference",
       borderColor:"#7bc143",
       backgroundColor:"#dff0d5",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     },
     {
       type:5,
       name:"Enrollment Conference",
       borderColor:"#7bc143",
       backgroundColor:"#dff0d5",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     },
     {
       type:6,
       name:"Initial Assessment",
       borderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
-      display:"student"
+      display:"student",
+      appointmentHour:true
     },
     {
       type:7,
       name:"Progress Assessment",
       borderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
-      display:"student"
+      display:"student",
+      appointmentHour:false
     },
     {
       type:8,
       name:"Ongoing Conference",
       borderColor:"#eacc82",
       backgroundColor:"#fcf7db",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     },
     {
       type:9,
       name:"Care Call",
       borderColor:"red",
       backgroundColor:"red",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     },
     {
       type:10,
       name:"Event",
       borderColor:"red",
       backgroundColor:"red",
-      display:"customer"
+      display:"customer",
+      appointmentHour:false
     }
   ];
 
@@ -607,10 +618,10 @@ var appointment = [
   {
     "@odata.etag": "W/\"3711475\"",
     "activityid": "286e8f68-7c94-e711-80f9-c4346badc680",
-    "_hub_staff_value@OData.Community.Display.V1.FormattedValue": "Simon",
+    "_hub_staff_value@OData.Community.Display.V1.FormattedValue": "Jordon",
     "_hub_staff_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_staffid",
     "_hub_staff_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_staff",
-    "_hub_staff_value": "7ea9ed74-2f66-e711-80f2-c4346bacfbbc",
+    "_hub_staff_value": "ed7614e3-fc79-e711-80f5-c4346badc680",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
     "hub_endtime@OData.Community.Display.V1.FormattedValue": "10:00 AM",
@@ -637,8 +648,8 @@ var appointment = [
     "_hub_location_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
     "hub_appointmentstatus@OData.Community.Display.V1.FormattedValue": "Schedule",
     "hub_appointmentstatus": 0,
-    "hub_starttime@OData.Community.Display.V1.FormattedValue": "9:30 AM",
-    "hub_starttime": 570,
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "9:00 AM",
+    "hub_starttime": 540,
     "instancetypecode@OData.Community.Display.V1.FormattedValue": "Not Recurring",
     "instancetypecode": 0,
     "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "No",
@@ -691,14 +702,14 @@ var appointment = [
   {
     "@odata.etag": "W/\"3711815\"",
     "activityid": "286e8f68-7c97-e711-80f9-c4346badc680",
-    "_hub_staff_value@OData.Community.Display.V1.FormattedValue": "Donna",
+    "_hub_staff_value@OData.Community.Display.V1.FormattedValue": "Judy Thomas",
     "_hub_staff_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_staffid",
     "_hub_staff_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_staff",
-    "_hub_staff_value": "7ea9ed74-2f66-e711-80f2-c4346bacfbbc",
+    "_hub_staff_value": "43f9ff04-2292-e711-80f7-c4346bac4304",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
-    "hub_endtime@OData.Community.Display.V1.FormattedValue": "10:30 AM",
-    "hub_endtime": 630,
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "09:30 AM",
+    "hub_endtime": 570,
     "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/09/2017",
     "hub_end_date": "2017-10-09",
     "_regardingobjectid_value@OData.Community.Display.V1.FormattedValue": "Kiran Angadi",

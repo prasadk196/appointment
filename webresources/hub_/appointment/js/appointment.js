@@ -565,18 +565,124 @@ function SylvanAppointment(){
     }
 
     this.createEventOnDrop = function (self, date, allDay, ev, ui, resource, elm) {
-        var type = wjQuery(elm).attr("type");
+        var self = this;
         var uniqueId = '';
         /*----- uniqIdArry has ----*/
-        // 0. student/parent Id
-        // 1. start time
-        // 2. end time
-        // 3. staff id only for assigned type 
+        // 0. type
+        // 1. student/parent Id
+        // 2. start time
+        // 3. end time
+        // 4. staff id
+        var eventFor = '';
         if(elm.hasAttribute("parentid")){
             uniqueId = wjQuery(elm).attr("parentid").split('_');
-            
+            eventFor = 'customer';
         }else if(elm.hasAttribute("studentid")){
             uniqueId = wjQuery(elm).attr("studentid").split('_');
+            eventFor = 'student';
+        }
+        var eventColorObj = self.getEventColor(uniqueId[0]);
+        var index = self.findUniqueAppointment(uniqueId);
+        if(index != -1){
+            var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+            elm.remove();
+            newAppointmentObj['staffId'] = resource.id;
+            newAppointmentObj['staffValue'] = resource.name;
+            newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
+            newAppointmentObj['startObj'] = date;
+            if(eventColorObj.appointmentHour){
+                var showPopup = true;
+                for (var i = 0; i < self.appointmentHours.length; i++) {
+                    if(self.appointmentHours[i].type == uniqueId[0]){
+                        if(self.appointmentHours[i].startObj.getTime() >= newAppointmentObj['startObj'].getTime() &&
+                          newAppointmentObj['endObj'].getTime() <= self.appointmentHours[i].endObj.getTime()){
+                            showPopup = false;
+                            break;
+                        }
+                    }
+                } 
+                if(showPopup){
+                    self.appointmentHourPopup(self, date, allDay, ev, ui, resource, elm,'Appointment Hour is not available.Do you wish to continue?');
+                }
+            }
+            else{
+                self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm);
+            }
+        }
+    }
+
+    this.updatePrevEvent = function(prevEvent,element,eventFor){
+        if (prevEvent) {
+            var eventTitleHTML = wjQuery(prevEvent[0].title);
+            if(eventFor == 'student'){
+                for (var i = 0; i < eventTitleHTML.length; i++) {
+                    if (wjQuery(eventTitleHTML[i]).attr('studentId') == wjQuery(element).attr('studentId')) {
+                        eventTitleHTML.splice(i, 1);
+                    }
+                }
+            }
+            else{
+                for (var i = 0; i < eventTitleHTML.length; i++) {
+                    if (wjQuery(eventTitleHTML[i]).attr('parentId') == wjQuery(element).attr('parentId')) {
+                        eventTitleHTML.splice(i, 1);
+                    }
+                }
+            }
+            if (eventTitleHTML.prop('outerHTML') != undefined) {
+                if (eventTitleHTML.length == 1) {
+                    prevEvent[0].title = eventTitleHTML.prop('outerHTML');
+                } else {
+                    prevEvent[0].title = "";
+                    for (var i = 0; i < eventTitleHTML.length; i++) {
+                        prevEvent[0].title += eventTitleHTML[i].outerHTML;
+                    }
+                }
+                this.appointment.fullCalendar('updateEvent', prevEvent);
+            }
+            else {
+                for (var i = 0; i < this.eventList.length; i++) {
+                    if (this.eventList[i].id == prevEvent[0].id)
+                        this.eventList.splice(i, 1);
+                }
+                this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
+            }
+        }
+    }
+
+    this.appointmentHourPopup = function (t, date, allDay, ev, ui, resource, elm, message) {
+        wjQuery("#dialog > .dialog-msg").text(message);
+        wjQuery("#dialog").dialog({
+            resizable: false,
+            height: "auto",
+            width: 350,
+            modal: true,
+            buttons: {
+                Yes: function () {
+                    t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm);
+                    wjQuery(this).dialog("close");
+                },
+                No: function () {
+                    wjQuery(this).dialog("close");
+                }
+            }
+        });
+    }
+
+    this.updateAppointmentOnDrop = function(self, date, allDay, ev, ui, resource, elm){
+        var uniqueId = '';
+        /*----- uniqIdArry has ----*/
+        // 0. type
+        // 1. student/parent Id
+        // 2. start time
+        // 3. end time
+        // 4. staff id
+        var eventFor = '';
+        if(elm.hasAttribute("parentid")){
+            uniqueId = wjQuery(elm).attr("parentid").split('_');
+            eventFor = 'customer';
+        }else if(elm.hasAttribute("studentid")){
+            uniqueId = wjQuery(elm).attr("studentid").split('_');
+            eventFor = 'student';
         }
         var index = self.findUniqueAppointment(uniqueId);
         if(index != -1){
@@ -588,10 +694,11 @@ function SylvanAppointment(){
             newAppointmentObj['startObj'] = date;
             var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
             var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
-            var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
             var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+            var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
             var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
             if (typeof (responseObj) == 'boolean' && responseObj) {
+                self.updatePrevEvent(prevEvent,elm,eventFor);
                 self.populateAppointmentEvent([newAppointmentObj]);
             }
         }
@@ -656,15 +763,23 @@ function SylvanAppointment(){
     this.cancelAppointment = function(element){
         var self = this;
         var uniqIdArry = [];
-        if(wjQuery(element).hasClass('drag-student')){
-            uniqIdArry = wjQuery(element).attr("studentId").split('_');
-        }
-        else{
-            uniqIdArry = wjQuery(element).attr("parentId").split('_');
+        var eventFor = '';
+        if(element.hasAttribute("parentid")){
+            uniqIdArry = wjQuery(element).attr("parentid").split('_');
+            eventFor = 'customer';
+        }else if(element.hasAttribute("studentid")){
+            uniqIdArry = wjQuery(element).attr("studentid").split('_');
+            eventFor = 'student';
         }
         var index = self.findUniqueAppointment(uniqIdArry);
         if(index != -1){
             var responseObj = data.cancelAppointment({'activityid': self.appointmentList[index].id});
+            if(responseObj){
+                var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+                var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+                self.updatePrevEvent(prevEvent,element,eventFor);
+                self.appointmentList.splice(index,1);
+            }
         }
     }
 
@@ -687,8 +802,8 @@ function SylvanAppointment(){
     this.findAppointmentDuration = function(start, end, newStart){
         var timeDiff = Math.abs(end.getTime() - start.getTime());
         var diffMins = Math.ceil(timeDiff / (60 * 1000));
+        var diffHours = Math.floor(diffMins / 60);
         diffMins %= 60; 
-        var diffHours = Math.ceil(timeDiff / (3600 * 1000));
         var newEnd = new Date(newStart);
         newEnd = new Date(newEnd.setHours(newEnd.getHours() + diffHours));
         newEnd = new Date(newEnd.setMinutes(newEnd.getMinutes() + diffMins));
@@ -710,11 +825,13 @@ function SylvanAppointment(){
         var eventColorObj = self.getEventColor(appointmentObj["type"]);
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-        populatedEvent.parentList.push({
-                                        id:appointmentObj['parentId'], 
-                                        name:appointmentObj['parentName']
-                                    });
-        populatedEvent.title += "<span class='draggable drag-parent' type='assigned' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+        if( eventColorObj.display == "student"){
+            populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+            self.addContext(studentId,eventColorObj.display);
+        }else{
+            populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+            self.addContext(parentId,eventColorObj.display);
+        }
         self.appointment.fullCalendar('updateEvent', populatedEvent);
     } 
 
@@ -742,7 +859,9 @@ function SylvanAppointment(){
                 self.addContext(parentId,eventColorObj.display);
             }
             self.eventList.push(eventObj);
-            self.appointment.fullCalendar( 'renderEvent', eventObj, true );
+            self.appointment.fullCalendar('removeEvents');
+            self.appointment.fullCalendar('removeEventSource');
+            self.appointment.fullCalendar('addEventSource', { events: self.eventList });
             self.appointment.fullCalendar('refetchEvents');
     }
 
@@ -760,7 +879,7 @@ function SylvanAppointment(){
             });
             wjQuery(".loading").hide();
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
-            this.draggable('draggable');
+            self.draggable('draggable');
         }
     }
 
