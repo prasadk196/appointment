@@ -513,8 +513,8 @@ var appointmentHours = [
     "hub_timingsid": "69f5ca86-02a8-e711-80f9-c4346bad526c",
     "hub_effectivestartdate@OData.Community.Display.V1.FormattedValue": "10/3/2017",
     "hub_effectivestartdate": "2017-10-03",
-    "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",
-    "aworkhours_x002e_hub_type": 4,
+    "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Initial Assessment",
+    "aworkhours_x002e_hub_type": 6,
     "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "30 Mins",
     "aworkhours_x002e_hub_duration": 30
   },

@@ -904,20 +904,23 @@ function SylvanAppointment(){
                         start:appointmentHrObj['startObj'],
                         end:appointmentHrObj['endObj'],
                         allDay : false,
+                        title : '',
                         type:appointmentHrObj['type'],
                         typeValue:appointmentHrObj['typeValue'],
                         borderColor:eventColorObj.borderColor,
                         color:"#333",
-                        title:self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj),
                         backgroundColor:eventColorObj.backgroundColor,
                         studentList:[],
                         parentList:[]
+                    }
+                    if(eventColorObj.appointmentHour){
+                        eventObj.title = self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
                     }
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');
                     self.appointment.fullCalendar( 'removeEvents');
                     self.appointment.fullCalendar( 'addEventSource', self.eventList );
-                    self.appointment.fullCalendar('refetchEvents');
+                    self.appointment.fullCalendar( 'refetchEvents');
                 }
 
             });
