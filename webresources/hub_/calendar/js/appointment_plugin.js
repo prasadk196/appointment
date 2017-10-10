@@ -182,6 +182,23 @@ function SylvanAppointment(){
         self.appointment.fullCalendar('destroy');
     }
 
+    this.getRequiredAttendees = function(id,requiredAttendeesList){
+        var attendeList = [];
+        for (var i = 0; i < requiredAttendeesList.length; i++) {
+            if(requiredAttendeesList[i]['_activityid_value'] == id){
+                var obj = {
+                    partyid : requiredAttendeesList[i]['_partyid_value'],
+                    partyid_lookuplogicalname : requiredAttendeesList[i]['_partyid_value@Microsoft.Dynamics.CRM.lookuplogicalname'],
+                    partyid_formattedValue : requiredAttendeesList[i]['_partyid_value@OData.Community.Display.V1.FormattedValue'],
+                    activitypartyid : requiredAttendeesList[i]['activitypartyid'],
+                    partyid_associatednavigationproperty : requiredAttendeesList[i]['_partyid_value@Microsoft.Dynamics.CRM.associatednavigationproperty']
+                }
+                attendeList.push(obj);
+            }
+        }
+        return attendeList;
+    };
+
     this.formatObjects = function(args, label){
         args = args == null ? [] : args; 
         var self = this;
@@ -221,38 +238,43 @@ function SylvanAppointment(){
         else if(label == "appointmentList"){
             tempList = [];
             wjQuery.each(args, function(index, appointmentObj) {
-                var startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
-                var endObj = new Date(appointmentObj['hub_end_date']+" "+appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue']);
-                var obj = {
-                    id: appointmentObj['activityid'],
-                    type:appointmentObj['hub_type'],
-                    typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
-                    startObj:startObj,
-                    endObj:endObj,
-                    locationId:appointmentObj['_hub_location_value'],
-                    status:appointmentObj['hub_appointmentstatus'],
-                    studentId:appointmentObj['_hub_student_value'],
-                    studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
-                    parentId:appointmentObj['_regardingobjectid_value'],
-                    parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
-                };
-                if(appointmentObj['_hub_staff_value'] != undefined){
-                    obj.staffId = appointmentObj['_hub_staff_value'];
-                    obj.staffValue = appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'];
-                }
-                else{
-                    obj.staffId = 'unassignedId';
-                    obj.staffValue = 'unassignedId'
-                }
-                var index = -1;
-                for (var i = 0; i < tempList.length; i++) {
-                    if(tempList[i].id == obj.id){
-                        index = i;
-                        break;
+                if(index != 'requiredAttendees'){
+                    var startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
+                    var endObj = new Date(appointmentObj['hub_end_date']+" "+appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue']);
+                    var obj = {
+                        id: appointmentObj['activityid'],
+                        type:appointmentObj['hub_type'],
+                        typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
+                        startObj:startObj,
+                        endObj:endObj,
+                        requiredattendees : self.getRequiredAttendees(appointmentObj['activityid'],args.requiredAttendees),
+                        isExceptional : appointmentObj['hub_exception'] == undefined? false :  appointmentObj['isExceptional'] ,
+                        locationId:appointmentObj['_hub_location_value'],
+                        status:appointmentObj['hub_appointmentstatus'],
+                        pricelistId : appointmentObj['_hub_pricelist_value'],
+                        studentId:appointmentObj['_hub_student_value'],
+                        studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
+                        parentId:appointmentObj['_regardingobjectid_value'],
+                        parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
+                    };
+                    if(appointmentObj['_hub_staff_value'] != undefined){
+                        obj.staffId = appointmentObj['_hub_staff_value'];
+                        obj.staffValue = appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'];
                     }
+                    else{
+                        obj.staffId = 'unassignedId';
+                        obj.staffValue = 'unassignedId'
+                    }
+                    var index = -1;
+                    for (var i = 0; i < tempList.length; i++) {
+                        if(tempList[i].id == obj.id){
+                            index = i;
+                            break;
+                        }
+                    }
+                    if(index == -1)
+                        tempList.push(obj);    
                 }
-                if(index == -1)
-                    tempList.push(obj);    
             });
         }
         else if(label == "appointmentHours"){
@@ -520,6 +542,7 @@ function SylvanAppointment(){
 
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
+        wjQuery('.loading').show();
         setTimeout(function () {
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
             var currentView = self.appointment.fullCalendar('getView');
@@ -540,6 +563,9 @@ function SylvanAppointment(){
                 var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
                 if (appList == null) {
                     appList = [];
+                    if(appList.requiredAttendees == null){
+                        appList.requiredAttendees = [];
+                    }
                 }
                 self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(appList, "appointmentList") : self.appointmentList;
                 if (self.appointmentList == null) {
@@ -760,6 +786,10 @@ function SylvanAppointment(){
         newAppointment.hub_start_date = moment(newAppointmentObj.startObj).format("YYYY-MM-DD");
         newAppointment.hub_starttime  = this.convertToMinutes(moment(newAppointmentObj.startObj).format("h:mm A"));
         newAppointment.hub_endtime =  this.convertToMinutes(moment(newAppointmentObj.endObj).format("h:mm A"));
+        newAppointment.hub_student = newAppointmentObj.studentId;
+        newAppointment.hub_pricelist = newAppointmentObj.pricelistId;
+        newAppointment.regardingobjectid = newAppointmentObj.parentId;
+        newAppointment.requiredattendees = newAppointmentObj.requiredattendees;
 
         prevAppointment.activityid = prevAppointmentObj.id;
         prevAppointment.hub_location = prevAppointmentObj.locationId;
@@ -768,8 +798,12 @@ function SylvanAppointment(){
         prevAppointment.hub_start_date = moment(prevAppointmentObj.startObj).format("YYYY-MM-DD");
         prevAppointment.hub_starttime  = this.convertToMinutes(moment(prevAppointmentObj.startObj).format("h:mm A"));
         prevAppointment.hub_endtime =  this.convertToMinutes(moment(prevAppointmentObj.endObj).format("h:mm A"));
+        prevAppointment.hub_student = prevAppointmentObj.studentId;
+        prevAppointment.hub_pricelist = prevAppointmentObj.pricelistId;
+        prevAppointment.regardingobjectid = prevAppointmentObj.parentId;
+        prevAppointment.requiredattendees = prevAppointmentObj.requiredattendees;
 
-        return data.updateAppointment(newAppointment, prevAppointment);
+        return data.updateAppointment(prevAppointment,newAppointment);
     };
 
     this.cancelAppointment = function(element){
@@ -837,12 +871,12 @@ function SylvanAppointment(){
         var eventColorObj = self.getEventColor(appointmentObj["type"]);
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-        if(populatedEvent.resourceId == 'unassignedId'){
+        if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
             populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
             if( eventColorObj.display == "student"){
                 var exceptionalCount = 0;
                 for (var i = 0; i < populatedEvent.memberList.length; i++) {
-                    if(populatedEvent.memberList[i].isExceptional){
+                    if(!populatedEvent.memberList[i].isExceptional){
                         exceptionalCount+=1;
                     }
                     populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
@@ -851,7 +885,7 @@ function SylvanAppointment(){
             }else{
                 var exceptionalCount = 0;
                 for (var i = 0; i < populatedEvent.memberList.length; i++) {
-                    if(populatedEvent.memberList[i].isExceptional){
+                    if(!populatedEvent.memberList[i].isExceptional){
                         exceptionalCount+=1;
                     }
                     populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
