@@ -128,7 +128,7 @@ html .fc,
 	}
 	
 .fc-state-highlight { /* <td> today cell */ /* TODO: add .fc-today to <th> */
-	background: #ffc;
+	background: #fff;
 	}
 	
 .fc-cell-overlay { /* semi-transparent rectangle while dragging */
@@ -485,7 +485,7 @@ table.fc-border-separate {
 	}
 	
 .fc-agenda .fc-agenda-axis {
-	width: 50px;
+	width: 70px;
 	padding: 0 4px;
 	vertical-align: middle;
 	text-align: right;
@@ -564,7 +564,8 @@ table.fc-border-separate {
 ------------------------------------------------------------------------*/
 
 .fc-event-vert {
-	border-width: 0 1px;
+	/*border-width: 0 1px;*/
+	border-width: 2px;
 	}
 	
 .fc-event-vert .fc-event-head,

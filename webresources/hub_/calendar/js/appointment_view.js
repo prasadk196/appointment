@@ -759,7 +759,7 @@ function Data(){
     return staffAvailableList;
   }
 
-  this.getAppointmentStaff = function(locationId){
+  this.getAppointmentStaff = function(locationId,startDate,endDate){
     return staff;
   }
 

@@ -118,7 +118,9 @@ setTimeout(function () {
             }
             else{
                 sylvanAppointment.startDate =  getSunday(sylvanAppointment.calendarDate);
-                sylvanAppointment.endDate =  new Date(new Date(sylvanAppointment.startDate).setDate(new Date(sylvanAppointment.startDate).getDate() + 6));
+                sylvanAppointment.endDate =  new Date(new Dat
+                    .
+                    e(sylvanAppointment.startDate).setDate(new Date(sylvanAppointment.startDate).getDate() + 6));
             }
             var convertedStaffList = sylvanAppointment.formatObjects(data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate), "staffList");
             if(sylvanAppointment.appointment == undefined || sylvanAppointment.appointment.fullCalendar('getView').name == 'resourceDay'){
