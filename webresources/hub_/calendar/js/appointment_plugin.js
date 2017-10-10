@@ -643,6 +643,13 @@ function SylvanAppointment(){
                         prevEvent[0].title += eventTitleHTML[i].outerHTML;
                     }
                 }
+                if (eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") {
+                    for (var i = 0; i < this.eventList.length; i++) {
+                        if (this.eventList[i].id == prevEvent[0].id)
+                            this.eventList.splice(i, 1);
+                    }
+                    this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
+                }
                 this.appointment.fullCalendar('updateEvent', prevEvent);
             }
             else {
@@ -858,10 +865,10 @@ function SylvanAppointment(){
             eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
             eventObj['resourceId'] = appointmentObj['staffId'];
             if( eventColorObj.display == "student"){
-                eventObj['title'] = "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
                 self.addContext(studentId,eventColorObj.display);
             }else{
-                eventObj['title'] = "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
                 self.addContext(parentId,eventColorObj.display);
             }
             self.eventList.push(eventObj);
@@ -910,7 +917,7 @@ function SylvanAppointment(){
                         start:appointmentHrObj['startObj'],
                         end:appointmentHrObj['endObj'],
                         allDay : false,
-                        title : '',
+                        title : "<span class='appointmentTitle'>"+eventColorObj.name+"</span>",
                         type:appointmentHrObj['type'],
                         typeValue:appointmentHrObj['typeValue'],
                         borderColor:eventColorObj.borderColor,
@@ -920,7 +927,7 @@ function SylvanAppointment(){
                         parentList:[]
                     }
                     if(eventColorObj.appointmentHour){
-                        eventObj.title = self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
+                        eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
                     }
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');

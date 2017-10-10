@@ -27,3 +27,9 @@ body {
     visibility: hidden;
     height: 2px;
 }
+span.appointmentTitle {
+    color: #888;
+    font-size: 11px;
+    text-align: left;
+    display: block;
+}
