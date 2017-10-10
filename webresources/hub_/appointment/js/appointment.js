@@ -537,7 +537,11 @@ function SylvanAppointment(){
                     appointmentHours = [];
                 }
                 self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
-                self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(data.getAppointment(locationId,self.startDate,self.endDate), "appointmentList") : self.appointmentList;
+                var appList = data.getAppointment(locationId,self.startDate,self.endDate);
+                if (appList == null) {
+                    appList = [];
+                }
+                self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(appList, "appointmentList") : self.appointmentList;
                 if (self.appointmentList == null) {
                     self.appointmentList = [];
                 }
