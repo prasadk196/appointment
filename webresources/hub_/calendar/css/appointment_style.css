@@ -23,3 +23,7 @@ body {
     overflow: hidden;
     white-space: nowrap;
 }
+.fc-event-head.fc-event-skin {
+    visibility: hidden;
+    height: 2px;
+}
