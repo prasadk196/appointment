@@ -768,7 +768,6 @@ function SylvanAppointment(){
         prevAppointment.hub_start_date = moment(prevAppointmentObj.startObj).format("YYYY-MM-DD");
         prevAppointment.hub_starttime  = this.convertToMinutes(moment(prevAppointmentObj.startObj).format("h:mm A"));
         prevAppointment.hub_endtime =  this.convertToMinutes(moment(prevAppointmentObj.endObj).format("h:mm A"));
-        
 
         return data.updateAppointment(newAppointment, prevAppointment);
     };
@@ -838,13 +837,38 @@ function SylvanAppointment(){
         var eventColorObj = self.getEventColor(appointmentObj["type"]);
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-        if( eventColorObj.display == "student"){
-            populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-            self.addContext(studentId,eventColorObj.display);
+        if(populatedEvent.resourceId == 'unassignedId'){
+            populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
+            if( eventColorObj.display == "student"){
+                var exceptionalCount = 0;
+                for (var i = 0; i < populatedEvent.memberList.length; i++) {
+                    if(populatedEvent.memberList[i].isExceptional){
+                        exceptionalCount+=1;
+                    }
+                    populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                }            
+                self.addContext(studentId,eventColorObj.display);
+            }else{
+                var exceptionalCount = 0;
+                for (var i = 0; i < populatedEvent.memberList.length; i++) {
+                    if(populatedEvent.memberList[i].isExceptional){
+                        exceptionalCount+=1;
+                    }
+                    populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                }
+                populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
+                self.addContext(parentId,eventColorObj.display);
+            }
         }else{
-            populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-            self.addContext(parentId,eventColorObj.display);
+            if( eventColorObj.display == "student"){
+                populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                self.addContext(studentId,eventColorObj.display);
+            }else{
+                populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                self.addContext(parentId,eventColorObj.display);
+            }
         }
+        populatedEvent.memberList.push(appointmentObj);
         self.appointment.fullCalendar('updateEvent', populatedEvent);
     } 
 
@@ -858,7 +882,8 @@ function SylvanAppointment(){
                 type:appointmentObj['type'],
                 borderColor:eventColorObj.borderColor,
                 color:"#333",
-                backgroundColor:eventColorObj.backgroundColor
+                backgroundColor:eventColorObj.backgroundColor,
+                memberList : [appointmentObj]
             }
             var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
             var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
@@ -919,12 +944,10 @@ function SylvanAppointment(){
                         allDay : false,
                         title : "<span class='appointmentTitle'>"+eventColorObj.name+"</span>",
                         type:appointmentHrObj['type'],
-                        typeValue:appointmentHrObj['typeValue'],
                         borderColor:eventColorObj.borderColor,
                         color:"#333",
                         backgroundColor:eventColorObj.backgroundColor,
-                        studentList:[],
-                        parentList:[]
+                        memberList:[]
                     }
                     if(eventColorObj.appointmentHour){
                         eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
