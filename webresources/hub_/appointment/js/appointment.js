@@ -585,7 +585,6 @@ function SylvanAppointment(){
         var index = self.findUniqueAppointment(uniqueId);
         if(index != -1){
             var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
-            elm.remove();
             newAppointmentObj['staffId'] = resource.id;
             newAppointmentObj['staffValue'] = resource.name;
             newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
@@ -603,6 +602,9 @@ function SylvanAppointment(){
                 } 
                 if(showPopup){
                     self.appointmentHourPopup(self, date, allDay, ev, ui, resource, elm,'Appointment Hour is not available.Do you wish to continue?');
+                }
+                else{
+                    self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm);
                 }
             }
             else{
