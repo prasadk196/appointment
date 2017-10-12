@@ -3,12 +3,18 @@ body {
 }
 
 #appointment {
-    width: calc(100% - 10px);
+    width: calc(100% - 5px);
     margin: 0 auto;
 }
 .warning{
 	width: 25px;
 	cursor: pointer;
+}
+.no-margin{
+    margin: 0;
+}
+.nextBtn,.prevBtn{
+    cursor: pointer;
 }
 
 .draggable{
@@ -32,4 +38,166 @@ span.appointmentTitle {
     font-size: 11px;
     text-align: left;
     display: block;
+}
+
+.fc-agenda .fc-agenda-axis{
+    padding: 4px;
+    vertical-align: top;
+}
+
+.fc-view.fc-view-agendaWeek.fc-agenda .fc-event-title {
+    font-size: 16px;
+}
+
+.fc-sun.fc-widget-header,
+.fc-mon.fc-widget-header,
+.fc-tue.fc-widget-header,
+.fc-wed.fc-widget-header,
+.fc-thu.fc-widget-header,
+.fc-fri.fc-widget-header,
+.fc-sat.fc-widget-header {
+    padding: 10px 0;
+}
+
+.fc-agenda-slots td div {
+    height: 160px;
+}
+
+.fc-event{
+    overflow-y: auto;
+}
+
+.fc-event-inner{
+    overflow-y: auto;
+}
+
+.fc-event-title, .fc-event-time{
+    text-align: center;
+}
+
+.nextBtn,.prevBtn{
+    cursor: pointer;
+}
+
+.open > .dropdown-menu {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.view-change-container {
+     list-style-type:none;
+     padding:0;
+     position: relative;
+     top:13px;
+}
+
+.view-change-container li {
+    float:left;
+    margin:0 0px 0 0;
+    width:50px;
+    height:33px;
+    position:relative;
+    text-align:center;
+}
+
+.view-change-container label, .view-change-container input {
+    display:block;
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;  
+    margin-bottom: 3px; 
+}
+.dayView{
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.wkView{
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.view-change-container input[type="radio"] {
+    opacity:0.011;
+    z-index:100;
+}
+
+.view-change-container input[type="radio"]:checked + label {
+    background-color: #777;
+    color: #fff
+}
+
+.view-change-container label {
+     padding:3px;
+     border:1px solid #CCC; 
+     cursor:pointer;
+    z-index:90;
+}
+
+.view-change-container label:hover {
+     background:#DDD;
+}
+
+.header-container{
+    padding: 8px 0;
+}
+.today{
+    background: #ccc;
+}
+.headerDate{
+    padding: 2px 4px;
+}
+
+.loading{
+    width: 100%;
+    background: rgba(141, 139, 139, 0.28);
+    position: absolute;
+    top: 0;
+    height: 100%;
+    z-index: 2003;
+    display: none;
+}
+.loading > img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+}
+
+.placeholder{
+    opacity: 0.5;
+    display: block;
+}
+
+#ui-datepicker-div{
+   z-index: 9000 !important;
+   width: 17em !important; 
+   padding: .2em .2em 0 !important;
+}
+.ui-widget-header {
+    border: none !important;
+    background: none !important;
+    border-bottom: 1px solid #DCDCDC !important;
+    border-radius: 1px;
+    
+}
+.ui-dialog .ui-dialog-buttonpane{
+    border-width: 0 !important;
+}
+
+.custom-datepicker{
+    width: 103px;  
+}
+.custom-timepicker{
+    width: 103px;
+    margin-left: 10px;
+    margin-top: 6px;
+}
+
+i.material-icons.cursor.float-right {
+    margin: 14px 5px;
+    font-size: 20px;
+    color: #333;
 }
