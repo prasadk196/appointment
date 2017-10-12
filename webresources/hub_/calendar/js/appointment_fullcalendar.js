@@ -1895,13 +1895,15 @@ function lazySegBind(container, segs, bindHandlers) {
 			e = parent;
 			parent = parent.parentNode;
 		}
-		if ((i = e._fci) !== undefined) {
-			e._fci = undefined;
-			seg = segs[i];
-			bindHandlers(seg.event, seg.element, seg);
-			$(ev.target).trigger(ev);
+		if(e != undefined){
+			if ((i = e._fci) !== undefined) {
+				e._fci = undefined;
+				seg = segs[i];
+				bindHandlers(seg.event, seg.element, seg);
+				$(ev.target).trigger(ev);
+			}
+			ev.stopPropagation();
 		}
-		ev.stopPropagation();
 	});
 }
 

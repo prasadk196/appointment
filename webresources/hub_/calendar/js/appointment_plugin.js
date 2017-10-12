@@ -186,16 +186,18 @@ function SylvanAppointment(){
 
     this.getRequiredAttendees = function(id,requiredAttendeesList){
         var attendeList = [];
-        for (var i = 0; i < requiredAttendeesList.length; i++) {
-            if(requiredAttendeesList[i]['_activityid_value'] == id){
-                var obj = {
-                    partyid : requiredAttendeesList[i]['_partyid_value'],
-                    partyid_lookuplogicalname : requiredAttendeesList[i]['_partyid_value@Microsoft.Dynamics.CRM.lookuplogicalname'],
-                    partyid_formattedValue : requiredAttendeesList[i]['_partyid_value@OData.Community.Display.V1.FormattedValue'],
-                    activitypartyid : requiredAttendeesList[i]['activitypartyid'],
-                    partyid_associatednavigationproperty : requiredAttendeesList[i]['_partyid_value@Microsoft.Dynamics.CRM.associatednavigationproperty']
+        if(requiredAttendeesList != undefined){
+            for (var i = 0; i < requiredAttendeesList.length; i++) {
+                if(requiredAttendeesList[i]['_activityid_value'] == id){
+                    var obj = {
+                        partyid : requiredAttendeesList[i]['_partyid_value'],
+                        partyid_lookuplogicalname : requiredAttendeesList[i]['_partyid_value@Microsoft.Dynamics.CRM.lookuplogicalname'],
+                        partyid_formattedValue : requiredAttendeesList[i]['_partyid_value@OData.Community.Display.V1.FormattedValue'],
+                        activitypartyid : requiredAttendeesList[i]['activitypartyid'],
+                        partyid_associatednavigationproperty : requiredAttendeesList[i]['_partyid_value@Microsoft.Dynamics.CRM.associatednavigationproperty']
+                    }
+                    attendeList.push(obj);
                 }
-                attendeList.push(obj);
             }
         }
         return attendeList;
@@ -568,7 +570,7 @@ function SylvanAppointment(){
                         businessStartDate = new Date(businessStartDate + ' ' + '00:00').getTime();
                         businessEndDate = new Date(businessEndDate + ' ' + '00:00').getTime();
                         var calendarStartDate = new Date(startDate + ' ' + '00:00').getTime();
-                        var calendarEndDate = new Date(endDate + ' ' + '23:59').getTime();
+                        var calendarEndDate = new Date(endDate + ' ' + '00:00').getTime();
                         if (calendarStartDate >= businessStartDate && calendarEndDate <= businessEndDate) {
                             findingLeaveFlag = false;
                         }
@@ -645,26 +647,55 @@ function SylvanAppointment(){
             newAppointmentObj['staffValue'] = resource.name;
             newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
             newAppointmentObj['startObj'] = date;
-            if(eventColorObj.appointmentHour){
-                var showPopup = true;
-                for (var i = 0; i < self.appointmentHours.length; i++) {
-                    if(self.appointmentHours[i].type == uniqueId[0]){
-                        if(self.appointmentHours[i].startObj.getTime() >= newAppointmentObj['startObj'].getTime() &&
-                          newAppointmentObj['endObj'].getTime() <= self.appointmentHours[i].endObj.getTime()){
-                            showPopup = false;
-                            break;
+            var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
+            var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+            var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+            var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
+            var messageObj = self.checkForDroppable(newEvent);
+            if(messageObj.drop){
+                if(eventColorObj.appointmentHour){
+                    var showPopup = true;
+                    for (var i = 0; i < self.appointmentHours.length; i++) {
+                        if(self.appointmentHours[i].type == uniqueId[0]){
+                            if(self.appointmentHours[i].startObj.getTime() >= newAppointmentObj['startObj'].getTime() &&
+                              newAppointmentObj['endObj'].getTime() <= self.appointmentHours[i].endObj.getTime()){
+                                showPopup = false;
+                                break;
+                            }
                         }
+                    } 
+                    if(showPopup){
+                        self.appointmentHourPopup(self, date, allDay, ev, ui, resource, elm,'Appointment Hour is not available.Do you wish to continue?');
                     }
-                } 
-                if(showPopup){
-                    self.appointmentHourPopup(self, date, allDay, ev, ui, resource, elm,'Appointment Hour is not available.Do you wish to continue?');
+                    else{
+                        self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
+                    }
                 }
                 else{
                     self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
                 }
             }
             else{
-                self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
+                var messageString = '';
+                for (var i = 0; i < messageObj.messages.length; i++) {
+                    messageString += messageObj.messages[i];
+                }
+                wjQuery("#dialog > .dialog-msg").text(messageString);
+                wjQuery("#dialog").dialog({
+                    resizable: false,
+                    height: "auto",
+                    width: 350,
+                    modal: true,
+                    buttons: {
+                        // "Confirm": function() {
+                        //   t.tapaneConflictCheck(t,date, allDay,ev,ui,resource,elm);
+                        //   wjQuery( this ).dialog( "close" );
+                        // },
+                        Close: function () {
+                            wjQuery(this).dialog("close");
+                        }
+                    }
+                });
             }
         }
     }
@@ -966,7 +997,7 @@ function SylvanAppointment(){
                 }            
                 populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
-                self.addContext(studentId,eventColorObj.display);
+                self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
                 for (var i = 0; i < populatedEvent.memberList.length; i++) {
                     if(!populatedEvent.memberList[i].isExceptional){
@@ -976,15 +1007,15 @@ function SylvanAppointment(){
                 }
                 populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
-                self.addContext(parentId,eventColorObj.display);
+                self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }else{
             if( eventColorObj.display == "student"){
                 populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-                self.addContext(studentId,eventColorObj.display);
+                self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
                 populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                self.addContext(parentId,eventColorObj.display);
+                self.addContext(parentId,eventColorObj.,appointmentObj);
             }
         }
         populatedEvent.memberList.push(appointmentObj);
@@ -1014,10 +1045,10 @@ function SylvanAppointment(){
             eventObj['resourceId'] = appointmentObj['staffId'];
             if( eventColorObj.display == "student"){
                 eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
-                self.addContext(studentId,eventColorObj.display);
+                self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
                 eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                self.addContext(parentId,eventColorObj.display);
+                self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
             self.eventList.push(eventObj);
             self.appointment.fullCalendar('removeEvents');
@@ -1108,7 +1139,7 @@ function SylvanAppointment(){
         return eventValidation;
     }
 
-    this.addContext = function(id,label){
+    this.addContext = function(id,label,appointmentObj){
         var obj= {};
         var self = this;
         var uniqueId = id.split('_');
@@ -1185,6 +1216,29 @@ function SylvanAppointment(){
         });
 
     };
+
+    this.checkForDroppable = function(newEvent) {
+        if(newEvent.length){
+            var messageObject = {
+                messages = [],
+                drop : true
+            };
+            var newEventMembers = newEvent[0].memberList;
+            var notDroppable = false;
+            if(newEventMembers.length){
+                for (var i = 0; i < newEventMembers.length; i++) {
+                    if(newEventMembers[i].outofoffice){
+                        notDroppable = true;
+                    }
+                }
+            }
+            if(notDroppable){
+                messageObject.drop = false;
+                messageObject.messages.push('Cannot be place in the Out of Office Appointment')
+            }
+        }
+        return messageObject;
+    }
 
 }
 
