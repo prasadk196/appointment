@@ -634,11 +634,11 @@ function SylvanAppointment(){
                     self.appointmentHourPopup(self, date, allDay, ev, ui, resource, elm,'Appointment Hour is not available.Do you wish to continue?');
                 }
                 else{
-                    self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm);
+                    self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
                 }
             }
             else{
-                self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm);
+                self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
             }
         }
     }
@@ -697,7 +697,7 @@ function SylvanAppointment(){
             modal: true,
             buttons: {
                 Yes: function () {
-                    t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm);
+                    t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, true);
                     wjQuery(this).dialog("close");
                 },
                 No: function () {
@@ -707,7 +707,7 @@ function SylvanAppointment(){
         });
     }
 
-    this.updateAppointmentOnDrop = function(self, date, allDay, ev, ui, resource, elm){
+    this.updateAppointmentOnDrop = function(self, date, allDay, ev, ui, resource, elm, isExceptional){
         var uniqueId = '';
         /*----- uniqIdArry has ----*/
         // 0. type
@@ -729,6 +729,7 @@ function SylvanAppointment(){
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
                 elm.remove();
                 newAppointmentObj['staffId'] = resource.id;
+                newAppointmentObj['isExceptional'] = isExceptional;
                 newAppointmentObj['staffValue'] = resource.name;
                 newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
                 newAppointmentObj['startObj'] = date;
@@ -740,6 +741,8 @@ function SylvanAppointment(){
                 if (typeof (responseObj) == 'boolean' && responseObj) {
                     self.updatePrevEvent(prevEvent,elm,eventFor);
                     self.populateAppointmentEvent([newAppointmentObj]);
+                    self.appointmentList.splice(index,1);
+                    self.appointmentList.push(newAppointmentObj);
                 }            
             }
             else{
@@ -825,6 +828,7 @@ function SylvanAppointment(){
         newAppointment.hub_pricelist = newAppointmentObj.pricelistId;
         newAppointment.regardingobjectid = newAppointmentObj.parentId;
         newAppointment.requiredattendees = newAppointmentObj.requiredattendees;
+        newAppointment.hub_exception = newAppointmentObj.isExceptional;
 
         prevAppointment.activityid = prevAppointmentObj.id;
         prevAppointment.hub_location = prevAppointmentObj.locationId;
@@ -838,6 +842,7 @@ function SylvanAppointment(){
         prevAppointment.hub_pricelist = prevAppointmentObj.pricelistId;
         prevAppointment.regardingobjectid = prevAppointmentObj.parentId;
         prevAppointment.requiredattendees = prevAppointmentObj.requiredattendees;
+        prevAppointment.hub_exception = prevAppointmentObj.isExceptional;
 
         return data.updateAppointment(prevAppointment,newAppointment);
     };
@@ -1066,10 +1071,19 @@ function SylvanAppointment(){
     this.addContext = function(id,label){
         var obj= {};
         var self = this;
-        obj.moveToUnassigned = {
-            name: "Move to Unassigned",
-            callback: function (key, options) {
-              self.moveToUnassigned(options.$trigger[0]);
+        var uniqueId = id.split('_');
+        /*----- uniqIdArry has ----*/
+        // 0. type
+        // 1. student/parent Id
+        // 2. start time
+        // 3. end time
+        // 4. staff id
+        if(uniqueId[4] != 'unassignedId'){
+            obj.moveToUnassigned = {
+                name: "Move to Unassigned",
+                callback: function (key, options) {
+                  self.moveToUnassigned(options.$trigger[0]);
+                }
             }
         }
         obj.cancel = {
