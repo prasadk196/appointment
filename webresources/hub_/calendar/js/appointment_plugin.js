@@ -556,28 +556,48 @@ function SylvanAppointment(){
             var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
             if (currentView.name == 'resourceDay') {
                 startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
-                if(isFromMasterSchedule){
-                    // master schedule data
-                }else{
-                    // actual data
+                self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
+                if (self.businessClosure == null) {
+                    self.businessClosure = [];
                 }
-                var appointmentHours = data.getAppointmentHours(locationId,startDate,endDate, false);
-                if (appointmentHours == null) {
-                    appointmentHours = [];
-                }
-                self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
-                var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
-                if (appList == null) {
-                    appList = [];
-                    if(appList.requiredAttendees == null){
-                        appList.requiredAttendees = [];
+                var findingLeaveFlag = true;
+                if (self.businessClosure.length) {
+                    for (var i = 0; i < self.businessClosure.length; i++) {
+                        var businessStartDate = moment(self.businessClosure[i]['hub_startdatetime']).format("YYYY-MM-DD");
+                        var businessEndDate = moment(self.businessClosure[i]['hub_enddatetime']).format("YYYY-MM-DD");
+                        businessStartDate = new Date(businessStartDate + ' ' + '00:00').getTime();
+                        businessEndDate = new Date(businessEndDate + ' ' + '00:00').getTime();
+                        var calendarStartDate = new Date(startDate + ' ' + '00:00').getTime();
+                        var calendarEndDate = new Date(endDate + ' ' + '23:59').getTime();
+                        if (calendarStartDate >= businessStartDate && calendarEndDate <= businessEndDate) {
+                            findingLeaveFlag = false;
+                        }
                     }
                 }
-                self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(appList, "appointmentList") : self.appointmentList;
-                if (self.appointmentList == null) {
-                    self.appointmentList = [];
+                if (findingLeaveFlag) {
+                    wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
+                    var appointmentHours = data.getAppointmentHours(locationId,startDate,endDate, false);
+                    if (appointmentHours == null) {
+                        appointmentHours = [];
+                    }
+                    self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
+                    var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
+                    if (appList == null) {
+                        appList = [];
+                        if(appList.requiredAttendees == null){
+                            appList.requiredAttendees = [];
+                        }
+                    }
+                    self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(appList, "appointmentList") : self.appointmentList;
+                    if (self.appointmentList == null) {
+                        self.appointmentList = [];
+                    }
+                    self.populateAppointmentEvent(self.appointmentList);
                 }
-                self.populateAppointmentEvent(self.appointmentList);
+                else{
+                    wjQuery('.loading').hide();
+                    wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
+                }
             }
         }, 300);
     }
@@ -838,6 +858,8 @@ function SylvanAppointment(){
         newAppointment.hub_student_name = newAppointmentObj.studentName;
         newAppointment.hub_diagnosticserviceid = newAppointmentObj.diagnosticId;
         newAppointment.hub_diagnosticserviceid_name = newAppointmentObj.diagnosticName;
+        newAppointment.hub_outofofficeappointment = newAppointmentObj.outofoffice;
+        newAppointment.hub_fulldayappointment = newAppointmentObj.allDayAppointment;
 
         prevAppointment.activityid = prevAppointmentObj.id;
         prevAppointment.hub_location = prevAppointmentObj.locationId;
@@ -855,6 +877,8 @@ function SylvanAppointment(){
         prevAppointment.hub_student_name = prevAppointmentObj.studentName;
         prevAppointment.hub_diagnosticserviceid = prevAppointmentObj.diagnosticId;
         prevAppointment.hub_diagnosticserviceid_name = prevAppointmentObj.diagnosticName;
+        prevAppointment.hub_outofofficeappointment = prevAppointmentObj.outofoffice;
+        prevAppointment.hub_fulldayappointment = prevAppointmentObj.allDayAppointment;
 
         return data.updateAppointment(prevAppointment,newAppointment);
     };

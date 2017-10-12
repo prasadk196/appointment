@@ -2026,12 +2026,13 @@ function smartProperty(obj, name) { // get a camel-cased/namespaced property of 
 
 
 function htmlEscape(s) {
-	return s.replace(/&/g, '&amp;')
+	/*return s.replace(/&/g, '&amp;')
 		.replace(/</g, '&lt;')
 		.replace(/>/g, '&gt;')
 		.replace(/'/g, '&#039;')
 		.replace(/"/g, '&quot;')
-		.replace(/\n/g, '<br />');
+		.replace(/\n/g, '<br />');*/
+		return s;
 }
 
 
@@ -3164,7 +3165,7 @@ function ResourceView(element, calendar, viewName) {
         if (opt('allDaySlot')) {
 		
             daySegmentContainer =
-            $("<div style='position:absolute;z-index:8;top:0;left:0'/>")
+            $("<div id='allDayEventSection' style='position:absolute;z-index:8;top:0;left:0;height: 40px;overflow: auto;width: 100%;'/>")
             .appendTo(slotLayer);
 		
             s =

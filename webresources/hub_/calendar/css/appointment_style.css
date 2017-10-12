@@ -351,3 +351,11 @@ ul{
     list-style-type: none;
 }
 
+.fc-agenda-allday .fc-day-content{
+    height: 40px;
+}
+
+
+#allDayEventSection .fc-event-inner.fc-event-skin{
+    width: calc(100% - 1px);
+}

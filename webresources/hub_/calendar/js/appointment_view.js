@@ -748,6 +748,105 @@ var appointment = [
     "_hub_diagnosticserviceid_value": "c938d984-0988-e711-80f7-c4346badc680"
   }
 ];
+var businessClosure = [
+  
+    {
+    "@odata.etag": "W/\"1723331\"",
+    "hub_reason": "Maintainance",
+    "hub_startdatetime@OData.Community.Display.V1.FormattedValue": "10/14/2017",
+    "hub_startdatetime": "2017-10-14T00:00:00Z",
+    "hub_enddatetime@OData.Community.Display.V1.FormattedValue": "10/15/2017",
+    "hub_enddatetime": "2017-10-15T00:00:00Z",
+    "hub_duration@OData.Community.Display.V1.FormattedValue": "1,440.00",
+    "hub_duration": 1440,
+    "_hub_center_value@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
+    "_hub_center_value": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
+    "hub_businessclosureid": "97d8183b-0967-e711-80f2-c4346bad526c"
+  },
+  {
+    "@odata.etag": "W/\"1723349\"",
+    "hub_reason": "State Election",
+    "hub_startdatetime@OData.Community.Display.V1.FormattedValue": "10/25/2017",
+    "hub_startdatetime": "2017-10-25T00:00:00Z",
+    "hub_enddatetime@OData.Community.Display.V1.FormattedValue": "10/25/2017",
+    "hub_enddatetime": "2017-10-25T00:00:00Z",
+    "hub_duration@OData.Community.Display.V1.FormattedValue": "1,440.00",
+    "hub_duration": 1440,
+    "_hub_center_value@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
+    "_hub_center_value": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
+    "hub_businessclosureid": "3496e452-0967-e711-80f2-c4346bad526c"
+  },
+  {
+    "@odata.etag": "W/\"1723349\"",
+    "hub_reason": "State Election",
+    "hub_startdatetime@OData.Community.Display.V1.FormattedValue": "10/18/2017",
+    "hub_startdatetime": "2017-10-18T00:00:00Z",
+    "hub_enddatetime@OData.Community.Display.V1.FormattedValue": "10/20/2017",
+    "hub_enddatetime": "2017-10-20T00:00:00Z",
+    "hub_duration@OData.Community.Display.V1.FormattedValue": "1,440.00",
+    "hub_duration": 1440,
+    "_hub_center_value@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_center",
+    "_hub_center_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
+    "_hub_center_value": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
+    "hub_businessclosureid": "3496e452-0967-e711-80f2-c4346bad526c"
+  }
+];
+
+var staffExceptions = [
+  
+    {
+    "@odata.etag": "W/\"1717911\"",
+    "hub_startdate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
+    "hub_startdate": "2017-09-04T00:00:00Z",
+    "hub_availabilityexceptionid": "3383bc99-0467-e711-80f2-c4346bad526c",
+    "hub_name": "Jane | Ad-Hoc OOF | Jul 17 | Jul 17",
+    "hub_enddate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
+    "hub_enddate": "2017-09-04T00:00:00Z",
+    "hub_type@OData.Community.Display.V1.FormattedValue": "Ad-Hoc OOF",
+    "hub_type": 974230001,
+    "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
+    "astaff_x002e_hub_center": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
+    "astaff_x002e_hub_staffid": "5aec3143-2f66-e711-80f2-c4346bacfbbc"
+  },
+  {
+    "@odata.etag": "W/\"1717920\"",
+    "hub_startdate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
+    "hub_startdate": "2017-09-04T00:00:00Z",
+    "hub_availabilityexceptionid": "223f21bf-0467-e711-80f2-c4346bad526c",
+    "hub_name": "Simon | Ad-Hoc OOF | Jul 19 | Jul 19",
+    "hub_enddate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
+    "hub_enddate": "2017-09-04T00:00:00Z",
+    "hub_type@OData.Community.Display.V1.FormattedValue": "Ad-Hoc OOF",
+    "hub_type": 974230001,
+    "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
+    "astaff_x002e_hub_center": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
+    "astaff_x002e_hub_staffid": "7eaeed74-2f66-e711-80f2-c4346bacfbbc"
+  },{
+    "@odata.etag":"W/\"1717920\"",
+    "astaff_x002e_hub_center":"46ecf508-e26d-e711-80f2-c4346bacfbbc",
+    "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue":"Better Education, Inc.",
+    "astaff_x002e_hub_staffid":"5886bcbd-ab77-e711-80f3-c4346bad526c",
+    "hub_availabilityexceptionid":"db17d4f5-8997-e711-80f9-c4346badc680",
+    "hub_enddate":"2017-09-18T00:00:00Z",
+    "hub_enddate@OData.Community.Display.V1.FormattedValue":"9/18/2017",
+    "hub_name":"John Smith | Ad-Hoc OOF | Sep 18 | Sep 18",
+    "hub_startdate":"2017-09-18T00:00:00Z",
+    "hub_startdate@OData.Community.Display.V1.FormattedValue":"9/18/2017",
+    "hub_type":974230001,
+    "hub_type@OData.Community.Display.V1.FormattedValue":"Ad-Hoc OOF",
+    "hub_starttime":600,
+    "hub_starttime@OData.Community.Display.V1.FormattedValue":"10:00 AM",
+    "hub_endtime":660,
+    "hub_endtime@OData.Community.Display.V1.FormattedValue":"11:00 AM",
+    "hub_entireday@OData.Community.Display.V1.FormattedValue":"No",
+    "hub_entireday":false
+  }
+];
 
 function Data(){
 
@@ -785,5 +884,13 @@ function Data(){
 
   this.moveToUnassigned = function(appointmentObj){
     return true;
+  }
+
+  this.getBusinessClosure = function(locationId,startDate,endDate){
+    return businessClosure;
+  }
+
+  this.getStaffExceptions = function(locationId,startDate,endDate){
+    return staffExceptions;
   }
 }
