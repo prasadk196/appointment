@@ -1015,7 +1015,7 @@ function SylvanAppointment(){
                 self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
                 populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
-                self.addContext(parentId,eventColorObj.,appointmentObj);
+                self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }
         populatedEvent.memberList.push(appointmentObj);
@@ -1220,7 +1220,7 @@ function SylvanAppointment(){
     this.checkForDroppable = function(newEvent) {
         if(newEvent.length){
             var messageObject = {
-                messages = [],
+                messages : [],
                 drop : true
             };
             var newEventMembers = newEvent[0].memberList;
@@ -1234,7 +1234,7 @@ function SylvanAppointment(){
             }
             if(notDroppable){
                 messageObject.drop = false;
-                messageObject.messages.push('Cannot be place in the Out of Office Appointment')
+                messageObject.messages.push('Cannot be place in the Out of Office Appointment.')
             }
         }
         return messageObject;
