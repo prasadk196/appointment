@@ -782,4 +782,8 @@ function Data(){
   this.cancelAppointment = function(cancelAppointmentObj){
     return true;
   }
+
+  this.moveToUnassigned = function(appointmentObj){
+    return true;
+  }
 }

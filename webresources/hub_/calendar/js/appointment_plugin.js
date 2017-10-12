@@ -248,7 +248,7 @@ function SylvanAppointment(){
                         startObj:startObj,
                         endObj:endObj,
                         requiredattendees : self.getRequiredAttendees(appointmentObj['activityid'],args.requiredAttendees),
-                        isExceptional : appointmentObj['hub_exception'] == undefined? false :  appointmentObj['isExceptional'] ,
+                        isExceptional : appointmentObj['hub_exception'] == undefined ? false :  appointmentObj['isExceptional'] ,
                         locationId:appointmentObj['_hub_location_value'],
                         status:appointmentObj['hub_appointmentstatus'],
                         pricelistId : appointmentObj['_hub_pricelist_value'],
@@ -725,20 +725,54 @@ function SylvanAppointment(){
         }
         var index = self.findUniqueAppointment(uniqueId);
         if(index != -1){
-            var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+            if(resource.id != 'unassignedId'){
+                var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+                elm.remove();
+                newAppointmentObj['staffId'] = resource.id;
+                newAppointmentObj['staffValue'] = resource.name;
+                newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
+                newAppointmentObj['startObj'] = date;
+                var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
+                var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+                var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+                var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
+                var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
+                if (typeof (responseObj) == 'boolean' && responseObj) {
+                    self.updatePrevEvent(prevEvent,elm,eventFor);
+                    self.populateAppointmentEvent([newAppointmentObj]);
+                }            
+            }
+            else{
+                self.moveToUnassigned(elm);
+            }
+        }
+    }
+
+    this.moveToUnassigned = function(element){
+        var self = this;
+        var uniqIdArry = [];
+        var eventFor = '';
+        if(element.hasAttribute("parentid")){
+            uniqIdArry = wjQuery(element).attr("parentid").split('_');
+            eventFor = 'customer';
+        }else if(element.hasAttribute("studentid")){
+            uniqIdArry = wjQuery(element).attr("studentid").split('_');
+            eventFor = 'student';
+        }
+        var index = self.findUniqueAppointment(uniqIdArry);
+        if(index != -1){
             elm.remove();
-            newAppointmentObj['staffId'] = resource.id;
-            newAppointmentObj['staffValue'] = resource.name;
-            newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
-            newAppointmentObj['startObj'] = date;
-            var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
-            var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
-            var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-            var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
-            var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
-            if (typeof (responseObj) == 'boolean' && responseObj) {
-                self.updatePrevEvent(prevEvent,elm,eventFor);
+            var responseObj = data.moveToUnassigned({'activityid': self.appointmentList[index].id});
+            if(responseObj){
+                var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+                newAppointmentObj['staffId'] = 'unassignedId';
+                newAppointmentObj['staffValue'] = 'unassignedId';
+                var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+                var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+                self.updatePrevEvent(prevEvent,element,eventFor);
                 self.populateAppointmentEvent([newAppointmentObj]);
+                self.appointmentList.splice(index,1);
+                self.appointmentList.push(newAppointmentObj);
             }
         }
     }
@@ -784,6 +818,7 @@ function SylvanAppointment(){
         newAppointment.hub_type = newAppointmentObj.type;
         newAppointment.hub_staff = newAppointmentObj.staffId;
         newAppointment.hub_start_date = moment(newAppointmentObj.startObj).format("YYYY-MM-DD");
+        newAppointment.hub_end_date = moment(newAppointmentObj.startObj).format("YYYY-MM-DD");
         newAppointment.hub_starttime  = this.convertToMinutes(moment(newAppointmentObj.startObj).format("h:mm A"));
         newAppointment.hub_endtime =  this.convertToMinutes(moment(newAppointmentObj.endObj).format("h:mm A"));
         newAppointment.hub_student = newAppointmentObj.studentId;
@@ -796,6 +831,7 @@ function SylvanAppointment(){
         prevAppointment.hub_type = prevAppointmentObj.type;
         prevAppointment.hub_staff = prevAppointmentObj.staffId;
         prevAppointment.hub_start_date = moment(prevAppointmentObj.startObj).format("YYYY-MM-DD");
+        prevAppointment.hub_end_date = moment(prevAppointmentObj.startObj).format("YYYY-MM-DD");
         prevAppointment.hub_starttime  = this.convertToMinutes(moment(prevAppointmentObj.startObj).format("h:mm A"));
         prevAppointment.hub_endtime =  this.convertToMinutes(moment(prevAppointmentObj.endObj).format("h:mm A"));
         prevAppointment.hub_student = prevAppointmentObj.studentId;
@@ -873,23 +909,31 @@ function SylvanAppointment(){
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
             populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
+            var exceptionalCount = 0;
+            if(appointmentObj['isExceptional']){
+                exceptionalCount = 0;
+            }
+            else{
+                exceptionalCount = 1;
+            }
             if( eventColorObj.display == "student"){
-                var exceptionalCount = 0;
                 for (var i = 0; i < populatedEvent.memberList.length; i++) {
                     if(!populatedEvent.memberList[i].isExceptional){
                         exceptionalCount+=1;
                     }
-                    populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                    populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+populatedEvent.memberList[i]['studentName']+"</span>";
                 }            
+                populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                 self.addContext(studentId,eventColorObj.display);
             }else{
-                var exceptionalCount = 0;
                 for (var i = 0; i < populatedEvent.memberList.length; i++) {
                     if(!populatedEvent.memberList[i].isExceptional){
                         exceptionalCount+=1;
                     }
-                    populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                    populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+populatedEvent.memberList[i]['parentName']+"</span>";
                 }
+                populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                 self.addContext(parentId,eventColorObj.display);
             }
@@ -1022,6 +1066,12 @@ function SylvanAppointment(){
     this.addContext = function(id,label){
         var obj= {};
         var self = this;
+        obj.moveToUnassigned = {
+            name: "Move to Unassigned",
+            callback: function (key, options) {
+              self.moveToUnassigned(options.$trigger[0]);
+            }
+        }
         obj.cancel = {
             name: "Cancel",
             callback: function (key, options) {
