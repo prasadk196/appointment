@@ -40,48 +40,84 @@ span.appointmentTitle {
     display: block;
 }
 
+.body{
+    overflow: hidden;
+    position: relative;
+}
+#calendar
+{
+    margin: auto;
+    position: relative;
+    width: 100%;
+}
+.no-margin{
+    margin: 0;
+}
+.nextBtn,.prevBtn{
+    cursor: pointer;
+}
 .fc-agenda .fc-agenda-axis{
     padding: 4px;
     vertical-align: top;
 }
 
+div label input {
+   margin-right:100px;
+}
+body {
+    font-family:sans-serif;
+}
+.delivery-type-container{
+    position: relative;
+    top: 10px;
+}
+#gi-btn{
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+#pi-btn{
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+#pi-btn,#gi-btn {
+    background-color:#EFEFEF;
+    border:1px solid #D0D0D0;
+    overflow:auto;
+    float:left;
+}
+#pi-btn label,#gi-btn label{
+    float:left;
+    width:4.0em;
+    margin-bottom: 0px;
+}
+
+#pi-btn label span,#gi-btn label span {
+    text-align:center;
+    padding:3px 0px;
+    display:block;
+}
 .fc-view.fc-view-agendaWeek.fc-agenda .fc-event-title {
     font-size: 16px;
 }
-
-.fc-sun.fc-widget-header,
-.fc-mon.fc-widget-header,
-.fc-tue.fc-widget-header,
-.fc-wed.fc-widget-header,
-.fc-thu.fc-widget-header,
-.fc-fri.fc-widget-header,
-.fc-sat.fc-widget-header {
-    padding: 10px 0;
+i.material-icons.cursor.float-right {
+    margin: 14px 5px;
+    font-size: 20px;
+    color: #333;
 }
-
-.fc-agenda-slots td div {
-    height: 160px;
-}
-
-.fc-event{
-    overflow-y: auto;
-}
-
-.fc-event-inner{
-    overflow-y: auto;
-}
-
-.fc-event-title, .fc-event-time{
-    text-align: center;
-}
-
-.nextBtn,.prevBtn{
-    cursor: pointer;
-}
-
 .open > .dropdown-menu {
     max-height: 250px;
     overflow-y: auto;
+}
+
+
+.header-container{
+    padding: 8px 0;
+}
+.today{
+    background: #ccc;
+}
+.headerDate{
+    padding: 2px 4px;
 }
 
 .view-change-container {
@@ -139,36 +175,15 @@ span.appointmentTitle {
      background:#DDD;
 }
 
-.header-container{
-    padding: 8px 0;
-}
-.today{
-    background: #ccc;
-}
-.headerDate{
-    padding: 2px 4px;
-}
 
-.loading{
-    width: 100%;
-    background: rgba(141, 139, 139, 0.28);
-    position: absolute;
-    top: 0;
-    height: 100%;
-    z-index: 2003;
-    display: none;
-}
-.loading > img {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 32px;
-}
-
-.placeholder{
-    opacity: 0.5;
-    display: block;
+.fc-sun.fc-widget-header,
+.fc-mon.fc-widget-header,
+.fc-tue.fc-widget-header,
+.fc-wed.fc-widget-header,
+.fc-thu.fc-widget-header,
+.fc-fri.fc-widget-header,
+.fc-sat.fc-widget-header {
+    padding: 10px 0;
 }
 
 #ui-datepicker-div{
@@ -195,9 +210,144 @@ span.appointmentTitle {
     margin-left: 10px;
     margin-top: 6px;
 }
+/*.custom-toggle{
+    width: 10px;
+}*/
 
-i.material-icons.cursor.float-right {
-    margin: 14px 5px;
-    font-size: 20px;
-    color: #333;
+
+.textAlign{
+    padding-right: 22px;
 }
+.custom-input{
+    width: 30px;
+}
+.up-arrow, .from-up-arrow, .to-up-arrow{
+    position: relative;
+    top: -10px;
+}
+.down-arrow, .from-down-arrow, .to-down-arrow{
+    position: relative;
+    right: 20px;
+}
+.btn-modal{
+    background: none;
+}
+
+.option-header-container {
+    padding: 3px;
+    margin-left: 20px;
+}
+.ui-timepicker-container.ui-timepicker-standard{
+    height: 200px !important;
+    width: 190px !important;
+    position: absolute;
+    overflow-x: hidden;
+    z-index: 1200 !important;
+    border: 1px solid rgb(221, 221, 221);
+}
+div.ui-widget{
+    width: 350px !important;
+}
+.ui-timepicker.ui-widget.ui-widget-content.ui-menu.ui-corner-all,.ui-timepicker .ui-timepicker-viewport{
+    width: 170px !important;
+}
+.ui-timepicker-viewport .ui-menu-item{
+    width: 145px !important;
+}
+.fc-agenda-slots td div {
+    height: 160px;
+}
+button{
+    outline: none;
+}
+
+.fc-event{
+    overflow-y: auto;
+}
+
+.fc-event-title, .fc-event-time{
+    text-align: center;
+}
+
+.loc-dropdown.btn-group .btn {
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.draggable{
+    z-index: 100;
+    display: block;
+    text-align: left;
+}
+.drag-student{
+    text-align: left;
+    display: block;
+    z-index: 100;
+    font-weight: normal;
+}
+.placeholder{
+    opacity: 0.5;
+    display: block;
+}
+
+.context-menu-list{
+    z-index: 10 !important;
+}
+
+.conflict{
+    position: absolute;
+    right: 0;
+    vertical-align: middle;
+    top: 5%;
+    /*transform: translateY(-50%);*/
+}
+.loading{
+    width: 100%;
+    background: rgba(141, 139, 139, 0.28);
+    position: absolute;
+    top: 0;
+    height: 100%;
+    z-index: 2003;
+    display: none;
+}
+.loading > img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+}
+.info-tooltip{
+    border: 1px solid #c5c5c5;
+    padding: 5px;
+    background: #ffffff;
+    color: #333333;
+    border-radius: 3px;
+    max-width: 150px;
+    webkit-box-shadow: 0px 0px 5px #666666;
+    box-shadow: 0px 0px 5px #666666;
+}
+
+
+.fc-event-inner{
+    overflow-y: auto;
+}
+
+.custom-conflict{
+    z-index: 5000;
+    max-width: 250px;
+    border: 1px solid #c5c5c5;
+    -webkit-box-shadow: 0px 0px 5px #666666;
+    box-shadow: 0px 0px 5px #666666;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #333333;
+    padding: 5px;
+}
+
+
+ul{
+    list-style-type: none;
+}
+

@@ -2,6 +2,8 @@ var data = new Data();
 var DEFAULT_START_TIME = "8:00 AM";
 var DEFAULT_END_TIME = "9:00 AM";
 var currentCalendarDate = moment(new Date()).format("YYYY-MM-DD");
+var OUT_OF_OFFICE_BG = '#ccc';
+var OUT_OF_OFFICE_BORDER = '#666';
 
 setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
@@ -247,9 +249,13 @@ function SylvanAppointment(){
                         typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
                         startObj:startObj,
                         endObj:endObj,
+                        allDayAppointment : !!appointmentObj['hub_fulldayappointment'],
+                        outofoffice : !!appointmentObj['hub_outofofficeappointment'],
                         requiredattendees : self.getRequiredAttendees(appointmentObj['activityid'],args.requiredAttendees),
-                        isExceptional : appointmentObj['hub_exception'] == undefined ? false :  appointmentObj['isExceptional'] ,
+                        isExceptional : !!appointmentObj['hub_exception'] ,
                         locationId:appointmentObj['_hub_location_value'],
+                        diagnosticId : appointmentObj['_hub_diagnosticserviceid_value'],
+                        diagnosticName : appointmentObj['_hub_diagnosticserviceid_value@OData.Community.Display.V1.FormattedValue'],
                         status:appointmentObj['hub_appointmentstatus'],
                         pricelistId : appointmentObj['_hub_pricelist_value'],
                         studentId:appointmentObj['_hub_student_value'],
@@ -764,7 +770,7 @@ function SylvanAppointment(){
         }
         var index = self.findUniqueAppointment(uniqIdArry);
         if(index != -1){
-            elm.remove();
+            element.remove();
             var responseObj = data.moveToUnassigned({'activityid': self.appointmentList[index].id});
             if(responseObj){
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
@@ -829,6 +835,9 @@ function SylvanAppointment(){
         newAppointment.regardingobjectid = newAppointmentObj.parentId;
         newAppointment.requiredattendees = newAppointmentObj.requiredattendees;
         newAppointment.hub_exception = newAppointmentObj.isExceptional;
+        newAppointment.hub_student_name = newAppointmentObj.studentName;
+        newAppointment.hub_diagnosticserviceid = newAppointmentObj.diagnosticId;
+        newAppointment.hub_diagnosticserviceid_name = newAppointmentObj.diagnosticName;
 
         prevAppointment.activityid = prevAppointmentObj.id;
         prevAppointment.hub_location = prevAppointmentObj.locationId;
@@ -843,6 +852,9 @@ function SylvanAppointment(){
         prevAppointment.regardingobjectid = prevAppointmentObj.parentId;
         prevAppointment.requiredattendees = prevAppointmentObj.requiredattendees;
         prevAppointment.hub_exception = prevAppointmentObj.isExceptional;
+        prevAppointment.hub_student_name = prevAppointmentObj.studentName;
+        prevAppointment.hub_diagnosticserviceid = prevAppointmentObj.diagnosticId;
+        prevAppointment.hub_diagnosticserviceid_name = prevAppointmentObj.diagnosticName;
 
         return data.updateAppointment(prevAppointment,newAppointment);
     };
@@ -961,12 +973,16 @@ function SylvanAppointment(){
             var eventObj = {
                 start:appointmentObj['startObj'],
                 end:appointmentObj['endObj'],
-                allDay : false,
+                allDay : appointmentObj['allDayAppointment'],
                 type:appointmentObj['type'],
                 borderColor:eventColorObj.borderColor,
                 color:"#333",
                 backgroundColor:eventColorObj.backgroundColor,
                 memberList : [appointmentObj]
+            }
+            if(appointmentObj.outofoffice){
+                eventObj.borderColor = OUT_OF_OFFICE_BORDER;
+                eventObj.backgroundColor = OUT_OF_OFFICE_BG;
             }
             var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
             var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
