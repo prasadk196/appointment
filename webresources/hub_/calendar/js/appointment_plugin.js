@@ -321,6 +321,36 @@ function SylvanAppointment(){
             });
             this.appointmentHours = tempList;
         }
+        else if(label == "staffExceptions"){
+            tempList = [];
+            self.staffExceptions = [];
+            wjQuery.each(args, function(index, exceptionObj) {
+                var obj = {};
+                obj.id = exceptionObj['astaff_x002e_hub_staffid'];
+                var exceptionStartDate = new Date(exceptionObj['hub_startdate']);
+                // Set time for start date
+                exceptionStartDate = new Date(exceptionStartDate).setHours(0);
+                exceptionStartDate = new Date(new Date(exceptionStartDate).setMinutes(0));
+
+                var exceptionEndDate = exceptionObj['hub_enddate'];
+                exceptionEndDate = exceptionEndDate == undefined ? exceptionStartDate : new Date(exceptionEndDate);
+                // Set time for end date
+                exceptionEndDate = new Date(exceptionEndDate).setHours(0);
+                exceptionEndDate = new Date(new Date(exceptionEndDate).setMinutes(0));
+                if(exceptionObj['hub_entireday']){
+                    obj.startObj = new Date(new Date(exceptionStartDate).setHours(8));
+                    obj.endObj = new Date(new Date(exceptionStartDate).setHours(20));
+                }
+                else{
+                    obj.startObj = new Date(exceptionStartDate).setHours(exceptionObj["hub_starttime"]/60);
+                    obj.startObj = new Date(new Date(obj.startObj).setMinutes(exceptionObj["hub_starttime"]%60));
+                    obj.endObj = new Date(exceptionEndDate).setHours(exceptionObj["hub_endtime"]/60);
+                    obj.endObj = new Date(new Date(obj.endObj).setMinutes(exceptionObj["hub_endtime"]%60));
+                }
+                tempList.push(obj);
+            });
+            self.staffExceptions = tempList;
+        }
         return tempList;
     }
 
@@ -583,6 +613,11 @@ function SylvanAppointment(){
                         appointmentHours = [];
                     }
                     self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
+                    var staffExceptions = data.getStaffExceptions(locationId,startDate,endDate);
+                    if (staffExceptions == null) {
+                        staffExceptions = [];
+                    }
+                    self.populateStaffExceptionAppointment(self.formatObjects(staffExceptions, "staffExceptions"));
                     var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
                     if (appList == null) {
                         appList = [];
@@ -657,7 +692,9 @@ function SylvanAppointment(){
                     var showPopup = true;
                     for (var i = 0; i < self.appointmentHours.length; i++) {
                         if(self.appointmentHours[i].type == uniqueId[0]){
-                            if(self.appointmentHours[i].startObj.getTime() >= newAppointmentObj['startObj'].getTime() &&
+                            if(newAppointmentObj['startObj'].getTime() >= self.appointmentHours[i].startObj.getTime() &&
+                              newAppointmentObj['startObj'].getTime() <= self.appointmentHours[i].endObj.getTime() &&
+                              newAppointmentObj['endObj'].getTime() >= self.appointmentHours[i].startObj.getTime() &&
                               newAppointmentObj['endObj'].getTime() <= self.appointmentHours[i].endObj.getTime()){
                                 showPopup = false;
                                 break;
@@ -1035,10 +1072,6 @@ function SylvanAppointment(){
                 backgroundColor:eventColorObj.backgroundColor,
                 memberList : [appointmentObj]
             }
-            if(appointmentObj.outofoffice){
-                eventObj.borderColor = OUT_OF_OFFICE_BORDER;
-                eventObj.backgroundColor = OUT_OF_OFFICE_BG;
-            }
             var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
             var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
             eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
@@ -1116,6 +1149,36 @@ function SylvanAppointment(){
             });
             wjQuery(".loading").hide();
             this.draggable('draggable');
+        }
+    }
+
+    this.populateStaffExceptionAppointment= function(exceptionList){
+        var self = this;
+        exceptionList = exceptionList == null ? [] : exceptionList;
+        if(exceptionList.length){
+            wjQuery.each(exceptionList, function (index, exceptionObj) {
+                var eventColorObj = self.getEventColor(OUT_OF_OFFICE);
+                var eventId = OUT_OF_OFFICE+"_"+exceptionObj['startObj']+"_"+exceptionObj['endObj']+"_"+ exceptionObj['id'];
+                var eventObj = {
+                    id:eventId,
+                    resourceId: exceptionObj['id'],
+                    start:exceptionObj['startObj'],
+                    end:exceptionObj['endObj'],
+                    allDay : false,
+                    title : "<span class='appointmentTitle'>Out of Office</span>",
+                    type: eventColorObj['type'],
+                    borderColor:eventColorObj.borderColor,
+                    color:"#333",
+                    backgroundColor:eventColorObj.backgroundColor,
+                    memberList:[]
+                };
+                self.eventList.push(eventObj);
+                self.appointment.fullCalendar( 'removeEventSource');
+                self.appointment.fullCalendar( 'removeEvents');
+                self.appointment.fullCalendar( 'addEventSource', self.eventList );
+                self.appointment.fullCalendar( 'refetchEvents');
+            });
+            wjQuery(".loading").hide();
         }
     }
 
@@ -1218,21 +1281,26 @@ function SylvanAppointment(){
     };
 
     this.checkForDroppable = function(newEvent) {
+        var messageObject = {
+            messages : [],
+            drop : true
+        };
         if(newEvent.length){
-            var messageObject = {
-                messages : [],
-                drop : true
-            };
             var newEventMembers = newEvent[0].memberList;
-            var notDroppable = false;
+            var outofofficeNotDroppable = false;
+            var exceptionNotDroppable = false;
             if(newEventMembers.length){
                 for (var i = 0; i < newEventMembers.length; i++) {
                     if(newEventMembers[i].outofoffice){
-                        notDroppable = true;
+                        outofofficeNotDroppable = true;
                     }
                 }
             }
-            if(notDroppable){
+            if(outofofficeNotDroppable){
+                messageObject.drop = false;
+                messageObject.messages.push('Cannot be place in this Appointment.')
+            }
+            if(newEvent[0].type == OUT_OF_OFFICE){
                 messageObject.drop = false;
                 messageObject.messages.push('Cannot be place in the Out of Office Appointment.')
             }

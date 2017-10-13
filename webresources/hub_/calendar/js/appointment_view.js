@@ -1,5 +1,5 @@
+var OUT_OF_OFFICE = 12;
 var MASTER_SCHEDULE_CONST = 35;
- 
 var locations =  [
     {
       "@odata.etag": "W/\"1482859\"",
@@ -110,6 +110,14 @@ var locations =  [
       name:"Event",
       borderColor:"red",
       backgroundColor:"red",
+      display:"customer",
+      appointmentHour:false
+    },
+    {
+      type:OUT_OF_OFFICE,
+      name:"Out of Office",
+      borderColor:"#666",
+      backgroundColor:"#ccc",
       display:"customer",
       appointmentHour:false
     }
@@ -798,45 +806,17 @@ var businessClosure = [
 ];
 
 var staffExceptions = [
-  
-    {
-    "@odata.etag": "W/\"1717911\"",
-    "hub_startdate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
-    "hub_startdate": "2017-09-04T00:00:00Z",
-    "hub_availabilityexceptionid": "3383bc99-0467-e711-80f2-c4346bad526c",
-    "hub_name": "Jane | Ad-Hoc OOF | Jul 17 | Jul 17",
-    "hub_enddate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
-    "hub_enddate": "2017-09-04T00:00:00Z",
-    "hub_type@OData.Community.Display.V1.FormattedValue": "Ad-Hoc OOF",
-    "hub_type": 974230001,
-    "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
-    "astaff_x002e_hub_center": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
-    "astaff_x002e_hub_staffid": "5aec3143-2f66-e711-80f2-c4346bacfbbc"
-  },
   {
-    "@odata.etag": "W/\"1717920\"",
-    "hub_startdate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
-    "hub_startdate": "2017-09-04T00:00:00Z",
-    "hub_availabilityexceptionid": "223f21bf-0467-e711-80f2-c4346bad526c",
-    "hub_name": "Simon | Ad-Hoc OOF | Jul 19 | Jul 19",
-    "hub_enddate@OData.Community.Display.V1.FormattedValue": "9/04/2017",
-    "hub_enddate": "2017-09-04T00:00:00Z",
-    "hub_type@OData.Community.Display.V1.FormattedValue": "Ad-Hoc OOF",
-    "hub_type": 974230001,
-    "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue": "Bel Air Learning Center",
-    "astaff_x002e_hub_center": "b97bc0df-a334-e711-80ed-c4346bacfbbc",
-    "astaff_x002e_hub_staffid": "7eaeed74-2f66-e711-80f2-c4346bacfbbc"
-  },{
     "@odata.etag":"W/\"1717920\"",
     "astaff_x002e_hub_center":"46ecf508-e26d-e711-80f2-c4346bacfbbc",
     "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue":"Better Education, Inc.",
     "astaff_x002e_hub_staffid":"5886bcbd-ab77-e711-80f3-c4346bad526c",
     "hub_availabilityexceptionid":"db17d4f5-8997-e711-80f9-c4346badc680",
-    "hub_enddate":"2017-09-18T00:00:00Z",
-    "hub_enddate@OData.Community.Display.V1.FormattedValue":"9/18/2017",
+    "hub_enddate":"2017-10-12T00:00:00Z",
+    "hub_enddate@OData.Community.Display.V1.FormattedValue":"10/12/2017",
     "hub_name":"John Smith | Ad-Hoc OOF | Sep 18 | Sep 18",
-    "hub_startdate":"2017-09-18T00:00:00Z",
-    "hub_startdate@OData.Community.Display.V1.FormattedValue":"9/18/2017",
+    "hub_startdate":"2017-10-12T00:00:00Z",
+    "hub_startdate@OData.Community.Display.V1.FormattedValue":"10/12/2017",
     "hub_type":974230001,
     "hub_type@OData.Community.Display.V1.FormattedValue":"Ad-Hoc OOF",
     "hub_starttime":600,
@@ -845,6 +825,26 @@ var staffExceptions = [
     "hub_endtime@OData.Community.Display.V1.FormattedValue":"11:00 AM",
     "hub_entireday@OData.Community.Display.V1.FormattedValue":"No",
     "hub_entireday":false
+  },
+  {
+    "@odata.etag":"W/\"1717920\"",
+    "astaff_x002e_hub_center":"46ecf508-e26d-e711-80f2-c4346bacfbbc",
+    "astaff_x002e_hub_center@OData.Community.Display.V1.FormattedValue":"Better Education, Inc.",
+    "astaff_x002e_hub_staffid":"5886bcbd-ab77-e711-80f3-c4346bad526c",
+    "hub_availabilityexceptionid":"db17d4f5-8997-e711-80f9-c4346badc680",
+    "hub_enddate":"2017-10-13T00:00:00Z",
+    "hub_enddate@OData.Community.Display.V1.FormattedValue":"10/13/2017",
+    "hub_name":"John Smith | Ad-Hoc OOF | Sep 18 | Sep 18",
+    "hub_startdate":"2017-10-13T00:00:00Z",
+    "hub_startdate@OData.Community.Display.V1.FormattedValue":"10/13/2017",
+    "hub_type":974230001,
+    "hub_type@OData.Community.Display.V1.FormattedValue":"Ad-Hoc OOF",
+    "hub_starttime":600,
+    "hub_starttime@OData.Community.Display.V1.FormattedValue":"10:00 AM",
+    "hub_endtime":660,
+    "hub_endtime@OData.Community.Display.V1.FormattedValue":"11:00 AM",
+    "hub_entireday@OData.Community.Display.V1.FormattedValue":"No",
+    "hub_entireday":true
   }
 ];
 
