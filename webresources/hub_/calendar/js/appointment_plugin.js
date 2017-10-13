@@ -206,6 +206,7 @@ function SylvanAppointment(){
     this.formatObjects = function(args, label){
         args = args == null ? [] : args; 
         var self = this;
+        
         var tempList = [];
         if(label == "staffList"){
             tempList = [];
@@ -324,7 +325,11 @@ function SylvanAppointment(){
         else if(label == "staffExceptions"){
             tempList = [];
             self.staffExceptions = [];
+            var currentCalendarDate = self.appointment.fullCalendar('getDate');
+            currentCalendarDate = new Date(currentCalendarDate).setHours(0);
+            currentCalendarDate = new Date(new Date(currentCalendarDate).setMinutes(0));
             wjQuery.each(args, function(index, exceptionObj) {
+
                 var obj = {};
                 obj.id = exceptionObj['astaff_x002e_hub_staffid'];
                 var exceptionStartDate = new Date(exceptionObj['hub_startdate']);
@@ -337,17 +342,19 @@ function SylvanAppointment(){
                 // Set time for end date
                 exceptionEndDate = new Date(exceptionEndDate).setHours(0);
                 exceptionEndDate = new Date(new Date(exceptionEndDate).setMinutes(0));
-                if(exceptionObj['hub_entireday']){
-                    obj.startObj = new Date(new Date(exceptionStartDate).setHours(8));
-                    obj.endObj = new Date(new Date(exceptionStartDate).setHours(20));
+                if(currentCalendarDate.getTime() >= exceptionStartDate.getTime() && currentCalendarDate.getTime() <= exceptionEndDate.getTime()){
+                    if(exceptionObj['hub_entireday']){
+                        obj.startObj = new Date(new Date(currentCalendarDate).setHours(8));
+                        obj.endObj = new Date(new Date(currentCalendarDate).setHours(20));
+                    }
+                    else{
+                        obj.startObj = new Date(currentCalendarDate).setHours(exceptionObj["hub_starttime"]/60);
+                        obj.startObj = new Date(new Date(obj.startObj).setMinutes(exceptionObj["hub_starttime"]%60));
+                        obj.endObj = new Date(currentCalendarDate).setHours(exceptionObj["hub_endtime"]/60);
+                        obj.endObj = new Date(new Date(obj.endObj).setMinutes(exceptionObj["hub_endtime"]%60));
+                    }
+                    tempList.push(obj);
                 }
-                else{
-                    obj.startObj = new Date(exceptionStartDate).setHours(exceptionObj["hub_starttime"]/60);
-                    obj.startObj = new Date(new Date(obj.startObj).setMinutes(exceptionObj["hub_starttime"]%60));
-                    obj.endObj = new Date(exceptionEndDate).setHours(exceptionObj["hub_endtime"]/60);
-                    obj.endObj = new Date(new Date(obj.endObj).setMinutes(exceptionObj["hub_endtime"]%60));
-                }
-                tempList.push(obj);
             });
             self.staffExceptions = tempList;
         }
