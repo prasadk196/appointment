@@ -614,6 +614,8 @@ function SylvanAppointment(){
                             findingLeaveFlag = false;
                         }
                     }
+                }else{
+                    findingLeaveFlag = false;
                 }
                 if (findingLeaveFlag) {
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
