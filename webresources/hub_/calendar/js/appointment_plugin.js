@@ -325,29 +325,31 @@ function SylvanAppointment(){
         else if(label == "staffExceptions"){
             tempList = [];
             self.staffExceptions = [];
-            var currentCalendarDate = self.appointment.fullCalendar('getDate');
+            var currentCalendarDate = moment(self.appointment.fullCalendar('getDate')).format("YYYY-MM-DD");
             currentCalendarDate = new Date(currentCalendarDate).setHours(0);
             currentCalendarDate = new Date(new Date(currentCalendarDate).setMinutes(0));
+            currentCalendarDate = new Date(new Date(currentCalendarDate).setSeconds(0));
             wjQuery.each(args, function(index, exceptionObj) {
-
                 var obj = {};
                 obj.id = exceptionObj['astaff_x002e_hub_staffid'];
                 var exceptionStartDate = new Date(exceptionObj['hub_startdate']);
                 // Set time for start date
                 exceptionStartDate = new Date(exceptionStartDate).setHours(0);
                 exceptionStartDate = new Date(new Date(exceptionStartDate).setMinutes(0));
+                exceptionStartDate = new Date(new Date(exceptionStartDate).setSeconds(0));
 
                 var exceptionEndDate = exceptionObj['hub_enddate'];
                 exceptionEndDate = exceptionEndDate == undefined ? exceptionStartDate : new Date(exceptionEndDate);
                 // Set time for end date
                 exceptionEndDate = new Date(exceptionEndDate).setHours(0);
                 exceptionEndDate = new Date(new Date(exceptionEndDate).setMinutes(0));
-                if(currentCalendarDate.getTime() >= exceptionStartDate.getTime() && currentCalendarDate.getTime() <= exceptionEndDate.getTime()){
+                exceptionEndDate = new Date(new Date(exceptionEndDate).setSeconds(0));
+                if(currentCalendarDate.getTime() >= exceptionStartDate.getTime() && 
+                    currentCalendarDate.getTime() <= exceptionEndDate.getTime()){
                     if(exceptionObj['hub_entireday']){
                         obj.startObj = new Date(new Date(currentCalendarDate).setHours(8));
                         obj.endObj = new Date(new Date(currentCalendarDate).setHours(20));
-                    }
-                    else{
+                    }else{
                         obj.startObj = new Date(currentCalendarDate).setHours(exceptionObj["hub_starttime"]/60);
                         obj.startObj = new Date(new Date(obj.startObj).setMinutes(exceptionObj["hub_starttime"]%60));
                         obj.endObj = new Date(currentCalendarDate).setHours(exceptionObj["hub_endtime"]/60);
