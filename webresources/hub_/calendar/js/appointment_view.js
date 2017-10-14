@@ -660,8 +660,8 @@ var appointment = [
     "hub_starttime": 540,
     "instancetypecode@OData.Community.Display.V1.FormattedValue": "Not Recurring",
     "instancetypecode": 0,
-    "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "No",
-    "hub_outofofficeappointment": false
+    "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "Yes",
+    "hub_outofofficeappointment": true
   },
   {
     "@odata.etag": "W/\"3711524\"",

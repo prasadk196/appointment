@@ -280,11 +280,12 @@ button{
     display: block;
     text-align: left;
 }
-.drag-student{
+.drag-student,  .drag-parent{
     text-align: left;
     display: block;
     z-index: 100;
     font-weight: normal;
+    color: #333;
 }
 .placeholder{
     opacity: 0.5;

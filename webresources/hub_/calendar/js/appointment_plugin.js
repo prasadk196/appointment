@@ -614,8 +614,6 @@ function SylvanAppointment(){
                             findingLeaveFlag = false;
                         }
                     }
-                }else{
-                    findingLeaveFlag = false;
                 }
                 if (findingLeaveFlag) {
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
@@ -1076,6 +1074,11 @@ function SylvanAppointment(){
 
     this.addEventObj = function(appointmentObj){
         var self = this;
+        var draggable = true;
+        if(appointmentObj["outofoffice"] || appointmentObj['type'] == OUT_OF_OFFICE){
+            appointmentObj["type"] = OUT_OF_OFFICE;
+            draggable = false;
+        }
         var eventColorObj = self.getEventColor(appointmentObj["type"]);
             var eventObj = {
                 start:appointmentObj['startObj'],
@@ -1091,11 +1094,12 @@ function SylvanAppointment(){
             var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
             eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
             eventObj['resourceId'] = appointmentObj['staffId'];
+            var draggableClass = (draggable) ? "draggable" : "";
             if( eventColorObj.display == "student"){
-                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
                 self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
-                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
                 self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
             self.eventList.push(eventObj);
@@ -1117,9 +1121,11 @@ function SylvanAppointment(){
                     self.addEventObj(appointmentObj);
                 }
             });
-            wjQuery(".loading").hide();
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
             self.draggable('draggable');
+            wjQuery(".loading").hide();
+        }else{
+            wjQuery(".loading").hide();
         }
     }
 
