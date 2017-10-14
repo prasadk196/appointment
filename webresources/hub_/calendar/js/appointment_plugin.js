@@ -2,8 +2,8 @@ var data = new Data();
 var DEFAULT_START_TIME = "8:00 AM";
 var DEFAULT_END_TIME = "9:00 AM";
 var currentCalendarDate = moment(new Date()).format("YYYY-MM-DD");
-var OUT_OF_OFFICE_BG = '#ccc';
-var OUT_OF_OFFICE_BORDER = '#666';
+var STAFF_EXCEPTION_BG = '#ddd';
+var STAFF_EXCEPTION_BORDER = '#ddd';
 
 setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
@@ -692,9 +692,13 @@ function SylvanAppointment(){
             newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
             newAppointmentObj['startObj'] = date;
             var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
+            var outOfficeEventId = OUT_OF_OFFICE+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
             var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
             var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-            var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
+            var newEvent = self.appointment.fullCalendar('clientEvents',outOfficeEventId);
+            if(newEvent.length == 0){
+                newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
+            }
             var messageObj = self.checkForDroppable(newEvent);
             if(messageObj.drop){
                 if(eventColorObj.appointmentHour){
@@ -1174,11 +1178,11 @@ function SylvanAppointment(){
                     start:exceptionObj['startObj'],
                     end:exceptionObj['endObj'],
                     allDay : false,
-                    title : "<span class='appointmentTitle'>Out of Office</span>",
+                    title : "<span class='appointmentTitle'></span>",
                     type: eventColorObj['type'],
-                    borderColor:eventColorObj.borderColor,
+                    borderColor:STAFF_EXCEPTION_BORDER,
                     color:"#333",
-                    backgroundColor:eventColorObj.backgroundColor,
+                    backgroundColor:STAFF_EXCEPTION_BG,
                     memberList:[]
                 };
                 self.eventList.push(eventObj);
@@ -1317,5 +1321,8 @@ function SylvanAppointment(){
         return messageObject;
     }
 
+    this.checkForOutofofficeApp = function(){
+
+    }
 }
 

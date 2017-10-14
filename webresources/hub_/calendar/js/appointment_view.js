@@ -609,7 +609,7 @@ var appointment = [
     "hub_fulldayappointment@OData.Community.Display.V1.FormattedValue": "No",
     "hub_fulldayappointment": false,
     "hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",
-    "hub_type": 4,
+    "hub_type": 12,
     "_hub_location_value@OData.Community.Display.V1.FormattedValue": "Better Education, Inc.",
     "_hub_location_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_location_Appointment",
     "_hub_location_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
