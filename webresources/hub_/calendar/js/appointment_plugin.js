@@ -668,78 +668,117 @@ function SylvanAppointment(){
 
     this.createEventOnDrop = function (self, date, allDay, ev, ui, resource, elm) {
         var self = this;
-        var dropable = self.checkForOutofofficeApp(date, resource);
-        if(dropable){
-            self.alertPopup("Cannot be place in the Out of Office Appointment.");
-        }else{
-            var uniqueId = '';
-            /*----- uniqIdArry has ----*/
-            // 0. type
-            // 1. student/parent Id
-            // 2. start time
-            // 3. end time
-            // 4. staff id
-            var eventFor = '';
-            if(elm.hasAttribute("parentid")){
-                uniqueId = wjQuery(elm).attr("parentid").split('_');
-                eventFor = 'customer';
-            }else if(elm.hasAttribute("studentid")){
-                uniqueId = wjQuery(elm).attr("studentid").split('_');
-                eventFor = 'student';
-            }
-            var eventColorObj = self.getEventColor(uniqueId[0]);
-            var index = self.findUniqueAppointment(uniqueId);
-            if(index != -1){
-                var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
-                newAppointmentObj['staffId'] = resource.id;
-                newAppointmentObj['staffValue'] = resource.name;
-                newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
-                newAppointmentObj['startObj'] = date;
-                var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
-                var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
-                var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
-                var messageObj = self.checkForDroppable(newEvent);
-                if(messageObj.drop){
-                    if(eventColorObj.appointmentHour){
-                        var showPopup = true;
-                        for (var i = 0; i < self.appointmentHours.length; i++) {
-                            if(self.appointmentHours[i].type == uniqueId[0]){
-                                if(newAppointmentObj['startObj'].getTime() >= self.appointmentHours[i].startObj.getTime() &&
-                                  newAppointmentObj['startObj'].getTime() <= self.appointmentHours[i].endObj.getTime() &&
-                                  newAppointmentObj['endObj'].getTime() >= self.appointmentHours[i].startObj.getTime() &&
-                                  newAppointmentObj['endObj'].getTime() <= self.appointmentHours[i].endObj.getTime()){
-                                    showPopup = false;
-                                    break;
-                                }
-                            }
-                        } 
-                        if(showPopup){
-                            self.confirmPopup(self, date, allDay, ev, ui, resource, elm,'Appointment Hour is not available.Do you wish to continue?');
+        wjQuery(".loading").show();
+        setTimeout(function(){
+            var dropable = self.checkForOutofofficeApp(date, resource);
+            if(!dropable){
+                self.alertPopup("Cannot be place in the Out of Office Appointment.");
+            }else{
+                var uniqueId = '';
+                /*----- uniqIdArry has ----*/
+                // 0. type
+                // 1. student/parent Id
+                // 2. start time
+                // 3. end time
+                // 4. staff id
+                var eventFor = '';
+                if(elm.hasAttribute("parentid")){
+                    uniqueId = wjQuery(elm).attr("parentid").split('_');
+                    eventFor = 'customer';
+                }else if(elm.hasAttribute("studentid")){
+                    uniqueId = wjQuery(elm).attr("studentid").split('_');
+                    eventFor = 'student';
+                }
+                var eventColorObj = self.getEventColor(uniqueId[0]);
+                var index = self.findUniqueAppointment(uniqueId);
+                if(index != -1){
+                    var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+                    newAppointmentObj['staffId'] = resource.id;
+                    newAppointmentObj['staffValue'] = resource.name;
+                    newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
+                    newAppointmentObj['startObj'] = date;
+                    var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
+                    var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+                    var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+                    var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
+
+
+                    // Check all confirmation meassages here
+                    var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
+                    
+                    if(errArry.alert.length){
+                        var messageString = '';
+                        for (var i = 0; i < errArry.alert.length; i++) {
+                            messageString += errArry.alert[i];
                         }
-                        else{
-                            self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
+                        errArry.confirmation = [];
+                        self.alertPopup(messageString);
+                    }else if(errArry.confirmation.length){
+                        var messageString = '';
+                        for (var i = 0; i < errArry.confirmation.length; i++) {
+                            messageString += errArry.confirmation[i];
                         }
-                    }
-                    else{
+                        self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?");
+                    }else{
+                        // Allow to drop directly
                         self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
                     }
-                }else{
-                    var messageString = '';
-                    for (var i = 0; i < messageObj.messages.length; i++) {
-                        messageString += messageObj.messages[i];
+                }
+            }
+        }, 300);
+    }
+
+    this.checkEventValidation = function(newEvent, prevEvent, newAppointmentObj, uniqueId){
+        var self = this;
+        var messageObject = {
+            alert : [],
+            confirmation : [],
+        };
+
+        // Appointment hour validation
+        var eventColorObj = self.getEventColor(uniqueId[0]);
+        if(eventColorObj.appointmentHour){
+            var showPopup = true;
+            for (var i = 0; i < self.appointmentHours.length; i++) {
+                if(self.appointmentHours[i].type == uniqueId[0]){
+                    if(newAppointmentObj['startObj'].getTime() >= self.appointmentHours[i].startObj.getTime() &&
+                      newAppointmentObj['startObj'].getTime() <= self.appointmentHours[i].endObj.getTime() &&
+                      newAppointmentObj['endObj'].getTime() >= self.appointmentHours[i].startObj.getTime() &&
+                      newAppointmentObj['endObj'].getTime() <= self.appointmentHours[i].endObj.getTime()){
+                        showPopup = false;
+                        break;
                     }
-                    self.alertPopup(messageString);
+                }
+            } 
+            if(showPopup){
+                if(messageObject.confirmation.indexOf("Appointment Hour is not available") == -1){
+                    messageObject.confirmation.push("Appointment Hour is not available");
                 }
             }
         }
+        // End of Appointment hour validation
+
+        // Different type of appointment Validation
+        if(newEvent.length == 0){
+            var availableEvent = self.appointment.fullCalendar('clientEvents',function(el){
+                return  el.type != newAppointmentObj['type'] &&
+                        el.resourceId == newAppointmentObj['staffId'] &&
+                        el.start.getTime() <= newAppointmentObj['startObj'].getTime() &&
+                        newAppointmentObj['startObj'].getTime() < el.end.getTime()
+            });
+            if(availableEvent.length){
+                if(messageObject.confirmation.indexOf(" Appointment Type is different") == -1){
+                    messageObject.confirmation.push(" Appointment Type is different");
+                }
+            }
+        }
+        
+
+        console.log(newAppointmentObj);        
+        console.log(newEvent);        
+        console.log(prevEvent);        
+        return messageObject;
     }
-
-    this.checkEventValidation = function(){
-
-    }
-
-
 
     this.updatePrevEvent = function(prevEvent,element,eventFor){
         if (prevEvent) {
@@ -793,6 +832,12 @@ function SylvanAppointment(){
             height: "auto",
             width: 350,
             modal: true,
+            show: {
+                effect: 'bounce',
+                complete: function() {
+                    wjQuery(".loading").hide();
+                }
+            },
             buttons: {
                 Yes: function () {
                     t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, true);
@@ -812,6 +857,12 @@ function SylvanAppointment(){
             height: "auto",
             width: 350,
             modal: true,
+            show: {
+                effect: 'bounce',
+                complete: function() {
+                    wjQuery(".loading").hide();
+                }
+            },
             buttons: {
                 Ok: function () {
                     wjQuery(this).dialog("close");
@@ -1197,7 +1248,7 @@ function SylvanAppointment(){
                     start:exceptionObj['startObj'],
                     end:exceptionObj['endObj'],
                     allDay : false,
-                    title : "<span class='appointmentTitle'></span>",
+                    title : "<span class='appointmentTitle'>Staff not available</span>",
                     type: OUT_OF_OFFICE,
                     borderColor:STAFF_EXCEPTION_BORDER,
                     color:"#333",
@@ -1351,9 +1402,9 @@ function SylvanAppointment(){
                     dropArea.getTime() < el.end.getTime()
         });
         if(dropableEvent.length == 0){
-            return false;
-        }else{
             return true;
+        }else{
+            return false;
         }
     }
 }
