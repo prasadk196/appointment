@@ -609,7 +609,7 @@ var appointment = [
     "hub_fulldayappointment@OData.Community.Display.V1.FormattedValue": "No",
     "hub_fulldayappointment": false,
     "hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",
-    "hub_type": 12,
+    "hub_type": 4,
     "_hub_location_value@OData.Community.Display.V1.FormattedValue": "Better Education, Inc.",
     "_hub_location_value@Microsoft.Dynamics.CRM.associatednavigationproperty": "hub_location_Appointment",
     "_hub_location_value@Microsoft.Dynamics.CRM.lookuplogicalname": "hub_center",
@@ -620,8 +620,8 @@ var appointment = [
     "hub_starttime": 480,
     "instancetypecode@OData.Community.Display.V1.FormattedValue": "Not Recurring",
     "instancetypecode": 0,
-    "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "No",
-    "hub_outofofficeappointment": false
+    "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "Yes",
+    "hub_outofofficeappointment": true
   },
   {
     "@odata.etag": "W/\"3711475\"",
