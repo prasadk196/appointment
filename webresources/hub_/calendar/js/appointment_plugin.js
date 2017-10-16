@@ -802,7 +802,7 @@ function SylvanAppointment(){
         return messageObject;
     }
 
-    this.updatePrevEvent = function(prevEvent,element,eventFor){
+    this.updatePrevEvent = function(prevEvent,element,eventFor, uniqueId){
         if (prevEvent) {
             var eventTitleHTML = wjQuery(prevEvent[0].title);
             if(eventFor == 'student'){
@@ -835,9 +835,12 @@ function SylvanAppointment(){
                     }
                     this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
                 }
+                var studentIndex = prevEvent[0].memberList.map(function (x) {
+                    return x.id;
+                }).indexOf(uniqueId[1]);
+                prevEvent[0].memberList.splice(studentIndex, 1);
                 this.appointment.fullCalendar('updateEvent', prevEvent);
-            }
-            else {
+            }else {
                 for (var i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].id == prevEvent[0].id)
                         this.eventList.splice(i, 1);
@@ -911,7 +914,7 @@ function SylvanAppointment(){
         }
         var index = self.findUniqueAppointment(uniqueId);
         if(index != -1){
-            if(resource.id != 'unassignedId'){
+            // if(resource.id != 'unassignedId'){
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
                 elm.remove();
                 newAppointmentObj['staffId'] = resource.id;
@@ -925,15 +928,15 @@ function SylvanAppointment(){
                 var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
                 var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
                 if (typeof (responseObj) == 'boolean' && responseObj) {
-                    self.updatePrevEvent(prevEvent,elm,eventFor);
+                    self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId);
                     self.populateAppointmentEvent([newAppointmentObj]);
                     self.appointmentList.splice(index,1);
                     self.appointmentList.push(newAppointmentObj);
                 }            
-            }
-            else{
-                self.moveToUnassigned(elm);
-            }
+            // }
+            // else{
+            //     self.moveToUnassigned(elm);
+            // }
         }
     }
 
