@@ -734,6 +734,13 @@ function SylvanAppointment(){
             alert : [],
             confirmation : [],
         };
+        /*----- uniqIdArry has ----*/
+            // 0. type
+            // 1. student/parent Id
+            // 2. start time
+            // 3. end time
+            // 4. staff id
+
 
         // Appointment hour validation
         var eventColorObj = self.getEventColor(uniqueId[0]);
@@ -774,6 +781,20 @@ function SylvanAppointment(){
             }
         }
         
+        // Duplicate Student/parent validation
+        if(newEvent.length){
+            var memberList = newEvent[0]['memberList'];
+            if(memberList.length){
+                for(var i=0;i<memberList.length;i++){
+                    var id = eventColorObj.display+"Id";
+                    if(memberList[i][id] == uniqueId[1]){
+                        if(messageObject.alert.indexOf(eventColorObj.display+" exist" ) == -1){
+                            messageObject.alert.push(eventColorObj.display+ " exist");
+                        }
+                    }
+                }    
+            }
+        }
 
         console.log(newAppointmentObj);        
         console.log(newEvent);        
