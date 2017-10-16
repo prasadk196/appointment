@@ -763,8 +763,9 @@ function SylvanAppointment(){
             var availableEvent = self.appointment.fullCalendar('clientEvents',function(el){
                 return  el.type != newAppointmentObj['type'] &&
                         el.resourceId == newAppointmentObj['staffId'] &&
+                        (el.start.getTime() == newAppointmentObj['startObj'].getTime() ||
                         el.start.getTime() <= newAppointmentObj['startObj'].getTime() &&
-                        newAppointmentObj['startObj'].getTime() < el.end.getTime()
+                        newAppointmentObj['startObj'].getTime() < el.end.getTime() )
             });
             if(availableEvent.length){
                 if(messageObject.confirmation.indexOf(" Appointment Type is different") == -1){
@@ -1398,8 +1399,9 @@ function SylvanAppointment(){
             return  (!el.dropable) && 
                     el.type == OUT_OF_OFFICE && 
                     el.resourceId == resource.id &&
+                    (el.start.getTime() == dropArea.getTime() ||
                     el.start.getTime() <= dropArea.getTime() &&
-                    dropArea.getTime() < el.end.getTime()
+                    dropArea.getTime() < el.end.getTime())
         });
         if(dropableEvent.length == 0){
             return true;
