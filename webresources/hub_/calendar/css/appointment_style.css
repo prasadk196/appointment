@@ -36,7 +36,7 @@ body {
 span.appointmentTitle {
     color: #888;
     font-size: 11px;
-    text-align: left;
+    text-align: center;
     display: block;
 }
 
@@ -298,7 +298,7 @@ button{
 
 .conflict{
     position: absolute;
-    right: 0;
+    left: 0;
     vertical-align: middle;
     top: 5%;
     /*transform: translateY(-50%);*/

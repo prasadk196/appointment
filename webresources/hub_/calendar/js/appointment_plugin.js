@@ -1213,7 +1213,7 @@ function SylvanAppointment(){
             }
         }
 
-        if(eventObj.conflictMsg.length){
+        if(eventObj.conflictMsg!= undefined && eventObj.conflictMsg.length){
             wjQuery.each(eventObj.conflictMsg, function (k, v) {
                 msg += (k + 1) + ". " + self.conflictMsg[v] + "|";
             });
@@ -1285,6 +1285,7 @@ function SylvanAppointment(){
                         borderColor:eventColorObj.borderColor,
                         color:"#333",
                         dropable:true,
+                        conflictMsg:[],
                         backgroundColor:eventColorObj.backgroundColor,
                         memberList:[]
                     }
@@ -1322,6 +1323,7 @@ function SylvanAppointment(){
                     borderColor:STAFF_EXCEPTION_BORDER,
                     color:"#333",
                     dropable:false,
+                    conflictMsg:[],
                     backgroundColor:STAFF_EXCEPTION_BG,
                     memberList:[]
                 };
@@ -1475,19 +1477,12 @@ function SylvanAppointment(){
         var dropEventDuration = eventObj.end.getTime() - eventObj.start.getTime();
         var dropableEvent = self.appointment.fullCalendar('clientEvents',function(el){
             var duration = el.end.getTime() - el.start.getTime();
-            if(dropEventDuration <= duration){
-                return  (!el.dropable) && 
-                        el.type == OUT_OF_OFFICE && 
-                        el.resourceId == eventObj.resourceId &&
-                        (el.start.getTime() == eventObj.start.getTime() ||
-                        el.start.getTime() <= eventObj.start.getTime() &&
-                        eventObj.start.getTime() < el.end.getTime())
-            }else{
-                return  el.resourceId == eventObj.resourceId &&
-                        (eventObj.start.getTime() == el.start.getTime() ||
-                        eventObj.start.getTime() <= el.start.getTime() &&
-                        el.start.getTime() < eventObj.end.getTime())   
-            }
+            return  (!el.dropable) && 
+                    el.type == OUT_OF_OFFICE &&
+                    el.resourceId == eventObj.resourceId &&
+                    (eventObj.start.getTime() == el.start.getTime() ||
+                    eventObj.start.getTime() <= el.start.getTime() &&
+                    el.start.getTime() < eventObj.end.getTime())
         });
         if(dropableEvent.length == 0){
             return true;
