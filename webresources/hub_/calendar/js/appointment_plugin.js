@@ -510,7 +510,7 @@ function SylvanAppointment(){
             },
             handleWindowResize: true,
             height: window.innerHeight - 60,
-            slotMinutes: 30,
+            slotMinutes: 15,
             selectable: false,
             slotEventOverlap: true,
             selectHelper: true,
@@ -1477,12 +1477,19 @@ function SylvanAppointment(){
         var dropEventDuration = eventObj.end.getTime() - eventObj.start.getTime();
         var dropableEvent = self.appointment.fullCalendar('clientEvents',function(el){
             var duration = el.end.getTime() - el.start.getTime();
-            return  (!el.dropable) && 
-                    el.type == OUT_OF_OFFICE &&
-                    el.resourceId == eventObj.resourceId &&
-                    (eventObj.start.getTime() == el.start.getTime() ||
-                    eventObj.start.getTime() <= el.start.getTime() &&
-                    el.start.getTime() < eventObj.end.getTime())
+            if(eventObj.start.getTime() < el.start.getTime()){
+                return  (!el.dropable) && 
+                        el.type == OUT_OF_OFFICE &&
+                        el.resourceId == eventObj.resourceId &&
+                        eventObj.end.getTime() > el.start.getTime() 
+            }else{
+                return  (!el.dropable) && 
+                        el.type == OUT_OF_OFFICE &&
+                        el.resourceId == eventObj.resourceId &&
+                        eventObj.start.getTime() >= el.start.getTime() &&
+                        eventObj.start.getTime() < el.end.getTime()
+
+            }
         });
         if(dropableEvent.length == 0){
             return true;
