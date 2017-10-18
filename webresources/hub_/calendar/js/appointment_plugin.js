@@ -4,6 +4,8 @@ var DEFAULT_END_TIME = "9:00 AM";
 var currentCalendarDate = moment(new Date()).format("YYYY-MM-DD");
 var STAFF_EXCEPTION_BG = '#ddd';
 var STAFF_EXCEPTION_BORDER = '#ddd';
+var messageList = ["Out of office Appointment conflict"];
+
 
 setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
@@ -161,6 +163,8 @@ function SylvanAppointment(){
     this.appointmentList = [];
     this.eventList = [];
     this.appointmentHours = [];
+    this.conflictMsg = ["outofoffice Appointment conflict"];
+
 
     this.clearEvents = function () {
         var self = this;
@@ -794,15 +798,12 @@ function SylvanAppointment(){
                     }
                 }    
             }
-        }
-
-        console.log(newAppointmentObj);        
-        console.log(newEvent);        
-        console.log(prevEvent);        
+        }       
         return messageObject;
     }
 
     this.updatePrevEvent = function(prevEvent,element,eventFor, uniqueId){
+        var self = this;
         if (prevEvent) {
             var eventTitleHTML = wjQuery(prevEvent[0].title);
             if(eventFor == 'student'){
@@ -828,7 +829,8 @@ function SylvanAppointment(){
                         prevEvent[0].title += eventTitleHTML[i].outerHTML;
                     }
                 }
-                if (eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") {
+                if ((eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") || 
+                    eventTitleHTML.length == 2 && eventTitleHTML[0].className == "appointmentTitle" && eventTitleHTML[1].className == "conflict" ) {
                     for (var i = 0; i < this.eventList.length; i++) {
                         if (this.eventList[i].id == prevEvent[0].id)
                             this.eventList.splice(i, 1);
@@ -839,12 +841,14 @@ function SylvanAppointment(){
                     return x.id;
                 }).indexOf(uniqueId[1]);
                 prevEvent[0].memberList.splice(studentIndex, 1);
+                prevEvent = self.addConflictMsg(prevEvent[0]);
                 this.appointment.fullCalendar('updateEvent', prevEvent);
             }else {
                 for (var i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].id == prevEvent[0].id)
                         this.eventList.splice(i, 1);
                 }
+                prevEvent[0] = self.addConflictMsg(prevEvent[0]);
                 this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
             }
         }
@@ -961,7 +965,7 @@ function SylvanAppointment(){
                 newAppointmentObj['staffValue'] = 'unassignedId';
                 var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
                 var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                self.updatePrevEvent(prevEvent,element,eventFor);
+                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry);
                 self.populateAppointmentEvent([newAppointmentObj]);
                 self.appointmentList.splice(index,1);
                 self.appointmentList.push(newAppointmentObj);
@@ -1063,7 +1067,7 @@ function SylvanAppointment(){
             if(responseObj){
                 var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
                 var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                self.updatePrevEvent(prevEvent,element,eventFor);
+                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry);
                 self.appointmentList.splice(index,1);
             }
         }
@@ -1175,6 +1179,7 @@ function SylvanAppointment(){
             backgroundColor:eventColorObj.backgroundColor,
             dropable:(!appointmentObj["outofoffice"]),
             memberList : [appointmentObj],
+            conflictMsg:[]
         }
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
@@ -1188,12 +1193,52 @@ function SylvanAppointment(){
             eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
             self.addContext(parentId,eventColorObj.display,appointmentObj);
         }
+        eventObj = self.addConflictMsg(eventObj);
         self.eventList.push(eventObj);
         self.appointment.fullCalendar('removeEvents');
         self.appointment.fullCalendar('removeEventSource');
         self.appointment.fullCalendar('addEventSource', { events: self.eventList });
         self.appointment.fullCalendar('refetchEvents');
     }
+
+    this.addConflictMsg = function(eventObj){
+        var self = this;
+        var msg = "";
+        var showConflict = self.checkForOutofofficeApp(eventObj['start'], {id:eventObj['resourceId']});
+        if(!showConflict){
+            var msgIndex = eventObj['conflictMsg'].map(function (x) {
+                return x;
+            }).indexOf(0);
+            if (msgIndex == -1) {
+                eventObj.conflictMsg.push(0);
+            }
+        }
+
+        if(eventObj.conflictMsg.length){
+            wjQuery.each(eventObj.conflictMsg, function (k, v) {
+                msg += (k + 1) + ". " + self.conflictMsg[v] + "|";
+            });
+            var lastIndex = msg.lastIndexOf("|");
+            msg = msg.substring(0, lastIndex);
+            if (eventObj.title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
+                eventObj.title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+            }
+        }else{
+
+        }
+        return eventObj;
+    }
+
+    this.showConflictMsg = function () {
+      wjQuery(".conflict").tooltip({
+            tooltipClass: "custom-conflict",
+            track: true,
+            content: function () {
+                return wjQuery(this).prop('title').replace('|', '<br/>');
+            }
+        });
+    }
+
 
     this.populateAppointmentEvent = function(appointmentList){
         var self = this;
@@ -1386,7 +1431,7 @@ function SylvanAppointment(){
                 // }
             }
         });
-
+        self.showConflictMsg();
     };
 
     this.checkForDroppable = function(newEvent) {

@@ -542,7 +542,7 @@ var appointmentHours = [
     "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Welcome Conference",
     "aworkhours_x002e_hub_type": 4,
     "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "30 Mins",
-    "aworkhours_x002e_hub_duration": 30
+    "aworkhours_x002e_hub_duration": 60
   },
   {
     "@odata.etag": "W/\"3895840\"",
@@ -720,8 +720,8 @@ var appointment = [
     "_hub_staff_value": "ed7614e3-fc79-e711-80f5-c4346badc680",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
-    "hub_endtime@OData.Community.Display.V1.FormattedValue": "10:30 AM",
-    "hub_endtime": 630,
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "10:00 AM",
+    "hub_endtime": 600,
     "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/17/2017",
     "hub_end_date": "2017-10-17",
     "_regardingobjectid_value@OData.Community.Display.V1.FormattedValue": "Kiran Angadi",
@@ -744,8 +744,8 @@ var appointment = [
     "_hub_location_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
     "hub_appointmentstatus@OData.Community.Display.V1.FormattedValue": "Schedule",
     "hub_appointmentstatus": 0,
-    "hub_starttime@OData.Community.Display.V1.FormattedValue": "10:00 AM",
-    "hub_starttime": 600,
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "09:30 AM",
+    "hub_starttime": 570,
     "instancetypecode@OData.Community.Display.V1.FormattedValue": "Not Recurring",
     "instancetypecode": 0,
     "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "No",
