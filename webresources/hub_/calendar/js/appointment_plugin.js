@@ -163,7 +163,7 @@ function SylvanAppointment(){
     this.appointmentList = [];
     this.eventList = [];
     this.appointmentHours = [];
-    this.conflictMsg = ["outofoffice Appointment conflict"];
+    this.conflictMsg = ["Out of office appointment conflict"];
 
 
     this.clearEvents = function () {
@@ -555,6 +555,7 @@ function SylvanAppointment(){
         var currentCalendarDate = self.appointment.fullCalendar('getDate');
         
         if (wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').length) {
+            // wjQuery(".fc-widget-header").css("width", "75px");
             var dayOfWeek = moment(currentCalendarDate).format('dddd');
             var dayofMonth = moment(currentCalendarDate).format('M/D');
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').css('text-align', 'center');
@@ -674,39 +675,37 @@ function SylvanAppointment(){
         var self = this;
         wjQuery(".loading").show();
         setTimeout(function(){
-            var dropable = self.checkForOutofofficeApp(date, resource);
-            if(!dropable){
-                self.alertPopup("Cannot be place in the Out of Office Appointment.");
-            }else{
-                var uniqueId = '';
-                /*----- uniqIdArry has ----*/
-                // 0. type
-                // 1. student/parent Id
-                // 2. start time
-                // 3. end time
-                // 4. staff id
-                var eventFor = '';
-                if(elm.hasAttribute("parentid")){
-                    uniqueId = wjQuery(elm).attr("parentid").split('_');
-                    eventFor = 'customer';
-                }else if(elm.hasAttribute("studentid")){
-                    uniqueId = wjQuery(elm).attr("studentid").split('_');
-                    eventFor = 'student';
-                }
-                var eventColorObj = self.getEventColor(uniqueId[0]);
-                var index = self.findUniqueAppointment(uniqueId);
-                if(index != -1){
-                    var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
-                    newAppointmentObj['staffId'] = resource.id;
-                    newAppointmentObj['staffValue'] = resource.name;
-                    newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
-                    newAppointmentObj['startObj'] = date;
+            var uniqueId = '';
+            /*----- uniqIdArry has ----*/
+            // 0. type
+            // 1. student/parent Id
+            // 2. start time
+            // 3. end time
+            // 4. staff id
+            var eventFor = '';
+            if(elm.hasAttribute("parentid")){
+                uniqueId = wjQuery(elm).attr("parentid").split('_');
+                eventFor = 'customer';
+            }else if(elm.hasAttribute("studentid")){
+                uniqueId = wjQuery(elm).attr("studentid").split('_');
+                eventFor = 'student';
+            }
+            var eventColorObj = self.getEventColor(uniqueId[0]);
+            var index = self.findUniqueAppointment(uniqueId);
+            if(index != -1){
+                var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+                newAppointmentObj['staffId'] = resource.id;
+                newAppointmentObj['staffValue'] = resource.name;
+                newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
+                newAppointmentObj['startObj'] = date;
+                var dropable = self.checkForOutofofficeAppType1(newAppointmentObj);
+                if(!dropable){
+                    self.alertPopup("Cannot be place in the Out of Office Appointment.");
+                }else{
                     var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
                     var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
                     var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
                     var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
-
-
                     // Check all confirmation meassages here
                     var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
                     
@@ -1204,7 +1203,7 @@ function SylvanAppointment(){
     this.addConflictMsg = function(eventObj){
         var self = this;
         var msg = "";
-        var showConflict = self.checkForOutofofficeApp(eventObj['start'], {id:eventObj['resourceId']});
+        var showConflict = self.checkForOutofofficeAppType1(eventObj);
         if(!showConflict){
             var msgIndex = eventObj['conflictMsg'].map(function (x) {
                 return x;
@@ -1462,7 +1461,42 @@ function SylvanAppointment(){
         return messageObject;
     }
 
-    this.checkForOutofofficeApp = function(dropArea, resource){
+    this.checkForOutofofficeAppType1 = function(eventObj){
+        var self = this;
+        if(eventObj.resourceId == undefined){
+           eventObj.resourceId =  eventObj.staffId;
+        }
+        if(eventObj.start == undefined){
+           eventObj.start =  eventObj.startObj;
+        }
+        if(eventObj.end == undefined){
+           eventObj.end =  eventObj.endObj;
+        }
+        var dropEventDuration = eventObj.end.getTime() - eventObj.start.getTime();
+        var dropableEvent = self.appointment.fullCalendar('clientEvents',function(el){
+            var duration = el.end.getTime() - el.start.getTime();
+            if(dropEventDuration <= duration){
+                return  (!el.dropable) && 
+                        el.type == OUT_OF_OFFICE && 
+                        el.resourceId == eventObj.resourceId &&
+                        (el.start.getTime() == eventObj.start.getTime() ||
+                        el.start.getTime() <= eventObj.start.getTime() &&
+                        eventObj.start.getTime() < el.end.getTime())
+            }else{
+                return  el.resourceId == eventObj.resourceId &&
+                        (eventObj.start.getTime() == el.start.getTime() ||
+                        eventObj.start.getTime() <= el.start.getTime() &&
+                        el.start.getTime() < eventObj.end.getTime())   
+            }
+        });
+        if(dropableEvent.length == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    this.checkForOutofofficeAppType2 = function(dropArea, resource){
         var self = this;
         var dropableEvent = self.appointment.fullCalendar('clientEvents',function(el){
             return  (!el.dropable) && 
