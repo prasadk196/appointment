@@ -1468,10 +1468,8 @@ function SylvanAppointment(){
         if(eventObj.end == undefined){
            eventObj.end =  eventObj.endObj;
         }
-        var dropEventDuration = eventObj.end.getTime() - eventObj.start.getTime();
         var dropableEvent = self.appointment.fullCalendar('clientEvents',function(el){
-            var duration = el.end.getTime() - el.start.getTime();
-            if(eventObj.start.getTime() < el.start.getTime()){
+            /*if(eventObj.start.getTime() < el.start.getTime()){
                 return  (!el.dropable) && 
                         el.type == OUT_OF_OFFICE &&
                         el.resourceId == eventObj.resourceId &&
@@ -1483,11 +1481,48 @@ function SylvanAppointment(){
                         eventObj.start.getTime() >= el.start.getTime() &&
                         eventObj.start.getTime() < el.end.getTime()
 
-            }
+            }*/
+            return  (!el.dropable || !eventObj.dropable) && 
+                    (eventObj.type == OUT_OF_OFFICE ||  el.type == OUT_OF_OFFICE) &&
+                    el.resourceId == eventObj.resourceId && 
+                    (
+                        (
+                            eventObj.start.getTime() <= el.start.getTime() && 
+                            eventObj.end.getTime() >= el.end.getTime()
+                        ) ||
+                        (
+                            el.start.getTime() <= eventObj.start.getTime() && 
+                            el.end.getTime() >= eventObj.end.getTime()
+                        ) ||
+                        eventObj.end.getTime() > el.start.getTime() || 
+                        el.end.getTime() > eventObj.start.getTime()  
+                    )
         });
         if(dropableEvent.length == 0){
             return true;
         }else{
+            for (var i = 0; i < dropableEvent.length; i++) {
+                if(dropableEvent[i].memberList.length){
+                    var msg = "";
+                    var msgIndex = dropableEvent[i]['conflictMsg'].map(function (x) {
+                        return x;
+                    }).indexOf(0);
+                    if (msgIndex == -1) {
+                        dropableEvent[i].conflictMsg.push(0);
+                    }
+                    if(dropableEvent[i].conflictMsg!= undefined && dropableEvent[i].conflictMsg.length){
+                        wjQuery.each(dropableEvent[i].conflictMsg, function (k, v) {
+                            msg += (k + 1) + ". " + self.conflictMsg[v] + "|";
+                        });
+                        var lastIndex = msg.lastIndexOf("|");
+                        msg = msg.substring(0, lastIndex);
+                        if (dropableEvent[i].title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
+                            dropableEvent[i].title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+                        }
+                    }
+                    self.appointment.fullCalendar('updateEvent', dropableEvent[i]);
+                }
+            }
             return false;
         }
     }
