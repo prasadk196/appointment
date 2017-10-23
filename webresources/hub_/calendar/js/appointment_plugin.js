@@ -6,7 +6,6 @@ var STAFF_EXCEPTION_BG = '#ddd';
 var STAFF_EXCEPTION_BORDER = '#ddd';
 var messageList = ["Out of office Appointment conflict"];
 
-
 setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
     var locationId = sylvanAppointment.populateLocation(data.getLocation());
@@ -1294,7 +1293,6 @@ function SylvanAppointment(){
                     self.appointment.fullCalendar( 'addEventSource', self.eventList );
                     self.appointment.fullCalendar( 'refetchEvents');
                 }
-
             });
             wjQuery(".loading").hide();
             this.draggable('draggable');
