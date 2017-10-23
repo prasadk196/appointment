@@ -165,7 +165,6 @@ function SylvanAppointment(){
     this.appointmentHours = [];
     this.conflictMsg = ["Out of office appointment conflict"];
 
-
     this.clearEvents = function () {
         var self = this;
         self.filters = new Object();
@@ -743,8 +742,6 @@ function SylvanAppointment(){
             // 2. start time
             // 3. end time
             // 4. staff id
-
-
         // Appointment hour validation
         var eventColorObj = self.getEventColor(uniqueId[0]);
         if(eventColorObj.appointmentHour){
@@ -1237,7 +1234,6 @@ function SylvanAppointment(){
             }
         });
     }
-
 
     this.populateAppointmentEvent = function(appointmentList){
         var self = this;
