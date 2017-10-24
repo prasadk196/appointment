@@ -79,7 +79,7 @@ setTimeout(function () {
             onSelect: function (date) {
                 //wjQuery(".loading").show();
                 //sylvanAppointment.clearEvents();
-                sylvanAppointment.calendarDate = new Date(moment(moment(date).format('MM/DD/YYYY')).format('YYYY-MM-DD'));
+                sylvanAppointment.calendarDate = moment(moment(moment(date).format('MM/DD/YYYY')).format('YYYY-MM-DD')).toDate();
                 wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
                 if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
                     wjQuery('.headerDate').addClass('today');
