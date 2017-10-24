@@ -1914,9 +1914,19 @@ function lazySegBind(container, segs, bindHandlers) {
 
 
 function setOuterWidth(element, width, includeMargins) {
+	var unassignedWidth = 380;
+	var resoureWidth = false;
 	for (var i=0, e; i<element.length; i++) {
 		e = $(element[i]);
-		e.width(Math.max(0, width - hsides(e, includeMargins)));
+		if(resoureWidth){
+			e.width((window.innerWidth - (unassignedWidth + 80)) / element.length);
+		}else{
+			e.width(Math.max(0, width - hsides(e, includeMargins)));
+		}
+		if(e.attr('id') == 'unassignedId'){
+			resoureWidth = true;
+			e.width(unassignedWidth);
+		}
 	}
 }
 

@@ -1427,6 +1427,25 @@ function SylvanAppointment(){
             }
         });
         self.showConflictMsg();
+        wjQuery('.drag-student').off('dblclick').on('dblclick',function (e) {
+            self.openAppointment(this);    
+        });
+        wjQuery('.drag-parent').off('dblclick').on('dblclick',function (e) {
+            self.openAppointment(this);    
+        });
+    };
+
+    this.openAppointment = function(element){
+        var self = this;
+        if(element.hasAttribute("parentid")){
+            uniqueId = wjQuery(element).attr("parentid").split('_');
+        }else if(element.hasAttribute("studentid")){
+            uniqueId = wjQuery(element).attr("studentid").split('_');
+        }
+        var index = self.findUniqueAppointment(uniqueId);
+        if (self.appointmentList[index] != undefined) {
+            data.openAppointment(self.appointmentList[index].id);
+        }
     };
 
     this.checkForDroppable = function(newEvent) {

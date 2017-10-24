@@ -897,4 +897,8 @@ function Data(){
   this.getStaffExceptions = function(locationId,startDate,endDate){
     return staffExceptions;
   }
+  
+  this.openAppointment = function(appointmentId){
+    return true;
+  }
 }
