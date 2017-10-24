@@ -1007,7 +1007,6 @@ function SylvanAppointment(){
         newAppointment.activityid = newAppointmentObj.id;
         newAppointment.hub_location = newAppointmentObj.locationId;
         newAppointment.hub_type = newAppointmentObj.type;
-        newAppointment.hub_staff = newAppointmentObj.staffId;
         newAppointment.hub_start_date = moment(newAppointmentObj.startObj).format("YYYY-MM-DD");
         newAppointment.hub_end_date = moment(newAppointmentObj.startObj).format("YYYY-MM-DD");
         newAppointment.hub_starttime  = this.convertToMinutes(moment(newAppointmentObj.startObj).format("h:mm A"));
@@ -1022,11 +1021,16 @@ function SylvanAppointment(){
         newAppointment.hub_diagnosticserviceid_name = newAppointmentObj.diagnosticName;
         newAppointment.hub_outofofficeappointment = newAppointmentObj.outofoffice;
         newAppointment.hub_fulldayappointment = newAppointmentObj.allDayAppointment;
-
+        
+        if(newAppointmentObj.staffId != 'unassignedId')
+            newAppointment.hub_staff = newAppointmentObj.staffId;
+        
+        if(prevAppointmentObj.staffId != 'unassignedId')
+            prevAppointment.hub_staff = prevAppointmentObj.staffId;
+        
         prevAppointment.activityid = prevAppointmentObj.id;
         prevAppointment.hub_location = prevAppointmentObj.locationId;
         prevAppointment.hub_type = prevAppointmentObj.type;
-        prevAppointment.hub_staff = prevAppointmentObj.staffId;
         prevAppointment.hub_start_date = moment(prevAppointmentObj.startObj).format("YYYY-MM-DD");
         prevAppointment.hub_end_date = moment(prevAppointmentObj.startObj).format("YYYY-MM-DD");
         prevAppointment.hub_starttime  = this.convertToMinutes(moment(prevAppointmentObj.startObj).format("h:mm A"));
