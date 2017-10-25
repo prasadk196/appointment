@@ -364,3 +364,15 @@ ul{
 #allDayEventSection .fc-event-inner.fc-event-skin{
     width: calc(100% - 1px);
 }
+.display-block{
+    display: inline-block;
+}
+.display-none{
+    display: none;
+}
+.drag-student i.material-icons,.drag-parent i.material-icons{
+    font-size: 14px;
+    padding: 4px;
+    position: relative;
+    top: 2px;
+}

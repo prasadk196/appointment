@@ -162,7 +162,7 @@ function SylvanAppointment(){
     this.appointmentList = [];
     this.eventList = [];
     this.appointmentHours = [];
-    this.conflictMsg = ["Out of office appointment conflict"];
+    this.conflictMsg = ["Out of office appointment conflict","Staff not available conflict"];
 
     this.clearEvents = function () {
         var self = this;
@@ -697,7 +697,10 @@ function SylvanAppointment(){
                 newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
                 newAppointmentObj['startObj'] = date;
                 var dropable = self.checkForOutofofficeAppType1(newAppointmentObj);
-                if(!dropable){
+                if(dropable == 2){
+                    self.alertPopup("Staff not available at this time.Please schedule the appointment on a different time.");
+                }
+                else if(!dropable){
                     self.alertPopup("Cannot be place in the Out of Office Appointment.");
                 }else{
                     var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
@@ -1111,10 +1114,20 @@ function SylvanAppointment(){
 
     this.updateEventObj = function (appointmentObj, populatedEvent){
         var self = this;
-        var eventColorObj = self.getEventColor(appointmentObj["type"]);
+        var draggable = true;
+        var eventColorObj = {};
+        if(appointmentObj["outofoffice"] || appointmentObj['type'] == OUT_OF_OFFICE){
+            appointmentObj['type'] = OUT_OF_OFFICE;
+            draggable = false;
+            eventColorObj = self.getEventColor(OUT_OF_OFFICE);
+        }else{
+            eventColorObj = self.getEventColor(appointmentObj["type"]);
+        }
+        var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
+        var draggableClass = (draggable) ? "draggable" : "";
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-        if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
+        if(appointmentObj["outofoffice"] || (eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId')){
             populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
             var exceptionalCount = 0;
             if(appointmentObj['isExceptional']){
@@ -1128,9 +1141,9 @@ function SylvanAppointment(){
                     if(!populatedEvent.memberList[i].isExceptional){
                         exceptionalCount+=1;
                     }
-                    populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+populatedEvent.memberList[i]['studentName']+"</span>";
+                    populatedEvent.title += "<span class='"+draggableClass+" draggable drag-student' studentId='"+studentId+"' >"+populatedEvent.memberList[i]['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
                 }            
-                populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                populatedEvent.title += "<span class='"+draggableClass+" draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                 self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
@@ -1138,22 +1151,27 @@ function SylvanAppointment(){
                     if(!populatedEvent.memberList[i].isExceptional){
                         exceptionalCount+=1;
                     }
-                    populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+populatedEvent.memberList[i]['parentName']+"</span>";
+                    populatedEvent.title += "<span class='"+draggableClass+" draggable drag-parent' parentId='"+parentId+"' >"+populatedEvent.memberList[i]['parentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
                 }
-                populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                populatedEvent.title += "<span class='"+draggableClass+" draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                 self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }else{
             if( eventColorObj.display == "student"){
-                populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+                populatedEvent.title += "<span class='"+draggableClass+" draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
                 self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
-                populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+                populatedEvent.title += "<span class='"+draggableClass+" draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
                 self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }
+        populatedEvent.type = appointmentObj['type'];
+        populatedEvent.borderColor = eventColorObj.borderColor;
+        populatedEvent.backgroundColor = eventColorObj.backgroundColor;
+        populatedEvent.dropable = (!appointmentObj["outofoffice"]);
         populatedEvent.memberList.push(appointmentObj);
+        populatedEvent = self.addConflictMsg(populatedEvent);
         self.appointment.fullCalendar('updateEvent', populatedEvent);
     } 
 
@@ -1185,11 +1203,12 @@ function SylvanAppointment(){
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
         eventObj['resourceId'] = appointmentObj['staffId'];
         var draggableClass = (draggable) ? "draggable" : "";
+        var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
         if( eventColorObj.display == "student"){
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
             self.addContext(studentId,eventColorObj.display,appointmentObj);
         }else{
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
+            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
             self.addContext(parentId,eventColorObj.display,appointmentObj);
         }
         eventObj = self.addConflictMsg(eventObj);
@@ -1204,7 +1223,15 @@ function SylvanAppointment(){
         var self = this;
         var msg = "";
         var showConflict = self.checkForOutofofficeAppType1(eventObj);
-        if(!showConflict){
+        if(showConflict == 2){
+            var msgIndex = eventObj['conflictMsg'].map(function (x) {
+                return x;
+            }).indexOf(1);
+            if (msgIndex == -1) {
+                eventObj.conflictMsg.push(1);
+            }
+        }
+        else if(!showConflict){
             var msgIndex = eventObj['conflictMsg'].map(function (x) {
                 return x;
             }).indexOf(0);
@@ -1524,27 +1551,37 @@ function SylvanAppointment(){
         if(dropableEvent.length == 0){
             return true;
         }else{
+            var staffNotAvailable = false;
             for (var i = 0; i < dropableEvent.length; i++) {
-                if(dropableEvent[i].memberList.length){
-                    var msg = "";
-                    var msgIndex = dropableEvent[i]['conflictMsg'].map(function (x) {
-                        return x;
-                    }).indexOf(0);
-                    if (msgIndex == -1) {
-                        dropableEvent[i].conflictMsg.push(0);
-                    }
-                    if(dropableEvent[i].conflictMsg!= undefined && dropableEvent[i].conflictMsg.length){
-                        wjQuery.each(dropableEvent[i].conflictMsg, function (k, v) {
-                            msg += (k + 1) + ". " + self.conflictMsg[v] + "|";
-                        });
-                        var lastIndex = msg.lastIndexOf("|");
-                        msg = msg.substring(0, lastIndex);
-                        if (dropableEvent[i].title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
-                            dropableEvent[i].title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
-                        }
-                    }
-                    self.appointment.fullCalendar('updateEvent', dropableEvent[i]);
+                if(dropableEvent[i].backgroundColor == STAFF_EXCEPTION_BG && dropableEvent[i].borderColor == STAFF_EXCEPTION_BORDER){
+                   staffNotAvailable = true;
+                   break;
                 }
+                else{
+                    if(dropableEvent[i].memberList.length){
+                        var msg = "";
+                        var msgIndex = dropableEvent[i]['conflictMsg'].map(function (x) {
+                            return x;
+                        }).indexOf(0);
+                        if (msgIndex == -1) {
+                            dropableEvent[i].conflictMsg.push(0);
+                        }
+                        if(dropableEvent[i].conflictMsg!= undefined && dropableEvent[i].conflictMsg.length){
+                            wjQuery.each(dropableEvent[i].conflictMsg, function (k, v) {
+                                msg += (k + 1) + ". " + self.conflictMsg[v] + "|";
+                            });
+                            var lastIndex = msg.lastIndexOf("|");
+                            msg = msg.substring(0, lastIndex);
+                            if (dropableEvent[i].title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
+                                dropableEvent[i].title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+                            }
+                        }
+                        self.appointment.fullCalendar('updateEvent', dropableEvent[i]);
+                    }
+                }
+            }
+            if(staffNotAvailable){
+                return 2;
             }
             return false;
         }

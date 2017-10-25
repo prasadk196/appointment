@@ -3437,7 +3437,7 @@ function ResourceView(element, calendar, viewName) {
                 var top = timePosition(dayStart, stretchStart);
                 var bottom = timePosition(dayStart, stretchEnd);
                 rect.top = top;
-                rect.height = bottom - top;
+                rect.height = (bottom - top) / 2;
                 slotBind(
                     renderOverlay(rect, slotContent)
                     );
