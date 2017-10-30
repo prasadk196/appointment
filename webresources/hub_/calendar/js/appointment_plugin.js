@@ -212,18 +212,13 @@ function SylvanAppointment(){
         var tempList = [];
         if(label == "staffList"){
             tempList = [];
-            var firstColm = true;
+            obj = {
+                id:"unassignedId",
+                name: "Unassigned",
+            };  
+            tempList.push(obj);
             wjQuery.each(args, function(index, staffObj) {
                 var obj = [];
-                var availableList = [];
-                if(firstColm){
-                    obj = {
-                        id:"unassignedId",
-                        name: "Unassigned",
-                    };  
-                    firstColm = false;
-                    tempList.push(obj);
-                }
                 obj = {
                     id: staffObj["hub_staffid"],
                     name:staffObj["hub_name"]
