@@ -1245,8 +1245,10 @@ function SylvanAppointment(){
             });
             var lastIndex = msg.lastIndexOf("|");
             msg = msg.substring(0, lastIndex);
-            if (eventObj.title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
-                eventObj.title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+            if(eventObj.type != OUT_OF_OFFICE ){
+                if (eventObj.title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
+                    eventObj.title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+                }
             }
         }else{
 
@@ -1571,8 +1573,10 @@ function SylvanAppointment(){
                             });
                             var lastIndex = msg.lastIndexOf("|");
                             msg = msg.substring(0, lastIndex);
-                            if (dropableEvent[i].title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
-                                dropableEvent[i].title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+                            if(dropableEvent[i].type != OUT_OF_OFFICE ){
+                                if (dropableEvent[i].title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
+                                    dropableEvent[i].title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
+                                }
                             }
                         }
                         self.appointment.fullCalendar('updateEvent', dropableEvent[i]);
