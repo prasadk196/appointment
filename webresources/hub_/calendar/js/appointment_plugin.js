@@ -848,6 +848,7 @@ function SylvanAppointment(){
     }
 
     this.confirmPopup = function (t, date, allDay, ev, ui, resource, elm, message) {
+        var self = this;
         wjQuery("#dialog > .dialog-msg").text(message);
         wjQuery("#dialog").dialog({
             resizable: false,
@@ -866,6 +867,7 @@ function SylvanAppointment(){
                     wjQuery(this).dialog("close");
                 },
                 No: function () {
+                    self.draggable('draggable');
                     wjQuery(this).dialog("close");
                 }
             }
@@ -873,6 +875,7 @@ function SylvanAppointment(){
     }
 
     this.alertPopup = function(message){
+        var self = this;
         wjQuery("#dialog > .dialog-msg").text(message);
         wjQuery("#dialog").dialog({
             resizable: false,
@@ -887,6 +890,7 @@ function SylvanAppointment(){
             },
             buttons: {
                 Ok: function () {
+                    self.draggable('draggable');
                     wjQuery(this).dialog("close");
                 }
             }
