@@ -797,7 +797,7 @@ function SylvanAppointment(){
 
     this.updatePrevEvent = function(prevEvent,element,eventFor, uniqueId){
         var self = this;
-        if (prevEvent) {
+        if (prevEvent.length) {
             var eventTitleHTML = wjQuery(prevEvent[0].title);
             if(eventFor == 'student'){
                 for (var i = 0; i < eventTitleHTML.length; i++) {
@@ -1117,7 +1117,9 @@ function SylvanAppointment(){
         var eventColorObj = {};
         if(appointmentObj["outofoffice"] || appointmentObj['type'] == OUT_OF_OFFICE){
             appointmentObj['type'] = OUT_OF_OFFICE;
-            draggable = false;
+            if(appointmentObj['staffId'] != "unassignedId"){
+                draggable = false;
+            }
             eventColorObj = self.getEventColor(OUT_OF_OFFICE);
         }else{
             eventColorObj = self.getEventColor(appointmentObj["type"]);
@@ -1180,7 +1182,9 @@ function SylvanAppointment(){
         var eventColorObj ={};
         if(appointmentObj["outofoffice"] || appointmentObj['type'] == OUT_OF_OFFICE){
             appointmentObj['type'] = OUT_OF_OFFICE;
-            draggable = false;
+            if(appointmentObj['staffId'] != "unassignedId"){
+                draggable = false;
+            }
             eventColorObj = self.getEventColor(OUT_OF_OFFICE);
         }else{
             eventColorObj = self.getEventColor(appointmentObj["type"]);
@@ -1245,7 +1249,7 @@ function SylvanAppointment(){
             });
             var lastIndex = msg.lastIndexOf("|");
             msg = msg.substring(0, lastIndex);
-            if(eventObj.type != OUT_OF_OFFICE ){
+            if(eventObj.type != OUT_OF_OFFICE && eventObj.resourceId != "unassignedId"){
                 if (eventObj.title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
                     eventObj.title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
                 }
@@ -1545,8 +1549,10 @@ function SylvanAppointment(){
                             el.start.getTime() <= eventObj.start.getTime() && 
                             el.end.getTime() >= eventObj.end.getTime()
                         ) ||
-                        eventObj.end.getTime() > el.start.getTime() || 
-                        el.end.getTime() > eventObj.start.getTime()  
+                        (
+                            eventObj.end.getTime() > el.start.getTime() &&
+                            el.end.getTime() > eventObj.start.getTime() 
+                        )
                     )
         });
         if(dropableEvent.length == 0){
