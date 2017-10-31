@@ -356,6 +356,34 @@ function SylvanAppointment(){
                 }
             });
             self.staffExceptions = tempList;
+        }else if(label == "staffAvailable"){
+            wjQuery.each(args, function(index, staffObj){
+                var obj = {
+                    id: staffObj["_hub_staffid_value"],
+                    name: staffObj["_hub_staffid_value@OData.Community.Display.V1.FormattedValue"],
+                    availableDays:[],
+                    start:staffObj["hub_startdate"],
+                    end:staffObj["hub_enddate"]
+                }; 
+                var allKeys = Object.keys(staffObj);
+                wjQuery.each(staffObj, function(k, val){
+                    if(typeof(val) == "boolean" && val){
+                        var startTime = "";
+                        var endTime = "";
+                        var backupK = k;
+                        if(k == "hub_thursday"){
+                            startTime = k.slice(0, 8)+"starttime@OData.Community.Display.V1.FormattedValue";
+                            endTime = k.slice(0, 8)+"endtime@OData.Community.Display.V1.FormattedValue";
+                        }else{
+                            startTime = k.slice(0, 7)+"starttime@OData.Community.Display.V1.FormattedValue";
+                            endTime = k.slice(0, 7)+"endtime@OData.Community.Display.V1.FormattedValue";
+                        }
+                        var pushListKey =  backupK.replace("hub_", "");
+                        obj.availableDays[pushListKey] = {startTime:staffObj[startTime], endTime:staffObj[endTime]};
+                    }
+                });
+                tempList.push(obj);
+            });
         }
         return tempList;
     }
@@ -779,7 +807,7 @@ function SylvanAppointment(){
         }
         
         // Duplicate Student/parent validation
-        var formatedEventId = uniqueId;
+        var formatedEventId = wjQuery.extend(true, [], uniqueId);
         var availableEvent1 = self.appointment.fullCalendar('clientEvents',function(el){
             return  el.resourceId == newAppointmentObj['staffId'] &&
                     el.id != formatedEventId.splice(1, 1).join("_") &&
@@ -828,9 +856,62 @@ function SylvanAppointment(){
                 }
             }
         }
-               
+         
+        // staff availabilty check 
+        var currentCalendarDate = self.appointment.fullCalendar('getDate');
+        startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+        var dayList = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+        var availableStaff = self.formatObjects(data.getStaffAvailable(self.locationId, startDate, endDate), "staffAvailable");
+        if(availableStaff.length){
+            var availStaff = [];
+            var counter =1;
+            for(var p=0;p<availableStaff.length;p++){
+                var processFlag = false;
+                var startObj = new Date(availableStaff[p].start);
+                if(availableStaff[p].id == uniqueId[4]){
+                    if(availableStaff[p].end == undefined){
+                       if(startObj.getTime() <= currentCalendarDate.getTime()){
+                            availStaff = availableStaff[p];
+                            break;
+                       }
+                    }else{
+                       availableStaff[p].end = new Date(availableStaff[p].end); 
+                        if(startObj.getTime() <= currentCalendarDate.getTime() && 
+                            availableStaff[p].end.getTime() >= currentCalendarDate.getTime()){
+                            availStaff = availableStaff[p];
+                            break;
+                        }
+                    }
+                }else{
+                    if(counter == availableStaff.length){
+                        if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
+                            messageObject.confirmation.push(" Staff is not available");
+                        }
+                    }
+                }
+                counter ++;
+            }
+            if(availStaff != undefined){
+                var dayString = dayList[currentCalendarDate.getDay()];
+                var availableTimeObj = availStaff.availableDays[dayString];
+                if(availableTimeObj != undefined){
+                    if(new Date(startDate+" "+availableTimeObj.startTime).getTime() <= newAppointmentObj['startObj'].getTime() && 
+                        newAppointmentObj['startObj'].getTime() <= new Date(startDate+" "+availableTimeObj.endTime).getTime()){
+                    }else{
+                        if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
+                            messageObject.confirmation.push(" Staff is not available");
+                        }
+                    }
+                }else{
+                    if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
+                        messageObject.confirmation.push(" Staff is not available");
+                    }
+                }
+            }
+        }
         return messageObject;
     }
+
 
     this.updatePrevEvent = function(prevEvent,element,eventFor, uniqueId){
         var self = this;
