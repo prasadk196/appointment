@@ -863,7 +863,7 @@ function SylvanAppointment(){
         var dayList = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
         var availableStaff = self.formatObjects(data.getStaffAvailable(self.locationId, startDate, endDate), "staffAvailable");
         if(availableStaff.length){
-            var availStaff = [];
+            var availStaff = undefined;
             var counter =1;
             for(var p=0;p<availableStaff.length;p++){
                 var processFlag = false;
