@@ -30,7 +30,7 @@ var locations =  [
       name:"Instructional",
       borderColor:"red",
       backgroundColor:"red",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -38,7 +38,7 @@ var locations =  [
       name:"Center Visit",
       borderColor:"#7bc143",
       backgroundColor:"#dff0d5",
-      display:"customer",
+      display:"parent",
       appointmentHour:true
     },
     {
@@ -54,7 +54,7 @@ var locations =  [
       name:"School Visit",
       orderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -62,7 +62,7 @@ var locations =  [
       name:"Welcome Conference",
       borderColor:"#7bc143",
       backgroundColor:"#dff0d5",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -70,7 +70,7 @@ var locations =  [
       name:"Enrollment Conference",
       borderColor:"#7bc143",
       backgroundColor:"#dff0d5",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -94,7 +94,7 @@ var locations =  [
       name:"Ongoing Conference",
       borderColor:"#eacc82",
       backgroundColor:"#fcf7db",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -102,7 +102,7 @@ var locations =  [
       name:"Care Call",
       borderColor:"red",
       backgroundColor:"red",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -110,7 +110,7 @@ var locations =  [
       name:"Event",
       borderColor:"red",
       backgroundColor:"red",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     },
     {
@@ -118,7 +118,7 @@ var locations =  [
       name:"Out of Office",
       borderColor:"#666",
       backgroundColor:"#ccc",
-      display:"customer",
+      display:"parent",
       appointmentHour:false
     }
   ];
