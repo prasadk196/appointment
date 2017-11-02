@@ -1586,7 +1586,7 @@ function SylvanAppointment(){
         wjQuery('.' + selector).bind("drag", function(event, ui) {
             var elm = ui.helper;
             setTimeout(function(){
-                wjQuery(elm).text(self.helperStartTime);
+                wjQuery(elm).text("Starting at "+self.helperStartTime);
             },30);
         });
         self.showConflictMsg();
