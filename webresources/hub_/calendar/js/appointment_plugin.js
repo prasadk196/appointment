@@ -526,6 +526,9 @@ function SylvanAppointment(){
             allDayText: '',
             // allDaySlot:false,
             droppable: true,
+            onDrag: function(date){
+               self.helperStartTime =  moment(date).format('hh:mm a'); 
+            },
             drop: function (date, allDay, ev, ui, resource) {
                 self.createEventOnDrop(self, date, allDay, ev, ui, resource, this);
             },
@@ -1559,7 +1562,7 @@ function SylvanAppointment(){
             revert: true,
             revertDuration: 0,
             appendTo: '#scrollarea',
-            helper: 'clone',
+            helper: "clone",
             cursor: "move",
             scroll: true,
             cursorAt: { top: 0 },
@@ -1579,6 +1582,12 @@ function SylvanAppointment(){
                 //     wjQuery('.ta-pane').css('opacity', '1');
                 // }
             }
+        });
+        wjQuery('.' + selector).bind("drag", function(event, ui) {
+            var elm = ui.helper;
+            setTimeout(function(){
+                wjQuery(elm).text(self.helperStartTime);
+            },30);
         });
         self.showConflictMsg();
         wjQuery('.drag-student').off('dblclick').on('dblclick',function (e) {
