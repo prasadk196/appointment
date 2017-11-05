@@ -163,6 +163,8 @@ function SylvanAppointment(){
     this.eventList = [];
     this.appointmentHours = [];
     this.conflictMsg = ["Out of office appointment conflict","Staff not available conflict"];
+    this.appointmentHourException = [];
+
 
     this.clearEvents = function () {
         var self = this;
@@ -170,6 +172,7 @@ function SylvanAppointment(){
         self.eventList = [];
         self.appointmentList = [];
         self.appointmentHours = [];
+        self.appointmentHourException = [];
         self.appointment.fullCalendar('removeEvents');
         self.appointment.fullCalendar('removeEventSource');
     }
@@ -181,6 +184,7 @@ function SylvanAppointment(){
         self.staffList = [];
         self.appointmentList = [];
         self.appointmentHours = [];
+        self.appointmentHourException = [];
         self.appointment.fullCalendar('removeEvents');
         self.appointment.fullCalendar('removeEventSource');
         self.appointment.fullCalendar('destroy');
@@ -386,6 +390,25 @@ function SylvanAppointment(){
                 tempList.push(obj);
             });
         }
+        else if(label == "appointmentException"){
+            tempList = [];
+            wjQuery.each(args, function(index, appException) {
+                appException['hub_date'] = moment(new Date(appException['hub_date'])).format("YYYY-MM-DD");
+                var startObj = new Date(appException['hub_date']+" "+self.convertMinsNumToTime(appException['hub_start_time']));
+                var endObj = new Date(appException['hub_date']+" "+self.convertMinsNumToTime(appException['hub_end_time']));
+                var eventId = appException['aworkhours_x002e_hub_type']+"_"+startObj+"_"+endObj+"_"+"unassignedId";
+                var obj = {
+                    eventId:eventId,
+                    appointmentHourId:appException['aworkhours_x002e_hub_workhoursid'],
+                    id: appException['hub_appointment_slot_exceptionid'],
+                    type: appException['aworkhours_x002e_hub_type'],
+                    startObj: startObj,
+                    endObj: endObj
+                } 
+                tempList.push(obj);
+            });
+            this.appointmentHourException = tempList;
+        }
         return tempList;
     }
 
@@ -400,7 +423,14 @@ function SylvanAppointment(){
         if (hours   < 10) {hours   = "0"+hours;}
         if (minutes < 10) {minutes = "0"+minutes;}
         if (seconds < 10) {seconds = "0"+seconds;}
-        return hours+':'+minutes;
+        var time = hours+':'+minutes;
+        time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+        if (time.length > 1) { 
+            time = time.slice (1);  
+            time[5] = +time[0] < 12 ? ' AM' : ' PM'; 
+            time[0] = +time[0] % 12 || 12; 
+        }
+        return time.join ('');
       }
     }
 
@@ -647,6 +677,7 @@ function SylvanAppointment(){
                 }
                 if (findingLeaveFlag) {
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
+                    var appointmentHourException = self.formatObjects(data.appointmentExceptions(locationId,startDate,endDate), "appointmentException");
                     var appointmentHours = data.getAppointmentHours(locationId,startDate,endDate, false);
                     if (appointmentHours == null) {
                         appointmentHours = [];
@@ -1221,20 +1252,20 @@ function SylvanAppointment(){
                 }
             }
             if(allowException){
-                var dataToSend = {
-                    date: moment(new Date(uniqIdArry[1])).format('YYYY-MM-DD'),
-                    startTime: self.convertToMinutes(moment(new Date(uniqIdArry[1])).format('h:mm A')),
-                    EndTime: self.convertToMinutes(moment(new Date(uniqIdArry[2])).format('h:mm A')),
-                    sAppointmentHourId:appHourId
-                }
-                var response = data.appointmentException(dataToSend);
+                var newDate= moment(new Date(uniqIdArry[1])).format('YYYY-MM-DD');
+                var startTime= self.convertToMinutes(moment(new Date(uniqIdArry[1])).format('h:mm A'));
+                var endTime= self.convertToMinutes(moment(new Date(uniqIdArry[2])).format('h:mm A'));
+                var response = data.appointmentException(appHourId, newDate, startTime, endTime);
                 if(response){
-                    // remove event
+                    self.appointment.fullCalendar('removeEvents', eventId);
+                    self.appointment.fullCalendar('refetchEvents');
+                    wjQuery(".loading").hide();
                 }else{
-                    // dont remove event
+                    wjQuery(".loading").hide();
                 }
             }else{
-                console.log("warn user");
+                wjQuery(".loading").hide();
+                alert("Not allowed");
             }
         }   
     }
@@ -1468,33 +1499,37 @@ function SylvanAppointment(){
                     eventPopulated[0].title = self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
                 }else{
-                    var eventObj = {};
-                    eventObj = {
-                        id:eventId,
-                        resourceId:'unassignedId',
-                        capacity : appointmentHrObj['capacity'],
-                        start:appointmentHrObj['startObj'],
-                        end:appointmentHrObj['endObj'],
-                        allDay : false,
-                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+eventColorObj.name+"</span>",
-                        type:appointmentHrObj['type'],
-                        borderColor:eventColorObj.borderColor,
-                        color:"#333",
-                        dropable:true,
-                        conflictMsg:[],
-                        backgroundColor:eventColorObj.backgroundColor,
-                        memberList:[]
+                    var isexception = self.appointmentHourException.map(function(x) {
+                       return x.eventId == eventId;
+                    });
+                    if(isexception[0] == false){
+                        var eventObj = {};
+                        eventObj = {
+                            id:eventId,
+                            resourceId:'unassignedId',
+                            capacity : appointmentHrObj['capacity'],
+                            start:appointmentHrObj['startObj'],
+                            end:appointmentHrObj['endObj'],
+                            allDay : false,
+                            title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+eventColorObj.name+"</span>",
+                            type:appointmentHrObj['type'],
+                            borderColor:eventColorObj.borderColor,
+                            color:"#333",
+                            dropable:true,
+                            conflictMsg:[],
+                            backgroundColor:eventColorObj.backgroundColor,
+                            memberList:[]
+                        }
+                        if(eventColorObj.appointmentHour){
+                            eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
+                        }
+                        self.addContext(eventId,"appointmentHour",appointmentHrObj);
+                        self.eventList.push(eventObj);
+                        self.appointment.fullCalendar( 'removeEventSource');
+                        self.appointment.fullCalendar( 'removeEvents');
+                        self.appointment.fullCalendar( 'addEventSource', self.eventList );
+                        self.appointment.fullCalendar( 'refetchEvents');
                     }
-                    if(eventColorObj.appointmentHour){
-                        eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
-                    }
-                    self.addContext(eventId,"appointmentHour",appointmentHrObj);
-                    
-                    self.eventList.push(eventObj);
-                    self.appointment.fullCalendar( 'removeEventSource');
-                    self.appointment.fullCalendar( 'removeEvents');
-                    self.appointment.fullCalendar( 'addEventSource', self.eventList );
-                    self.appointment.fullCalendar( 'refetchEvents');
                 }
             });
             wjQuery(".loading").hide();
@@ -1561,7 +1596,7 @@ function SylvanAppointment(){
             obj.appException = {
                 name: "Appointment Exception",
                 callback: function (key, options) {
-                    // wjQuery(".loading").show();
+                    wjQuery(".loading").show();
                     options = wjQuery.extend(true, {}, options);
                     setTimeout(function(){
                         self.appointmentException(options.$trigger[0]);
@@ -1719,19 +1754,6 @@ function SylvanAppointment(){
            eventObj.end =  eventObj.endObj;
         }
         var dropableEvent = self.appointment.fullCalendar('clientEvents',function(el){
-            /*if(eventObj.start.getTime() < el.start.getTime()){
-                return  (!el.dropable) && 
-                        el.type == OUT_OF_OFFICE &&
-                        el.resourceId == eventObj.resourceId &&
-                        eventObj.end.getTime() > el.start.getTime() 
-            }else{
-                return  (!el.dropable) && 
-                        el.type == OUT_OF_OFFICE &&
-                        el.resourceId == eventObj.resourceId &&
-                        eventObj.start.getTime() >= el.start.getTime() &&
-                        eventObj.start.getTime() < el.end.getTime()
-
-            }*/
             return  (!el.dropable || !eventObj.dropable) && 
                     (eventObj.type == OUT_OF_OFFICE ||  el.type == OUT_OF_OFFICE) &&
                     el.resourceId == eventObj.resourceId && 
