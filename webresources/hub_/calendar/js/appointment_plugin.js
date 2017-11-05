@@ -306,6 +306,7 @@ function SylvanAppointment(){
                         var startObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
                         var endObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
                         tempList.push({
+                            appointmentHourId:appointmentHour['aworkhours_x002e_hub_workhoursid'],
                             type:appointmentHour['aworkhours_x002e_hub_type'],
                             typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
                             startObj:startObj,
@@ -813,7 +814,7 @@ function SylvanAppointment(){
         var formatedEventId = wjQuery.extend(true, [], uniqueId);
         var availableEvent1 = self.appointment.fullCalendar('clientEvents',function(el){
             return  el.resourceId == newAppointmentObj['staffId'] &&
-                    el.id != formatedEventId.splice(1, 1).join("_") &&
+                    // el.id != formatedEventId.splice(1, 1).join("_") &&
                     (
                         (
                             newAppointmentObj['startObj'].getTime() <= el.start.getTime() && 
@@ -871,7 +872,7 @@ function SylvanAppointment(){
             for(var p=0;p<availableStaff.length;p++){
                 var processFlag = false;
                 var startObj = new Date(availableStaff[p].start);
-                if(availableStaff[p].id == uniqueId[4]){
+                if(availableStaff[p].id == newAppointmentObj['resourceId']){
                     if(availableStaff[p].end == undefined){
                        if(startObj.getTime() <= currentCalendarDate.getTime()){
                             availStaff = availableStaff[p];
@@ -1195,6 +1196,49 @@ function SylvanAppointment(){
         }
     }
 
+    this.appointmentException = function(selectedOption){
+        var self = this;
+        var eventId = wjQuery(selectedOption).attr("id"); 
+        var appHourId = wjQuery(selectedOption).attr("appHourId");
+        if(eventId != undefined){
+            /*----- uniqIdArry has ----*/
+            // 0. type
+            // 1. start time
+            // 2. end time
+            // 3. staff id
+            var uniqIdArry = eventId.split("_");
+            var idArry = wjQuery.extend(true, [], uniqIdArry);
+            var allowException = true;
+            for(var i=0; i<this.staffList.length;i++){
+                if(i>0){
+                    idArry[3] = this.staffList[i]['id']; 
+                    var newEventId = idArry.join("_");
+                    var newEvent = self.appointment.fullCalendar('clientEvents', newEventId);
+                    if(newEvent.length){
+                        allowException = false;
+                        break;
+                    }
+                }
+            }
+            if(allowException){
+                var dataToSend = {
+                    date: moment(new Date(uniqIdArry[1])).format('YYYY-MM-DD'),
+                    startTime: self.convertToMinutes(moment(new Date(uniqIdArry[1])).format('h:mm A')),
+                    EndTime: self.convertToMinutes(moment(new Date(uniqIdArry[2])).format('h:mm A')),
+                    sAppointmentHourId:appHourId
+                }
+                var response = data.appointmentException(dataToSend);
+                if(response){
+                    // remove event
+                }else{
+                    // dont remove event
+                }
+            }else{
+                console.log("warn user");
+            }
+        }   
+    }
+
     this.convertToMinutes = function (timeString) {
         if (timeString != undefined) {
             if (timeString.split(' ')[1] == 'AM') {
@@ -1432,7 +1476,7 @@ function SylvanAppointment(){
                         start:appointmentHrObj['startObj'],
                         end:appointmentHrObj['endObj'],
                         allDay : false,
-                        title : "<span class='appointmentTitle'>"+eventColorObj.name+"</span>",
+                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+eventColorObj.name+"</span>",
                         type:appointmentHrObj['type'],
                         borderColor:eventColorObj.borderColor,
                         color:"#333",
@@ -1444,6 +1488,8 @@ function SylvanAppointment(){
                     if(eventColorObj.appointmentHour){
                         eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
                     }
+                    self.addContext(eventId,"appointmentHour",appointmentHrObj);
+                    
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');
                     self.appointment.fullCalendar( 'removeEvents');
@@ -1511,48 +1557,70 @@ function SylvanAppointment(){
     this.addContext = function(id,label,appointmentObj){
         var obj= {};
         var self = this;
-        var uniqueId = id.split('_');
-        /*----- uniqIdArry has ----*/
-        // 0. type
-        // 1. student/parent Id
-        // 2. start time
-        // 3. end time
-        // 4. staff id
-        if(uniqueId[4] != 'unassignedId'){
-            obj.moveToUnassigned = {
-                name: "Move to Unassigned",
+        if(label = "appointmentHour"){
+            obj.appException = {
+                name: "Appointment Exception",
                 callback: function (key, options) {
-                  self.moveToUnassigned(options.$trigger[0]);
+                    // wjQuery(".loading").show();
+                    options = wjQuery.extend(true, {}, options);
+                    setTimeout(function(){
+                        self.appointmentException(options.$trigger[0]);
+                    },300);
                 }
             }
-        }
-        obj.cancel = {
-            name: "Cancel",
-            callback: function (key, options) {
-              self.cancelAppointment(options.$trigger[0]);
+            wjQuery.contextMenu( 'destroy', 'span[id="' + id + '"]');
+                wjQuery.contextMenu({
+                    selector: 'span[id="' + id + '"]',
+                    build: function ($trigger, e) {
+                      return {
+                          items: obj
+                      };
+                    }
+                });
+        }else{
+            var uniqueId = id.split('_');
+            /*----- uniqIdArry has ----*/
+            // 0. type
+            // 1. student/parent Id
+            // 2. start time
+            // 3. end time
+            // 4. staff id
+            if(uniqueId[4] != 'unassignedId'){
+                obj.moveToUnassigned = {
+                    name: "Move to Unassigned",
+                    callback: function (key, options) {
+                      self.moveToUnassigned(options.$trigger[0]);
+                    }
+                }
             }
-        }
-        if(label == "student"){
-            wjQuery.contextMenu( 'destroy', 'span[studentId="' + id + '"]');
-            wjQuery.contextMenu({
-                selector: 'span[studentId="' + id + '"]',
-                build: function ($trigger, e) {
-                  return {
-                      items: obj
-                  };
+            obj.cancel = {
+                name: "Cancel",
+                callback: function (key, options) {
+                  self.cancelAppointment(options.$trigger[0]);
                 }
-            });
-        }
-        else{
-            wjQuery.contextMenu( 'destroy', 'span[parentId="' + id + '"]');
-            wjQuery.contextMenu({
-                selector: 'span[parentId="' + id + '"]',
-                build: function ($trigger, e) {
-                  return {
-                      items: obj
-                  };
-                }
-            });
+            }
+            if(label == "student"){
+                wjQuery.contextMenu( 'destroy', 'span[studentId="' + id + '"]');
+                wjQuery.contextMenu({
+                    selector: 'span[studentId="' + id + '"]',
+                    build: function ($trigger, e) {
+                      return {
+                          items: obj
+                      };
+                    }
+                });
+            }
+            else{
+                wjQuery.contextMenu( 'destroy', 'span[parentId="' + id + '"]');
+                wjQuery.contextMenu({
+                    selector: 'span[parentId="' + id + '"]',
+                    build: function ($trigger, e) {
+                      return {
+                          items: obj
+                      };
+                    }
+                });
+            }
         }
     }
 

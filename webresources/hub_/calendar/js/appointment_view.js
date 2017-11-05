@@ -579,6 +579,91 @@ var appointmentHours = [
     "aworkhours_x002e_hub_type": 4,
     "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "30 Mins",
     "aworkhours_x002e_hub_duration": 30
+  },
+    
+    {
+    "@odata.etag": "W/\"3906815\"",
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "11:30 AM",
+    "hub_endtime": 690,
+    "hub_days@OData.Community.Display.V1.FormattedValue": "Monday",
+    "hub_days": 1,
+    "hub_effectivestartdate@OData.Community.Display.V1.FormattedValue": "10/4/2017",
+    "hub_effectivestartdate": "2017-10-04",
+    "hub_capacity@OData.Community.Display.V1.FormattedValue": "3",
+    "hub_capacity": 3,
+    "hub_timingsid": "a5ac1f1a-dda8-e711-80f9-c4346bac4304",
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "9:30 AM",
+    "hub_starttime": 570,
+    "aworkhours_x002e_hub_workhoursid": "1a87cef6-dca8-e711-80f9-c4346bac4304",
+    "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "30 Mins",
+    "aworkhours_x002e_hub_duration": 30,
+    "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Initial Assessment",
+    "aworkhours_x002e_hub_type": 6,
+    "aworkhours_x002e_ownerid@OData.Community.Display.V1.FormattedValue": "Nagendra kumar",
+    "aworkhours_x002e_ownerid": "c2c4d087-ba0f-e711-80f9-c4346bada738"
+  },
+  {
+    "@odata.etag": "W/\"4373318\"",
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "5:00 PM",
+    "hub_endtime": 1020,
+    "hub_days@OData.Community.Display.V1.FormattedValue": "Monday",
+    "hub_days": 1,
+    "hub_effectivestartdate@OData.Community.Display.V1.FormattedValue": "10/9/2017",
+    "hub_effectivestartdate": "2017-10-09",
+    "hub_capacity@OData.Community.Display.V1.FormattedValue": "3",
+    "hub_capacity": 3,
+    "hub_timingsid": "98bcc1e6-39ad-e711-80fb-c4346bac4304",
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "8:00 AM",
+    "hub_starttime": 480,
+    "aworkhours_x002e_hub_workhoursid": "c5b0cb21-77ab-e711-80fb-c4346bac4304",
+    "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "1 Hour",
+    "aworkhours_x002e_hub_duration": 60,
+    "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Center Visit",
+    "aworkhours_x002e_hub_type": 1,
+    "aworkhours_x002e_ownerid@OData.Community.Display.V1.FormattedValue": "Nagendra kumar",
+    "aworkhours_x002e_ownerid": "c2c4d087-ba0f-e711-80f9-c4346bada738"
+  },
+  {
+    "@odata.etag": "W/\"3929175\"",
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "11:30 AM",
+    "hub_endtime": 690,
+    "hub_days@OData.Community.Display.V1.FormattedValue": "Monday",
+    "hub_days": 1,
+    "hub_effectivestartdate@OData.Community.Display.V1.FormattedValue": "10/4/2017",
+    "hub_effectivestartdate": "2017-10-04",
+    "hub_capacity@OData.Community.Display.V1.FormattedValue": "4",
+    "hub_capacity": 4,
+    "hub_timingsid": "5016e95e-dfa8-e711-80f9-c4346bad526c",
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "8:30 AM",
+    "hub_starttime": 510,
+    "aworkhours_x002e_hub_workhoursid": "e6773baf-33a8-e711-80f9-c4346bad526c",
+    "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "1 Hour",
+    "aworkhours_x002e_hub_duration": 60,
+    "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Practice Test",
+    "aworkhours_x002e_hub_type": 2,
+    "aworkhours_x002e_ownerid@OData.Community.Display.V1.FormattedValue": "Nagendra kumar",
+    "aworkhours_x002e_ownerid": "c2c4d087-ba0f-e711-80f9-c4346bada738"
+  },
+  {
+    "@odata.etag": "W/\"4268785\"",
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "8:00 PM",
+    "hub_endtime": 1200,
+    "hub_days@OData.Community.Display.V1.FormattedValue": "Monday",
+    "hub_days": 1,
+    "hub_effectivestartdate@OData.Community.Display.V1.FormattedValue": "10/17/2017",
+    "hub_effectivestartdate": "2017-10-17",
+    "hub_capacity@OData.Community.Display.V1.FormattedValue": "2",
+    "hub_capacity": 2,
+    "hub_timingsid": "c1e73d1e-3bb3-e711-80fd-c4346badc680",
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "5:00 PM",
+    "hub_starttime": 1020,
+    "aworkhours_x002e_hub_workhoursid": "c5b0cb21-77ab-e711-80fb-c4346bac4304",
+    "aworkhours_x002e_hub_duration@OData.Community.Display.V1.FormattedValue": "1 Hour",
+    "aworkhours_x002e_hub_duration": 60,
+    "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue": "Center Visit",
+    "aworkhours_x002e_hub_type": 1,
+    "aworkhours_x002e_ownerid@OData.Community.Display.V1.FormattedValue": "Nagendra kumar",
+    "aworkhours_x002e_ownerid": "c2c4d087-ba0f-e711-80f9-c4346bada738"
   }
 ];
  
@@ -592,8 +677,8 @@ var appointment = [
     "_hub_staff_value": "ed7614e3-fc79-e711-80f5-c4346badc680",
     "statecode@OData.Community.Display.V1.FormattedValue": "Scheduled",
     "statecode": 3,
-    "hub_endtime@OData.Community.Display.V1.FormattedValue": "10:00 AM",
-    "hub_endtime": 660,
+    "hub_endtime@OData.Community.Display.V1.FormattedValue": "08:30 AM",
+    "hub_endtime": 510,
     "hub_end_date@OData.Community.Display.V1.FormattedValue": "10/17/2017",
     "hub_end_date": "2017-10-17",
     "_regardingobjectid_value@OData.Community.Display.V1.FormattedValue": "Kiran Angadi",
@@ -616,8 +701,8 @@ var appointment = [
     "_hub_location_value": "46ecf508-e26d-e711-80f2-c4346bacfbbc",
     "hub_appointmentstatus@OData.Community.Display.V1.FormattedValue": "Schedule",
     "hub_appointmentstatus": 0,
-    "hub_starttime@OData.Community.Display.V1.FormattedValue": "09:30 AM",
-    "hub_starttime": 570,
+    "hub_starttime@OData.Community.Display.V1.FormattedValue": "08:00 AM",
+    "hub_starttime":480,
     "instancetypecode@OData.Community.Display.V1.FormattedValue": "Not Recurring",
     "instancetypecode": 0,
     "hub_outofofficeappointment@OData.Community.Display.V1.FormattedValue": "No",
@@ -899,6 +984,11 @@ function Data(){
   }
   
   this.openAppointment = function(appointmentId){
+    return true;
+  }
+
+  this.appointmentException = function(){
+    // return createAppointmentSlotException;
     return true;
   }
 }
