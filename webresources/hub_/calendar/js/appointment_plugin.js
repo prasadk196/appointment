@@ -310,14 +310,18 @@ function SylvanAppointment(){
                         var startObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
                         var endObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
                         tempList.push({
-                            appointmentHourId:appointmentHour['aworkhours_x002e_hub_workhoursid'],
+                            appointmentHourId:appointmentHour['hub_timingsid'],
                             type:appointmentHour['aworkhours_x002e_hub_type'],
                             typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
                             startObj:startObj,
                             endObj:endObj,
                             capacity:appointmentHour['hub_capacity'],
-                            duration : duration
-
+                            duration : duration,
+                            workHourId:appointmentHour['aworkhours_x002e_hub_workhoursid'],
+                            objOwner:{
+                                id:appointmentHour['_ownerid_value'], 
+                                entityType:appointmentHour['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
+                            }
                         });
                     }
                 }
@@ -399,7 +403,7 @@ function SylvanAppointment(){
                 var eventId = appException['aworkhours_x002e_hub_type']+"_"+startObj+"_"+endObj+"_"+"unassignedId";
                 var obj = {
                     eventId:eventId,
-                    appointmentHourId:appException['aworkhours_x002e_hub_workhoursid'],
+                    appointmentHourId:appException['hub_timingsid'],
                     id: appException['hub_appointment_slot_exceptionid'],
                     type: appException['aworkhours_x002e_hub_type'],
                     startObj: startObj,
@@ -677,7 +681,7 @@ function SylvanAppointment(){
                 }
                 if (findingLeaveFlag) {
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
-                    var appointmentHourException = self.formatObjects(data.appointmentExceptions(locationId,startDate,endDate), "appointmentException");
+                    var appointmentHourException = self.formatObjects(data.getappointmentExceptions(locationId,startDate,endDate), "appointmentException");
                     var appointmentHours = data.getAppointmentHours(locationId,startDate,endDate, false);
                     if (appointmentHours == null) {
                         appointmentHours = [];
@@ -1255,13 +1259,21 @@ function SylvanAppointment(){
                 var newDate= moment(new Date(uniqIdArry[1])).format('YYYY-MM-DD');
                 var startTime= self.convertToMinutes(moment(new Date(uniqIdArry[1])).format('h:mm A'));
                 var endTime= self.convertToMinutes(moment(new Date(uniqIdArry[2])).format('h:mm A'));
-                var response = data.appointmentException(appHourId, newDate, startTime, endTime);
-                if(response){
-                    self.appointment.fullCalendar('removeEvents', eventId);
-                    self.appointment.fullCalendar('refetchEvents');
-                    wjQuery(".loading").hide();
-                }else{
-                    wjQuery(".loading").hide();
+                var appointmentHourObj= this.appointmentHours.filter(function (y) {
+                    return y.appointmentHourId == appHourId &&
+                           y.startObj ==  uniqIdArry[1] &&
+                           y.endObj ==  uniqIdArry[2];
+                });
+                if (appointmentHourObj.length) {
+                    appointmentHourObj = appointmentHourObj[0];
+                    var response = data.appointmentException(appointmentHourObj['workHourId'], newDate, startTime, endTime, appointmentHourObj['objOwner']);
+                    if(response){
+                        self.appointment.fullCalendar('removeEvents', eventId);
+                        self.appointment.fullCalendar('refetchEvents');
+                        wjQuery(".loading").hide();
+                    }else{
+                        wjQuery(".loading").hide();
+                    }
                 }
             }else{
                 wjQuery(".loading").hide();
@@ -1499,10 +1511,10 @@ function SylvanAppointment(){
                     eventPopulated[0].title = self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
                 }else{
-                    var isexception = self.appointmentHourException.map(function(x) {
+                    var isexception = self.appointmentHourException.filter(function(x) {
                        return x.eventId == eventId;
                     });
-                    if(isexception[0] == false){
+                    if(isexception.length == 0){
                         var eventObj = {};
                         eventObj = {
                             id:eventId,
@@ -1594,7 +1606,7 @@ function SylvanAppointment(){
         var self = this;
         if(label = "appointmentHour"){
             obj.appException = {
-                name: "Appointment Exception",
+                name: "Appointment exception",
                 callback: function (key, options) {
                     wjQuery(".loading").show();
                     options = wjQuery.extend(true, {}, options);

@@ -1008,11 +1008,11 @@ function Data(){
     return true;
   }
 
-  this.appointmentException = function(sAppointmentHourId, date, startTime, EndTime){
+  this.appointmentException = function(sAppointmentHourId, date, startTime, EndTime, objOwner){
     return true;
   }
 
-  this.appointmentExceptions = function(locationId,startDate,endDate){
+  this.getappointmentExceptions = function(locationId,startDate,endDate){
       return appointmentExceptions;
   }
 
