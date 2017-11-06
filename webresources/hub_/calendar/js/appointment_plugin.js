@@ -763,7 +763,8 @@ function SylvanAppointment(){
                     self.alertPopup("Staff not available at this time.Please schedule the appointment on a different time.");
                 }
                 else if(!dropable){
-                    self.alertPopup("Cannot be place in the Out of Office Appointment.");
+                    // self.alertPopup("Cannot be place in the Out of Office Appointment.");
+                    self.confirmPopup(self, date, allDay, ev, ui, resource, elm,"Appointment is Out of Office. Do you wish to continue?");
                 }else{
                     var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
                     var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
@@ -1333,7 +1334,7 @@ function SylvanAppointment(){
             eventColorObj = self.getEventColor(appointmentObj["type"]);
         }
         var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
-        var draggableClass = (draggable) ? "draggable" : "";
+        var draggableClass = (draggable) ? "draggable" : "draggable";
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         if(appointmentObj["outofoffice"] || (eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId')){
@@ -1413,7 +1414,7 @@ function SylvanAppointment(){
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
         eventObj['resourceId'] = appointmentObj['staffId'];
-        var draggableClass = (draggable) ? "draggable" : "";
+        var draggableClass = (draggable) ? "draggable" : "draggable";
         var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
         if( eventColorObj.display == "student"){
             eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
