@@ -868,33 +868,56 @@ function SylvanAppointment(){
         });
 
         if(availableEvent1.length){
-            var terminateLoop = false;
-            for(var q=0;q<availableEvent1.length;q++){
-                var memberList = availableEvent1[q]['memberList'];
-                if(memberList.length){
-                    for(var i=0;i<memberList.length;i++){
-                        var id = eventColorObj.display+"Id";
-                        if(memberList[i][id] == uniqueId[1]){
-                            if(eventColorObj.display == "parent"){
-                                if(messageObject.alert.indexOf("Customer exist") == -1){
-                                    messageObject.alert.push("Customer exist");
-                                    terminateLoop = true;
-                                    break;
+            if(prevEvent.length){
+                prevEvent = prevEvent[0];
+                var availableEvent2 = availableEvent1.filter(function (el) {
+                    return  el.resourceId == prevEvent['resourceId'] &&
+                            (
+                                (
+                                    prevEvent['start'].getTime() <= el.start.getTime() && 
+                                    prevEvent['end'].getTime() >= el.end.getTime()
+                                ) ||
+                                (
+                                    el.start.getTime() <= prevEvent['start'].getTime() && 
+                                    el.end.getTime() >= prevEvent['end'].getTime()
+                                ) ||
+                                (
+                                    prevEvent['end'].getTime() > el.start.getTime() &&
+                                    el.end.getTime() > prevEvent['start'].getTime() 
+                                )
+                            )
+                });
+                if(availableEvent2.length == 0){
+                    var terminateLoop = false;
+                    for(var q=0;q<availableEvent1.length;q++){
+                        var memberList = availableEvent1[q]['memberList'];
+                        if(memberList.length){
+                            for(var i=0;i<memberList.length;i++){
+                                var id = eventColorObj.display+"Id";
+                                if(memberList[i][id] == uniqueId[1]){
+                                    if(eventColorObj.display == "parent"){
+                                        if(messageObject.alert.indexOf("Customer exist") == -1){
+                                            messageObject.alert.push("Customer exist");
+                                            terminateLoop = true;
+                                            break;
+                                        }
+                                    }else{
+                                        if(messageObject.alert.indexOf(eventColorObj.display+" exist" ) == -1){
+                                            messageObject.alert.push(eventColorObj.display+ " exist");
+                                            terminateLoop = true;
+                                            break;
+                                        }
+                                    }
                                 }
-                            }else{
-                                if(messageObject.alert.indexOf(eventColorObj.display+" exist" ) == -1){
-                                    messageObject.alert.push(eventColorObj.display+ " exist");
-                                    terminateLoop = true;
-                                    break;
-                                }
-                            }
+                            }    
                         }
-                    }    
-                }
-                if(terminateLoop){
-                    break;
+                        if(terminateLoop){
+                            break;
+                        }
+                    }
                 }
             }
+
         }
          
         // staff availabilty check 
@@ -1458,7 +1481,8 @@ function SylvanAppointment(){
             });
             var lastIndex = msg.lastIndexOf("|");
             msg = msg.substring(0, lastIndex);
-            if(eventObj.type != OUT_OF_OFFICE && eventObj.resourceId != "unassignedId"){
+            // if(eventObj.type != OUT_OF_OFFICE && eventObj.resourceId != "unassignedId"){
+            if(eventObj.resourceId != "unassignedId"){
                 if (eventObj.title.indexOf('<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">') == -1) {
                     eventObj.title += '<img class="conflict" title="' + msg + '" src="/webresources/hub_/calendar/images/warning.png">';
                 }
