@@ -1303,8 +1303,10 @@ function SylvanAppointment(){
                 }
             }else{
                 wjQuery(".loading").hide();
-                self.alertPopup("Not allowed to create Appointment exception.");
+                self.alertPopup("Not allowed to create appointment exception.");
             }
+        }else{
+            self.alertPopup("Not allowed to create appointment exception.");
         }   
     }
 
@@ -1633,7 +1635,7 @@ function SylvanAppointment(){
     this.addContext = function(id,label,appointmentObj){
         var obj= {};
         var self = this;
-        if(label = "appointmentHour"){
+        if(label == "appointmentHour"){
             obj.appException = {
                 name: "Appointment exception",
                 callback: function (key, options) {
@@ -1644,9 +1646,9 @@ function SylvanAppointment(){
                     },300);
                 }
             }
-            wjQuery.contextMenu( 'destroy', 'span[id="' + id + '"]');
+            wjQuery.contextMenu( 'destroy', '.appointmentTitle');
                 wjQuery.contextMenu({
-                    selector: 'span[id="' + id + '"]',
+                    selector: '.appointmentTitle',
                     build: function ($trigger, e) {
                       return {
                           items: obj
