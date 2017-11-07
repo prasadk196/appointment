@@ -848,6 +848,10 @@ function SylvanAppointment(){
         
         // Duplicate Student/parent validation
         var formatedEventId = wjQuery.extend(true, [], uniqueId);
+        var newEventIdArry = formatedEventId;
+        newEventIdArry[2] = newAppointmentObj['startObj'];
+        newEventIdArry[3] = newAppointmentObj['endObj'];
+        newEventIdArry.splice(1,1); 
         var availableEvent1 = self.appointment.fullCalendar('clientEvents',function(el){
             return  el.resourceId == newAppointmentObj['staffId'] &&
                     // el.id != formatedEventId.splice(1, 1).join("_") &&
@@ -872,6 +876,7 @@ function SylvanAppointment(){
                 prevEvent = prevEvent[0];
                 var availableEvent2 = availableEvent1.filter(function (el) {
                     return  el.resourceId == prevEvent['resourceId'] &&
+                            el.id != newEventIdArry.join("_") &&
                             (
                                 (
                                     prevEvent['start'].getTime() <= el.start.getTime() && 
