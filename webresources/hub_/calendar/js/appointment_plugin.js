@@ -562,7 +562,7 @@ function SylvanAppointment(){
             // allDaySlot:false,
             droppable: true,
             onDrag: function(date){
-               self.helperStartTime =  moment(date).format('hh:mm a'); 
+               self.helperStartTime =  moment(date).format('hh:mm A'); 
             },
             drop: function (date, allDay, ev, ui, resource) {
                 self.createEventOnDrop(self, date, allDay, ev, ui, resource, this);
