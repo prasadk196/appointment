@@ -1046,6 +1046,7 @@ function SylvanAppointment(){
                 Yes: function () {
                     t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, true);
                     wjQuery(this).dialog("close");
+                    self.draggable('draggable');
                 },
                 No: function () {
                     self.draggable('draggable');
@@ -1294,6 +1295,7 @@ function SylvanAppointment(){
                     if(response){
                         self.appointment.fullCalendar('removeEvents', eventId);
                         self.appointment.fullCalendar('refetchEvents');
+                        self.draggable('draggable');
                         wjQuery(".loading").hide();
                     }else{
                         wjQuery(".loading").hide();
@@ -1301,7 +1303,7 @@ function SylvanAppointment(){
                 }
             }else{
                 wjQuery(".loading").hide();
-                alert("Not allowed");
+                self.alertPopup("Not allowed to create Appointment exception.");
             }
         }   
     }
@@ -1440,10 +1442,12 @@ function SylvanAppointment(){
         var draggableClass = (draggable) ? "draggable" : "draggable";
         var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
         if( eventColorObj.display == "student"){
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
+            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"</span>";
+            // eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
             self.addContext(studentId,eventColorObj.display,appointmentObj);
         }else{
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
+            // eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons'>location_on</i></span>";
+            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='"+draggableClass+" drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"</span>";
             self.addContext(parentId,eventColorObj.display,appointmentObj);
         }
         eventObj = self.addConflictMsg(eventObj);
