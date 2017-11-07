@@ -28,8 +28,8 @@ var locations =  [
     {
       type:0,
       name:"Instructional",
-      borderColor:"red",
-      backgroundColor:"red",
+      borderColor:"#d7cbe0",
+      backgroundColor:"#f8f4fc",
       display:"parent",
       appointmentHour:false
     },
@@ -100,16 +100,16 @@ var locations =  [
     {
       type:9,
       name:"Care Call",
-      borderColor:"red",
-      backgroundColor:"red",
+      borderColor:"#d7cbe0",
+      backgroundColor:"#f8f4fc",
       display:"parent",
       appointmentHour:false
     },
     {
       type:10,
       name:"Event",
-      borderColor:"red",
-      backgroundColor:"red",
+      borderColor:"#d7cbe0",
+      backgroundColor:"#f8f4fc",
       display:"parent",
       appointmentHour:false
     },
