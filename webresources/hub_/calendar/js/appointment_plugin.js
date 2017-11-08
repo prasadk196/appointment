@@ -1049,9 +1049,12 @@ function SylvanAppointment(){
             },
             buttons: {
                 Yes: function () {
-                    t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, true);
                     wjQuery(this).dialog("close");
-                    self.draggable('draggable');
+                    wjQuery(".loading").show();
+                    setTimeout(function(){
+                        t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, true);
+                        self.draggable('draggable');
+                    }, 300);
                 },
                 No: function () {
                     self.draggable('draggable');
@@ -1118,8 +1121,10 @@ function SylvanAppointment(){
                 if (typeof (responseObj) == 'boolean' && responseObj) {
                     self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId);
                     self.populateAppointmentEvent([newAppointmentObj]);
-                    self.appointmentList.splice(index,1);
-                    self.appointmentList.push(newAppointmentObj);
+                    this.appointmentList.splice(index,1);
+                    this.appointmentList.push(newAppointmentObj);
+                }else{
+                    wjQuery(".loading").hide();
                 }            
             // }
             // else{
@@ -1357,7 +1362,7 @@ function SylvanAppointment(){
         var draggable = true;
         var eventColorObj = {};
         if(appointmentObj["outofoffice"] || appointmentObj['type'] == OUT_OF_OFFICE){
-            appointmentObj['type'] = OUT_OF_OFFICE;
+            // appointmentObj['type'] = OUT_OF_OFFICE;
             if(appointmentObj['staffId'] != "unassignedId"){
                 draggable = false;
             }
@@ -1414,7 +1419,18 @@ function SylvanAppointment(){
         populatedEvent.dropable = (!appointmentObj["outofoffice"]);
         populatedEvent.memberList.push(appointmentObj);
         populatedEvent = self.addConflictMsg(populatedEvent);
-        self.appointment.fullCalendar('updateEvent', populatedEvent);
+        var eventIndex = -1;
+        for(var r=0; r<this.eventList.length;r++){
+            if(this.eventList[r].id == populatedEvent.id){
+                eventIndex = r;
+            }
+        }
+
+        if(eventIndex != -1){
+            this.eventList[eventIndex] = populatedEvent;
+            this.appointment.fullCalendar('updateEvent', populatedEvent);
+            this.appointment.fullCalendar( 'refetchEvents');
+        }
     } 
 
     this.addEventObj = function(appointmentObj){
@@ -1422,7 +1438,7 @@ function SylvanAppointment(){
         var draggable = true;
         var eventColorObj ={};
         if(appointmentObj["outofoffice"] || appointmentObj['type'] == OUT_OF_OFFICE){
-            appointmentObj['type'] = OUT_OF_OFFICE;
+            // appointmentObj['type'] = OUT_OF_OFFICE;
             if(appointmentObj['staffId'] != "unassignedId"){
                 draggable = false;
             }
@@ -1458,10 +1474,10 @@ function SylvanAppointment(){
             self.addContext(parentId,eventColorObj.display,appointmentObj);
         }
         eventObj = self.addConflictMsg(eventObj);
-        self.eventList.push(eventObj);
+        this.eventList.push(eventObj);
         self.appointment.fullCalendar('removeEvents');
         self.appointment.fullCalendar('removeEventSource');
-        self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+        self.appointment.fullCalendar('addEventSource', { events: this.eventList });
         self.appointment.fullCalendar('refetchEvents');
     }
 
@@ -1545,7 +1561,16 @@ function SylvanAppointment(){
                 if(eventPopulated.length){
                     eventPopulated[0].capacity += appointmentHrObj['capacity'];
                     eventPopulated[0].title = self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
+                    for(var r=0; r<self.eventList.length;r++){
+                        if(self.eventList[r].id == populatedEvent.id){
+                            eventIndex = r;
+                        }
+                    }
+                    if(eventIndex != -1){
+                        self.eventList[eventIndex] = populatedEvent;
+                    }
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
+                    self.appointment.fullCalendar( 'refetchEvents');
                 }else{
                     var isexception = self.appointmentHourException.filter(function(x) {
                        return x.eventId == eventId;
@@ -1572,7 +1597,6 @@ function SylvanAppointment(){
                             eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
                         }
                         self.addContext(eventId,"appointmentHour",appointmentHrObj);
-                        self.eventList.push(eventObj);
                         self.appointment.fullCalendar( 'removeEventSource');
                         self.appointment.fullCalendar( 'removeEvents');
                         self.appointment.fullCalendar( 'addEventSource', self.eventList );
@@ -1580,6 +1604,7 @@ function SylvanAppointment(){
                     }
                 }
             });
+            this.eventList = self.eventList;
             wjQuery(".loading").hide();
             this.draggable('draggable');
         }
@@ -1607,10 +1632,10 @@ function SylvanAppointment(){
                     backgroundColor:STAFF_EXCEPTION_BG,
                     memberList:[]
                 };
-                self.eventList.push(eventObj);
+                this.eventList.push(eventObj);
                 self.appointment.fullCalendar( 'removeEventSource');
                 self.appointment.fullCalendar( 'removeEvents');
-                self.appointment.fullCalendar( 'addEventSource', self.eventList );
+                self.appointment.fullCalendar( 'addEventSource', this.eventList );
                 self.appointment.fullCalendar( 'refetchEvents');
             });
             wjQuery(".loading").hide();
