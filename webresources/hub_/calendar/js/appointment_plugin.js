@@ -1107,7 +1107,6 @@ function SylvanAppointment(){
         if(index != -1){
             // if(resource.id != 'unassignedId'){
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
-                elm.remove();
                 newAppointmentObj['staffId'] = resource.id;
                 newAppointmentObj['isExceptional'] = isExceptional;
                 newAppointmentObj['staffValue'] = resource.name;
@@ -1119,6 +1118,7 @@ function SylvanAppointment(){
                 var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
                 var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
                 if (typeof (responseObj) == 'boolean' && responseObj) {
+                    elm.remove();
                     self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId);
                     self.populateAppointmentEvent([newAppointmentObj]);
                     this.appointmentList.splice(index,1);
