@@ -368,6 +368,8 @@ ul{
 }
 .display-block{
     display: inline-block;
+    opacity: 1;
+    line-height: 0px;
 }
 .display-none{
     display: none;
@@ -377,4 +379,13 @@ ul{
     padding: 4px;
     position: relative;
     top: 2px;
+    opacity: 1;
+}
+
+.fc-agenda-allday{
+    display: none;
+}
+
+.fc-agenda-axis{
+    width: 78px !important;
 }
