@@ -114,6 +114,14 @@ var locations =  [
       appointmentHour:false
     },
     {
+      type:11,
+      name:"Starter Session",
+      borderColor:"#9acaea",
+      backgroundColor:"#ebf5fb",
+      display:"student",
+      appointmentHour:true
+    },
+    {
       type:OUT_OF_OFFICE,
       name:"Out of Office",
       borderColor:"#666",
