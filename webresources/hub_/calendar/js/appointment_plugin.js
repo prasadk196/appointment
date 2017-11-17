@@ -1106,7 +1106,7 @@ function SylvanAppointment(){
                     wjQuery(this).dialog("close");
                     wjQuery(".loading").show();
                     setTimeout(function(){
-                        t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, true);
+                        t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, false);
                         self.draggable('draggable');
                     }, 300);
                 },
