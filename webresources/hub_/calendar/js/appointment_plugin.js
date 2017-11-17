@@ -790,7 +790,11 @@ function SylvanAppointment(){
                             messageString += errArry.confirmation[i]+", ";
                         }
                         messageString = messageString.substr(0,messageString.length-2);
-                        self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?");
+                        if(errArry.confirmation.indexOf("Appointment Hour is not available") == -1){
+                            self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", false);
+                        }else{
+                            self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", true);
+                        }
                     }else{
                         // Allow to drop event directly
                         self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
@@ -1087,7 +1091,7 @@ function SylvanAppointment(){
         return flag;
     }
 
-    this.confirmPopup = function (t, date, allDay, ev, ui, resource, elm, message) {
+    this.confirmPopup = function (t, date, allDay, ev, ui, resource, elm, message, isexception) {
         var self = this;
         wjQuery("#dialog > .dialog-msg").text(message);
         wjQuery("#dialog").dialog({
@@ -1106,7 +1110,7 @@ function SylvanAppointment(){
                     wjQuery(this).dialog("close");
                     wjQuery(".loading").show();
                     setTimeout(function(){
-                        t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, false);
+                        t.updateAppointmentOnDrop(t, date, allDay, ev, ui, resource, elm, isexception);
                         self.draggable('draggable');
                     }, 300);
                 },
