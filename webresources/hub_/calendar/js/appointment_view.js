@@ -111,7 +111,7 @@ var locations =  [
       borderColor:"#d7cbe0",
       backgroundColor:"#f8f4fc",
       display:"parent",
-      appointmentHour:false
+      appointmentHour:true
     },
     {
       type:11,

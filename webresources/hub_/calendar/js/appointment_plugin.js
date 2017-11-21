@@ -1361,7 +1361,11 @@ function SylvanAppointment(){
                     appointmentHourObj = appointmentHourObj[0];
                     var response = data.appointmentException(appointmentHourObj['workHourId'], newDate, startTime, endTime, appointmentHourObj['objOwner']);
                     if(response){
-                        self.appointment.fullCalendar('removeEvents', eventId);
+                        // self.appointment.fullCalendar('removeEvents', eventId);
+                        var appointmentEvent = self.appointment.fullCalendar('clientEvents', eventId);
+                        appointmentEvent[0]["backgroundColor"] = STAFF_EXCEPTION_BG;
+                        appointmentEvent[0]["borderColor"] = STAFF_EXCEPTION_BORDER;
+                        self.appointment.fullCalendar('updateEvent', appointmentEvent);
                         self.appointment.fullCalendar('refetchEvents');
                         self.draggable('draggable');
                         wjQuery(".loading").hide();
@@ -1627,38 +1631,45 @@ function SylvanAppointment(){
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
                     self.appointment.fullCalendar( 'refetchEvents');
                 }else{
+                    var eventObj = {};
+                    eventObj = {
+                        id:eventId,
+                        resourceId:'unassignedId',
+                        capacity : appointmentHrObj['capacity'],
+                        start:appointmentHrObj['startObj'],
+                        end:appointmentHrObj['endObj'],
+                        allDay : false,
+                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+eventColorObj.name+"</span>",
+                        type:appointmentHrObj['type'],
+                        // borderColor:eventColorObj.borderColor,
+                        color:"#333",
+                        dropable:true,
+                        conflictMsg:[],
+                        // backgroundColor:eventColorObj.backgroundColor,
+                        memberList:[],
+                        appHourId:appointmentHrObj['appointmentHourId']
+                    }
+                    if(eventColorObj.appointmentHour){
+                        eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
+                    }
+                    // Appointment hour exception validation
                     var isexception = self.appointmentHourException.filter(function(x) {
                        return x.eventId == eventId;
                     });
                     if(isexception.length == 0){
-                        var eventObj = {};
-                        eventObj = {
-                            id:eventId,
-                            resourceId:'unassignedId',
-                            capacity : appointmentHrObj['capacity'],
-                            start:appointmentHrObj['startObj'],
-                            end:appointmentHrObj['endObj'],
-                            allDay : false,
-                            title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+eventColorObj.name+"</span>",
-                            type:appointmentHrObj['type'],
-                            borderColor:eventColorObj.borderColor,
-                            color:"#333",
-                            dropable:true,
-                            conflictMsg:[],
-                            backgroundColor:eventColorObj.backgroundColor,
-                            memberList:[],
-                            appHourId:appointmentHrObj['appointmentHourId']
-                        }
-                        if(eventColorObj.appointmentHour){
-                            eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
-                        }
-                        self.eventList.push(eventObj);
-                        self.addContext(eventId,"appointmentHour",appointmentHrObj);
-                        self.appointment.fullCalendar( 'removeEventSource');
-                        self.appointment.fullCalendar( 'removeEvents');
-                        self.appointment.fullCalendar( 'addEventSource', self.eventList );
-                        self.appointment.fullCalendar( 'refetchEvents');
+                        eventObj['backgroundColor'] = eventColorObj.backgroundColor;
+                        eventObj['borderColor'] = eventColorObj.borderColor;
+                    }else{
+                        eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
+                        eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
+
+                    self.eventList.push(eventObj);
+                    self.addContext(eventId,"appointmentHour",appointmentHrObj);
+                    self.appointment.fullCalendar( 'removeEventSource');
+                    self.appointment.fullCalendar( 'removeEvents');
+                    self.appointment.fullCalendar( 'addEventSource', self.eventList );
+                    self.appointment.fullCalendar( 'refetchEvents');
                 }
             });
             this.eventList = self.eventList;
