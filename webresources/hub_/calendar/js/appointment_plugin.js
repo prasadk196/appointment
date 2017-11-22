@@ -1012,6 +1012,18 @@ function SylvanAppointment(){
                 }
             }
         }
+
+        // Appointment Hour exception validation
+        if(newEvent.length){
+            var isexception = self.appointmentHourException.filter(function(x) {
+               return x.eventId == newEvent[0]['id'];
+            });
+            if(isexception.length){
+                if(messageObject.alert.indexOf("AppointmentHour is exception.") == -1){
+                    messageObject.alert.push("AppointmentHour is exception.");
+                }
+            }
+        }
         return messageObject;
     }
 
