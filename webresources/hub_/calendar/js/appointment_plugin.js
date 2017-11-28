@@ -893,7 +893,7 @@ function SylvanAppointment(){
         newEventIdArry.splice(1,1); 
         var availableEvent1 = self.appointment.fullCalendar('clientEvents',function(el){
             return  el.resourceId == newAppointmentObj['staffId'] &&
-                    // el.id != formatedEventId.splice(1, 1).join("_") &&
+                    // el.id != prevEvent[0]['id'] &&
                     (
                         (
                             newAppointmentObj['startObj'].getTime() <= el.start.getTime() && 
@@ -961,7 +961,6 @@ function SylvanAppointment(){
                     }
                 }
             }
-
         }
          
         // staff availabilty check 
@@ -1018,30 +1017,35 @@ function SylvanAppointment(){
         }
 
         // Appointment Hour exception validation
-            var isexception = self.appointmentHourException.filter(function(el) {
-                return  newAppointmentObj['type'] == el.type &&
-                        newAppointmentObj['staffId'] == "unassignedId" &&
+        var isexception = self.appointmentHourException.filter(function(el) {
+            return  newAppointmentObj['type'] == el.type &&
+                    newAppointmentObj['staffId'] == "unassignedId" &&
+                    (
                         (
-                            (
-                                newAppointmentObj['startObj'].getTime() <= el.startObj.getTime() && 
-                                newAppointmentObj['endObj'].getTime() >= el.endObj.getTime()
-                            ) ||
-                            (
-                                el.startObj.getTime() <= newAppointmentObj['startObj'].getTime() && 
-                                el.endObj.getTime() >= newAppointmentObj['endObj'].getTime()
-                            ) ||
-                            (
-                                newAppointmentObj['endObj'].getTime() > el.startObj.getTime() &&
-                                el.endObj.getTime() > newAppointmentObj['startObj'].getTime() 
-                            )
+                            newAppointmentObj['startObj'].getTime() <= el.startObj.getTime() && 
+                            newAppointmentObj['endObj'].getTime() >= el.endObj.getTime()
+                        ) ||
+                        (
+                            el.startObj.getTime() <= newAppointmentObj['startObj'].getTime() && 
+                            el.endObj.getTime() >= newAppointmentObj['endObj'].getTime()
+                        ) ||
+                        (
+                            newAppointmentObj['endObj'].getTime() > el.startObj.getTime() &&
+                            el.endObj.getTime() > newAppointmentObj['startObj'].getTime() 
                         )
-            });
-            if(isexception.length){
-                if(messageObject.alert.indexOf("Appointment can not be placed in an exceptional appointment hour.") == -1){
-                    messageObject.alert.push("Appointment can not be placed in an exceptional appointment hour.");
-                }
+                    )
+        });
+        if(isexception.length){
+            if(messageObject.alert.indexOf("Appointment can not be placed in an exceptional appointment hour.") == -1){
+                messageObject.alert.push("Appointment can not be placed in an exceptional appointment hour.");
             }
-
+        }
+        if(newEvent.length && prevEvent != undefined){
+            if(prevEvent['id'] == newEvent[0]['id']){
+                messageObject.alert = [];
+                messageObject.confirmation = [];
+            }
+        }
 
         return messageObject;
     }
