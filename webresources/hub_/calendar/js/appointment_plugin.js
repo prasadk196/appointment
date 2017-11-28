@@ -1018,16 +1018,31 @@ function SylvanAppointment(){
         }
 
         // Appointment Hour exception validation
-        if(newEvent.length){
-            var isexception = self.appointmentHourException.filter(function(x) {
-               return x.eventId == newEvent[0]['id'];
+            var isexception = self.appointmentHourException.filter(function(el) {
+                return  newAppointmentObj['type'] == el.type &&
+                        newAppointmentObj['staffId'] == "unassignedId" &&
+                        (
+                            (
+                                newAppointmentObj['startObj'].getTime() <= el.startObj.getTime() && 
+                                newAppointmentObj['endObj'].getTime() >= el.endObj.getTime()
+                            ) ||
+                            (
+                                el.startObj.getTime() <= newAppointmentObj['startObj'].getTime() && 
+                                el.endObj.getTime() >= newAppointmentObj['endObj'].getTime()
+                            ) ||
+                            (
+                                newAppointmentObj['endObj'].getTime() > el.startObj.getTime() &&
+                                el.endObj.getTime() > newAppointmentObj['startObj'].getTime() 
+                            )
+                        )
             });
             if(isexception.length){
-                if(messageObject.alert.indexOf("AppointmentHour is exception.") == -1){
-                    messageObject.alert.push("AppointmentHour is exception.");
+                if(messageObject.alert.indexOf("Appointment can not be placed in an exceptional appointment hour.") == -1){
+                    messageObject.alert.push("Appointment can not be placed in an exceptional appointment hour.");
                 }
             }
-        }
+
+
         return messageObject;
     }
 
@@ -1074,7 +1089,9 @@ function SylvanAppointment(){
                     prevEvent[0].memberList.splice(studentIndex, 1);
                     if(prevEvent[0].memberList.length == 0){
                         if(prevEvent[0]["appHourId"] != undefined){
-                            prevEvent[0].title = prevEvent[0].title.replace('<span class="appointmentTitle">Initial Assessment</span>','<span class="appointmentTitle" id="'+prevEvent[0].id+'" appHourId="'+prevEvent[0]["appHourId"]+'" >Initial Assessment</span>');
+                            var appName = self.getEventColor(prevEvent[0].type).name;
+                            prevEvent[0].memberList = [];
+                            prevEvent[0].title = prevEvent[0].title.replace('<span class="appointmentTitle">'+appName+'</span>','<span class="appointmentTitle" id="'+prevEvent[0].id+'" appHourId="'+prevEvent[0]["appHourId"]+'" >'+appName+'</span>');
                         }
                     }
                     prevEvent[0].outOfOffice = self.updateOutOfOfficeFlagToEvent(prevEvent[0]);
@@ -1377,6 +1394,15 @@ function SylvanAppointment(){
                         var appointmentEvent = self.appointment.fullCalendar('clientEvents', eventId);
                         appointmentEvent[0]["backgroundColor"] = STAFF_EXCEPTION_BG;
                         appointmentEvent[0]["borderColor"] = STAFF_EXCEPTION_BORDER;
+                        var appHrExp = {};
+                        appHrExp['eventId'] = appointmentEvent[0].id;
+                        appHrExp['id'] = appointmentEvent[0].appHourId;
+                        appHrExp['endObj'] = appointmentEvent[0].end;
+                        appHrExp['startObj'] = appointmentEvent[0].start;
+                        appHrExp['appointmentHourId'] = undefined;
+                        appHrExp['type'] = appointmentEvent[0].type;
+                        this.appointmentHourException.push(appHrExp);
+                        appointmentEvent[0].title = wjQuery(appointmentEvent[0].title)[0].outerHTML;
                         self.appointment.fullCalendar('updateEvent', appointmentEvent);
                         self.appointment.fullCalendar('refetchEvents');
                         self.draggable('draggable');
@@ -1630,7 +1656,7 @@ function SylvanAppointment(){
                 var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
                 if(eventPopulated.length){
                     eventPopulated[0].capacity += appointmentHrObj['capacity'];
-                    eventPopulated[0].title = self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
+                    eventPopulated[0].title += self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
                     var eventIndex = 0;
                     for(var r=0; r<self.eventList.length;r++){
                         if(self.eventList[r].id == eventPopulated.id){
@@ -1662,9 +1688,28 @@ function SylvanAppointment(){
                         appHourId:appointmentHrObj['appointmentHourId']
                     }
                     // Appointment hour exception validation
-                    var isexception = self.appointmentHourException.filter(function(x) {
-                       return x.eventId == eventId;
+                    // var isexception = self.appointmentHourException.filter(function(x) {
+                    //    return x.eventId == eventId;
+                    // });
+                    var isexception = self.appointmentHourException.filter(function(el) {
+                        return  eventObj['type'] == el.type &&
+                                eventObj['resourceId'] == "unassignedId" &&
+                                (
+                                    (
+                                        eventObj['start'].getTime() <= el.startObj.getTime() && 
+                                        eventObj['end'].getTime() >= el.endObj.getTime()
+                                    ) ||
+                                    (
+                                        el.startObj.getTime() <= eventObj['start'].getTime() && 
+                                        el.endObj.getTime() >= eventObj['end'].getTime()
+                                    ) ||
+                                    (
+                                        eventObj['end'].getTime() > el.startObj.getTime() &&
+                                        el.endObj.getTime() > eventObj['start'].getTime() 
+                                    )
+                                )
                     });
+
                     if(isexception.length == 0){
                         if(eventColorObj.appointmentHour){
                             eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
