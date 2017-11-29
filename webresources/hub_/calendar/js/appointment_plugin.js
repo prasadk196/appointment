@@ -754,6 +754,7 @@ function SylvanAppointment(){
             // 3. end time
             // 4. staff id
             var eventFor = '';
+            var activityId = wjQuery(elm).attr("activityid");
             if(elm.hasAttribute("parentid")){
                 uniqueId = wjQuery(elm).attr("parentid").split('_');
                 eventFor = 'parent';
@@ -762,7 +763,7 @@ function SylvanAppointment(){
                 eventFor = 'student';
             }
             var eventColorObj = self.getEventColor(uniqueId[0]);
-            var index = self.findUniqueAppointment(uniqueId);
+            var index = self.findUniqueAppointment(uniqueId, activityId);
             if(index != -1){
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
                 newAppointmentObj['staffId'] = resource.id;
@@ -1053,20 +1054,29 @@ function SylvanAppointment(){
     }
 
 
-    this.updatePrevEvent = function(prevEvent,element,eventFor, uniqueId){
+    this.updatePrevEvent = function(prevEvent,element,eventFor, uniqueId, activityId){
         var self = this;
         if (prevEvent.length) {
             var eventTitleHTML = wjQuery(prevEvent[0].title);
-            if(eventFor == 'student'){
-                for (var i = 0; i < eventTitleHTML.length; i++) {
-                    if (wjQuery(eventTitleHTML[i]).attr('studentId') == wjQuery(element).attr('studentId')) {
-                        eventTitleHTML.splice(i, 1);
+            var activityId = wjQuery(element).attr('activityid');
+            if(activityId == undefined){
+                if(eventFor == 'student'){
+                    for (var i = 0; i < eventTitleHTML.length; i++) {
+                        if (wjQuery(eventTitleHTML[i]).attr('studentId') == wjQuery(element).attr('studentId')) {
+                            eventTitleHTML.splice(i, 1);
+                        }
                     }
                 }
-            }
-            else{
+                else{
+                    for (var i = 0; i < eventTitleHTML.length; i++) {
+                        if (wjQuery(eventTitleHTML[i]).attr('parentId') == wjQuery(element).attr('parentId')) {
+                            eventTitleHTML.splice(i, 1);
+                        }
+                    }
+                }
+            }else{
                 for (var i = 0; i < eventTitleHTML.length; i++) {
-                    if (wjQuery(eventTitleHTML[i]).attr('parentId') == wjQuery(element).attr('parentId')) {
+                    if (wjQuery(eventTitleHTML[i]).attr('activityid') == activityId) {
                         eventTitleHTML.splice(i, 1);
                     }
                 }
@@ -1089,8 +1099,8 @@ function SylvanAppointment(){
                     this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
                 }
                 var studentIndex = prevEvent[0].memberList.map(function (x) {
-                    return x[eventFor+"Id"];
-                }).indexOf(uniqueId[1]);
+                    return x.id;
+                }).indexOf(activityId);
                 if(studentIndex != -1){
                     prevEvent[0].memberList.splice(studentIndex, 1);
                     if(prevEvent[0].memberList.length == 0){
@@ -1115,6 +1125,8 @@ function SylvanAppointment(){
                 this.appointment.fullCalendar('refetchEvents');
             }
         }
+        self.draggable('draggable');
+        wjQuery(".loading").hide();
     }
 
     this.updateOutOfOfficeFlagToEvent = function(prevEvent){
@@ -1193,6 +1205,7 @@ function SylvanAppointment(){
         // 3. end time
         // 4. staff id
         var eventFor = '';
+        var activityId = wjQuery(elm).attr("activityid");
         if(elm.hasAttribute("parentid")){
             uniqueId = wjQuery(elm).attr("parentid").split('_');
             eventFor = 'parent';
@@ -1200,7 +1213,7 @@ function SylvanAppointment(){
             uniqueId = wjQuery(elm).attr("studentid").split('_');
             eventFor = 'student';
         }
-        var index = self.findUniqueAppointment(uniqueId);
+        var index = self.findUniqueAppointment(uniqueId, activityId);
         if(index != -1){
             // if(resource.id != 'unassignedId'){
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
@@ -1216,7 +1229,7 @@ function SylvanAppointment(){
                 var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
                 if (typeof (responseObj) == 'string' && responseObj != "" || typeof (responseObj) == 'boolean' && responseObj) {
                     elm.remove();
-                    self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId);
+                    self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId, activityId);
                     self.populateAppointmentEvent([newAppointmentObj]);
                     this.appointmentList.splice(index,1);
                     newAppointmentObj['id'] = responseObj;
@@ -1231,6 +1244,7 @@ function SylvanAppointment(){
         var self = this;
         var uniqIdArry = [];
         var eventFor = '';
+        var activityId = wjQuery(element).attr("activityid");
         if(element.hasAttribute("parentid")){
             uniqIdArry = wjQuery(element).attr("parentid").split('_');
             eventFor = 'parent';
@@ -1238,7 +1252,7 @@ function SylvanAppointment(){
             uniqIdArry = wjQuery(element).attr("studentid").split('_');
             eventFor = 'student';
         }
-        var index = self.findUniqueAppointment(uniqIdArry);
+        var index = self.findUniqueAppointment(uniqIdArry, activityId);
         if(index != -1){
             element.remove();
             var responseObj = data.moveToUnassigned({'activityid': self.appointmentList[index].id});
@@ -1248,7 +1262,7 @@ function SylvanAppointment(){
                 newAppointmentObj['staffValue'] = 'unassignedId';
                 var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
                 var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry);
+                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry, activityId);
                 self.populateAppointmentEvent([newAppointmentObj]);
                 self.appointmentList.splice(index,1);
                 self.appointmentList.push(newAppointmentObj);
@@ -1256,31 +1270,40 @@ function SylvanAppointment(){
         }
     }
 
-    this.findUniqueAppointment = function(uniqueId){
+    this.findUniqueAppointment = function(uniqueId, activityId){
         var self = this;
         var index = -1;
         var eventColorObj = self.getEventColor(uniqueId[0]);
-        if(eventColorObj.display == 'student'){
+        if(activityId != undefined){
             for(var i=0; i< self.appointmentList.length; i++){
-                if(uniqueId[0] == self.appointmentList[i]['type'] &&
-                    uniqueId[1] == self.appointmentList[i]["studentId"] && 
-                    uniqueId[2] == self.appointmentList[i]['startObj'] &&
-                    uniqueId[3] == self.appointmentList[i]['endObj'] &&
-                    uniqueId[4] == self.appointmentList[i]['staffId']){
+                if(activityId == self.appointmentList[i]['id']){
                     index = i;
                     break;
                 }
             }
-        }
-        else{
-            for(var i=0; i< self.appointmentList.length; i++){
-                if(uniqueId[0] == self.appointmentList[i]['type'] &&
-                    uniqueId[1] == self.appointmentList[i]["parentId"] && 
-                    uniqueId[2] == self.appointmentList[i]['startObj'] &&
-                    uniqueId[3] == self.appointmentList[i]['endObj'] &&
-                    uniqueId[4] == self.appointmentList[i]['staffId']){
-                    index = i;
-                    break;
+        }else{
+            if(eventColorObj.display == 'student'){
+                for(var i=0; i< self.appointmentList.length; i++){
+                    if(uniqueId[0] == self.appointmentList[i]['type'] &&
+                        uniqueId[1] == self.appointmentList[i]["studentId"] && 
+                        uniqueId[2] == self.appointmentList[i]['startObj'] &&
+                        uniqueId[3] == self.appointmentList[i]['endObj'] &&
+                        uniqueId[4] == self.appointmentList[i]['staffId']){
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            else{
+                for(var i=0; i< self.appointmentList.length; i++){
+                    if(uniqueId[0] == self.appointmentList[i]['type'] &&
+                        uniqueId[1] == self.appointmentList[i]["parentId"] && 
+                        uniqueId[2] == self.appointmentList[i]['startObj'] &&
+                        uniqueId[3] == self.appointmentList[i]['endObj'] &&
+                        uniqueId[4] == self.appointmentList[i]['staffId']){
+                        index = i;
+                        break;
+                    }
                 }
             }
         }
@@ -1336,10 +1359,11 @@ function SylvanAppointment(){
         return data.updateAppointment(prevAppointment,newAppointment);
     };
 
-    this.cancelAppointment= function(element){
+    this.cancelAppointment = function(element){
         var self = this;
         var uniqIdArry = [];
         var eventFor = '';
+        var activityId = wjQuery(element).attr("activityid");
         if(element.hasAttribute("parentid")){
             uniqIdArry = wjQuery(element).attr("parentid").split('_');
             eventFor = 'parent';
@@ -1347,13 +1371,13 @@ function SylvanAppointment(){
             uniqIdArry = wjQuery(element).attr("studentid").split('_');
             eventFor = 'student';
         }
-        var index = self.findUniqueAppointment(uniqIdArry);
+        var index = self.findUniqueAppointment(uniqIdArry, activityId);
         if(index != -1){
-            var responseObj = data.cancelAppointmen({'activityid': self.appointmentList[index].id});
+            var responseObj = data.cancelAppointment({'activityid': self.appointmentList[index].id});
             if(responseObj){
                 var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
                 var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry);
+                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry, activityId);
                 self.appointmentList.splice(index,1);
             }
         }
@@ -1490,12 +1514,12 @@ function SylvanAppointment(){
                         if(!populatedEvent.memberList[i].isExceptional){
                             exceptionalCount+=1;
                         }
-                        populatedEvent.title += "<span class='draggable drag-student' studentId='"+populatedStudentId+"' >"+populatedEvent.memberList[i]['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                        populatedEvent.title += "<span class='draggable drag-student' activityid='"+populatedEvent.memberList[i]['id']+"' studentId='"+populatedStudentId+"' >"+populatedEvent.memberList[i]['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
                     }            
 
                 }
                 var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
-                populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                 self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
@@ -1506,21 +1530,21 @@ function SylvanAppointment(){
                         if(!populatedEvent.memberList[i].isExceptional){
                             exceptionalCount+=1;
                         }
-                        populatedEvent.title += "<span class='draggable drag-parent' parentId='"+populatedParentId+"' >"+populatedEvent.memberList[i]['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                        populatedEvent.title += "<span class='draggable drag-parent' activityid='"+populatedEvent.memberList[i]['id']+"' parentId='"+populatedParentId+"' >"+populatedEvent.memberList[i]['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
                     }
                 }
                 var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
-                populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
                 populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                 self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }else{
             var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
             if( eventColorObj.display == "student"){
-                populatedEvent.title += "<span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
                 self.addContext(studentId,eventColorObj.display,appointmentObj);
             }else{
-                populatedEvent.title += "<span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
                 self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }
@@ -1568,11 +1592,11 @@ function SylvanAppointment(){
 
         if( eventColorObj.display == "student"){
             var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
             self.addContext(studentId,eventColorObj.display,appointmentObj);
         }else{
             var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office'>location_on</i></span>";
+            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office'>location_on</i></span>";
             self.addContext(parentId,eventColorObj.display,appointmentObj);
         }
 
@@ -1844,7 +1868,11 @@ function SylvanAppointment(){
             obj.cancel = {
                 name: "Cancel",
                 callback: function (key, options) {
-                  self.cancelAppointment(options.$trigger[0]);
+                    wjQuery(".loading").show();
+                    options = wjQuery.extend(true, {}, options);
+                    setTimeout(function(){
+                        self.cancelAppointment(options.$trigger[0]);
+                    },300);
                 }
             }
             if(label == "student"){
@@ -1918,12 +1946,13 @@ function SylvanAppointment(){
 
     this.openAppointment = function(element){
         var self = this;
+        var activityId = wjQuery(element).attr("activityid");
         if(element.hasAttribute("parentid")){
             uniqueId = wjQuery(element).attr("parentid").split('_');
         }else if(element.hasAttribute("studentid")){
             uniqueId = wjQuery(element).attr("studentid").split('_');
         }
-        var index = self.findUniqueAppointment(uniqueId);
+        var index = self.findUniqueAppointment(uniqueId, activityId);
         if (self.appointmentList[index] != undefined) {
             data.openAppointment(self.appointmentList[index].id);
         }
