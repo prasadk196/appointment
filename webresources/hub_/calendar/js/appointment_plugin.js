@@ -964,53 +964,55 @@ function SylvanAppointment(){
         }
          
         // staff availabilty check 
-        var currentCalendarDate = self.appointment.fullCalendar('getDate');
-        startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
-        var dayList = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-        var availableStaff = self.formatObjects(data.getStaffAvailable(self.locationId, startDate, endDate), "staffAvailable");
-        if(availableStaff.length){
-            var availStaff = undefined;
-            var counter =1;
-            for(var p=0;p<availableStaff.length;p++){
-                var processFlag = false;
-                var startObj = new Date(availableStaff[p].start);
-                if(availableStaff[p].id == newAppointmentObj['resourceId']){
-                    if(availableStaff[p].end == undefined){
-                       if(startObj.getTime() <= currentCalendarDate.getTime()){
-                            availStaff = availableStaff[p];
-                            break;
-                       }
+        if(newAppointmentObj['resourceId'] != "unassignedId"){
+            var currentCalendarDate = self.appointment.fullCalendar('getDate');
+            startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+            var dayList = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+            var availableStaff = self.formatObjects(data.getStaffAvailable(self.locationId, startDate, endDate), "staffAvailable");
+            if(availableStaff.length){
+                var availStaff = undefined;
+                var counter =1;
+                for(var p=0;p<availableStaff.length;p++){
+                    var processFlag = false;
+                    var startObj = new Date(availableStaff[p].start);
+                    if(availableStaff[p].id == newAppointmentObj['resourceId']){
+                        if(availableStaff[p].end == undefined){
+                           if(startObj.getTime() <= currentCalendarDate.getTime()){
+                                availStaff = availableStaff[p];
+                                break;
+                           }
+                        }else{
+                           availableStaff[p].end = new Date(availableStaff[p].end); 
+                            if(startObj.getTime() <= currentCalendarDate.getTime() && 
+                                availableStaff[p].end.getTime() >= currentCalendarDate.getTime()){
+                                availStaff = availableStaff[p];
+                                break;
+                            }
+                        }
                     }else{
-                       availableStaff[p].end = new Date(availableStaff[p].end); 
-                        if(startObj.getTime() <= currentCalendarDate.getTime() && 
-                            availableStaff[p].end.getTime() >= currentCalendarDate.getTime()){
-                            availStaff = availableStaff[p];
-                            break;
+                        if(counter == availableStaff.length){
+                            if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
+                                messageObject.confirmation.push(" Staff is not available");
+                            }
                         }
                     }
-                }else{
-                    if(counter == availableStaff.length){
-                        if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
-                            messageObject.confirmation.push(" Staff is not available");
-                        }
-                    }
+                    counter ++;
                 }
-                counter ++;
-            }
-            if(availStaff != undefined){
-                var dayString = dayList[currentCalendarDate.getDay()];
-                var availableTimeObj = availStaff.availableDays[dayString];
-                if(availableTimeObj != undefined){
-                    if(new Date(startDate+" "+availableTimeObj.startTime).getTime() <= newAppointmentObj['startObj'].getTime() && 
-                        newAppointmentObj['startObj'].getTime() <= new Date(startDate+" "+availableTimeObj.endTime).getTime()){
+                if(availStaff != undefined){
+                    var dayString = dayList[currentCalendarDate.getDay()];
+                    var availableTimeObj = availStaff.availableDays[dayString];
+                    if(availableTimeObj != undefined){
+                        if(new Date(startDate+" "+availableTimeObj.startTime).getTime() <= newAppointmentObj['startObj'].getTime() && 
+                            newAppointmentObj['startObj'].getTime() <= new Date(startDate+" "+availableTimeObj.endTime).getTime()){
+                        }else{
+                            if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
+                                messageObject.confirmation.push(" Staff is not available");
+                            }
+                        }
                     }else{
                         if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
                             messageObject.confirmation.push(" Staff is not available");
                         }
-                    }
-                }else{
-                    if(messageObject.confirmation.indexOf(" Staff is not available") == -1){
-                        messageObject.confirmation.push(" Staff is not available");
                     }
                 }
             }
@@ -1334,7 +1336,7 @@ function SylvanAppointment(){
         return data.updateAppointment(prevAppointment,newAppointment);
     };
 
-    this.cancelAppointment = function(element){
+    this.cancelAppointment= function(element){
         var self = this;
         var uniqIdArry = [];
         var eventFor = '';
@@ -1347,7 +1349,7 @@ function SylvanAppointment(){
         }
         var index = self.findUniqueAppointment(uniqIdArry);
         if(index != -1){
-            var responseObj = data.cancelAppointment({'activityid': self.appointmentList[index].id});
+            var responseObj = data.cancelAppointmen({'activityid': self.appointmentList[index].id});
             if(responseObj){
                 var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
                 var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
@@ -1409,6 +1411,7 @@ function SylvanAppointment(){
                         appointmentEvent[0].title = wjQuery(appointmentEvent[0].title)[0].outerHTML;
                         self.appointment.fullCalendar('updateEvent', appointmentEvent);
                         self.appointment.fullCalendar('refetchEvents');
+                        wjQuery.contextMenu( 'destroy', 'span[id="' + appHrExp['eventId'] + '"]');
                         self.draggable('draggable');
                         wjQuery(".loading").hide();
                     }else{
@@ -1692,27 +1695,28 @@ function SylvanAppointment(){
                         appHourId:appointmentHrObj['appointmentHourId']
                     }
                     // Appointment hour exception validation
-                    // var isexception = self.appointmentHourException.filter(function(x) {
-                    //    return x.eventId == eventId;
-                    // });
-                    var isexception = self.appointmentHourException.filter(function(el) {
-                        return  eventObj['type'] == el.type &&
-                                eventObj['resourceId'] == "unassignedId" &&
-                                (
-                                    (
-                                        eventObj['start'].getTime() <= el.startObj.getTime() && 
-                                        eventObj['end'].getTime() >= el.endObj.getTime()
-                                    ) ||
-                                    (
-                                        el.startObj.getTime() <= eventObj['start'].getTime() && 
-                                        el.endObj.getTime() >= eventObj['end'].getTime()
-                                    ) ||
-                                    (
-                                        eventObj['end'].getTime() > el.startObj.getTime() &&
-                                        el.endObj.getTime() > eventObj['start'].getTime() 
-                                    )
-                                )
+                    var isexception = self.appointmentHourException.filter(function(x) {
+                       return x.eventId == eventId;
                     });
+
+                    // var isexception = self.appointmentHourException.filter(function(el) {
+                    //     return  eventObj['type'] == el.type &&
+                    //             eventObj['resourceId'] == "unassignedId" &&
+                    //             (
+                    //                 (
+                    //                     eventObj['start'].getTime() <= el.startObj.getTime() && 
+                    //                     eventObj['end'].getTime() >= el.endObj.getTime()
+                    //                 ) ||
+                    //                 (
+                    //                     el.startObj.getTime() <= eventObj['start'].getTime() && 
+                    //                     el.endObj.getTime() >= eventObj['end'].getTime()
+                    //                 ) ||
+                    //                 (
+                    //                     eventObj['end'].getTime() > el.startObj.getTime() &&
+                    //                     el.endObj.getTime() > eventObj['start'].getTime() 
+                    //                 )
+                    //             )
+                    // });
 
                     if(isexception.length == 0){
                         if(eventColorObj.appointmentHour){
@@ -1720,13 +1724,13 @@ function SylvanAppointment(){
                         }
                         eventObj['backgroundColor'] = eventColorObj.backgroundColor;
                         eventObj['borderColor'] = eventColorObj.borderColor;
+                        self.addContext(eventId,"appointmentHour",appointmentHrObj);
                     }else{
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
 
                     self.eventList.push(eventObj);
-                    self.addContext(eventId,"appointmentHour",appointmentHrObj);
                     self.appointment.fullCalendar( 'removeEventSource');
                     self.appointment.fullCalendar( 'removeEvents');
                     self.appointment.fullCalendar( 'addEventSource', self.eventList );
@@ -1808,9 +1812,9 @@ function SylvanAppointment(){
                     },300);
                 }
             }
-            wjQuery.contextMenu( 'destroy', '.appointmentTitle');
+            wjQuery.contextMenu( 'destroy', 'span[id="' + id + '"]');
             wjQuery.contextMenu({
-                selector: '.appointmentTitle',
+                selector: 'span[id="' + id + '"]',
                 build: function ($trigger, e) {
                   return {
                       items: obj
@@ -1829,7 +1833,11 @@ function SylvanAppointment(){
                 obj.moveToUnassigned = {
                     name: "Move to Unassigned",
                     callback: function (key, options) {
-                      self.moveToUnassigned(options.$trigger[0]);
+                        wjQuery(".loading").show();
+                        options = wjQuery.extend(true, {}, options);
+                        setTimeout(function(){
+                            self.moveToUnassigned(options.$trigger[0]);
+                        },300);
                     }
                 }
             }
