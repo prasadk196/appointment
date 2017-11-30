@@ -1230,13 +1230,15 @@ function SylvanAppointment(){
                 if (typeof (responseObj) == 'string' && responseObj != "" || typeof (responseObj) == 'boolean' && responseObj) {
                     elm.remove();
                     self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId, activityId);
+                    newAppointmentObj['id'] = responseObj;
                     self.populateAppointmentEvent([newAppointmentObj]);
                     this.appointmentList.splice(index,1);
-                    newAppointmentObj['id'] = responseObj;
                     this.appointmentList.push(newAppointmentObj);
                 }else{
                     wjQuery(".loading").hide();
                 }            
+        }else{
+            wjQuery(".loading").hide();
         }
     }
 
