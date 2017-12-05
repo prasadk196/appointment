@@ -770,41 +770,47 @@ function SylvanAppointment(){
                 newAppointmentObj['staffValue'] = resource.name;
                 newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'],newAppointmentObj['endObj'],date);
                 newAppointmentObj['startObj'] = date;
-                // Check For alert Validation(Not Allowed to drop validation)
-                var isStaffExceptions = self.checkForStaffException(newAppointmentObj);
-                if(isStaffExceptions || isStaffExceptions == 2){
-                    self.alertPopup("Staff not available at this time.Please schedule the appointment on a different time.");
-                }else{
-                    var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
-                    var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
-                    var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                    var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
-                    // Check all confirmation meassages here
-                    var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
-                    if(errArry.alert.length){
-                        var messageString = '';
-                        for (var i = 0; i < errArry.alert.length; i++) {
-                            messageString += errArry.alert[i]+", ";
-                        }
-                        messageString = messageString.substr(0,messageString.length-2);
-                        errArry.confirmation = [];
-                        self.alertPopup(messageString);
-                    }else if(errArry.confirmation.length){
-                        var messageString = '';
-                        for (var i = 0; i < errArry.confirmation.length; i++) {
-                            messageString += errArry.confirmation[i]+", ";
-                        }
-                        messageString = messageString.substr(0,messageString.length-2);
-                        if(errArry.confirmation.indexOf("Appointment Hour is not available") == -1){
-                            self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", false);
-                        }else{
-                            self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", true);
-                        }
+                var newEventId = newAppointmentObj['type']+"_"+newAppointmentObj['startObj']+"_"+newAppointmentObj['endObj']+"_"+newAppointmentObj['staffId'];
+                var prevEventId = newAppointmentObj['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+                if(newEventId != prevEventId){
+                    // Check For alert Validation(Not Allowed to drop validation)
+                    var isStaffExceptions = self.checkForStaffException(newAppointmentObj);
+                    if(isStaffExceptions || isStaffExceptions == 2){
+                        self.alertPopup("Staff not available at this time.Please schedule the appointment on a different time.");
                     }else{
-                        // Allow to drop event directly
-                        self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
+                        var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+                        var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
+                        // Check all confirmation meassages here
+                        var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
+                        if(errArry.alert.length){
+                            var messageString = '';
+                            for (var i = 0; i < errArry.alert.length; i++) {
+                                messageString += errArry.alert[i]+", ";
+                            }
+                            messageString = messageString.substr(0,messageString.length-2);
+                            errArry.confirmation = [];
+                            self.alertPopup(messageString);
+                        }else if(errArry.confirmation.length){
+                            var messageString = '';
+                            for (var i = 0; i < errArry.confirmation.length; i++) {
+                                messageString += errArry.confirmation[i]+", ";
+                            }
+                            messageString = messageString.substr(0,messageString.length-2);
+                            if(errArry.confirmation.indexOf("Appointment Hour is not available") == -1){
+                                self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", false);
+                            }else{
+                                self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", true);
+                            }
+                        }else{
+                            // Allow to drop event directly
+                            self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
+                        }
                     }
-                }
+                }else{
+                    wjQuery(".loading").hide();
+                } 
+            }else{
+                wjQuery(".loading").hide();
             }
         }, 300);
     }
