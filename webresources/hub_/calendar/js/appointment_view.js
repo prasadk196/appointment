@@ -52,7 +52,7 @@ var locations =  [
     {
       type:3,
       name:"School Visit",
-      orderColor:"#9acaea",
+      borderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
       display:"parent",
       appointmentHour:false
