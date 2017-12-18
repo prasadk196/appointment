@@ -1568,68 +1568,72 @@ function SylvanAppointment(){
         }
         var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-        if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
-            populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
-            var exceptionalCount = 0;
-            if(appointmentObj['isExceptional']){
-                exceptionalCount = 0;
-            }
-            else{
-                exceptionalCount = 1;
-            }
-            if( eventColorObj.display == "student"){
-                if(populatedEvent.memberList){
-                    for (var i = 0; i < populatedEvent.memberList.length; i++) {
-                        var populatedStudentId = appointmentObj['type']+"_"+populatedEvent.memberList[i]['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-                        var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
-                        if(!populatedEvent.memberList[i].isExceptional){
-                            exceptionalCount+=1;
-                        }
-                        populatedEvent.title += "<span class='draggable drag-student' activityid='"+populatedEvent.memberList[i]['id']+"' studentId='"+populatedStudentId+"' >"+populatedEvent.memberList[i]['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-                    }            
-
-                }
-                var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
-                populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-                populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
-                self.addContext(studentId,eventColorObj.display,appointmentObj);
-            }else{
-                if(populatedEvent.memberList){
-                    for (var i = 0; i < populatedEvent.memberList.length; i++) {
-                        var populatedParentId = appointmentObj['type']+"_"+populatedEvent.memberList[i]['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-                        var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
-                        if(!populatedEvent.memberList[i].isExceptional){
-                            exceptionalCount+=1;
-                        }
-                        populatedEvent.title += "<span class='draggable drag-parent' activityid='"+populatedEvent.memberList[i]['id']+"' parentId='"+populatedParentId+"' >"+populatedEvent.memberList[i]['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-                    }
-                }
-                var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
-                populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-                populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
-                self.addContext(parentId,eventColorObj.display,appointmentObj);
-            }
+        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+            populatedEvent['noOfApp'] += 1;
+            populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'...</span>';
         }else{
-            //if (self.appointment.fullCalendar(getView)=='resourceDay') {
-                var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
+            if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
+                populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
+                var exceptionalCount = 0;
+                if(appointmentObj['isExceptional']){
+                    exceptionalCount = 0;
+                }
+                else{
+                    exceptionalCount = 1;
+                }
                 if( eventColorObj.display == "student"){
+                    if(populatedEvent.memberList){
+                        for (var i = 0; i < populatedEvent.memberList.length; i++) {
+                            var populatedStudentId = appointmentObj['type']+"_"+populatedEvent.memberList[i]['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+                            var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
+                            if(!populatedEvent.memberList[i].isExceptional){
+                                exceptionalCount+=1;
+                            }
+                            populatedEvent.title += "<span class='draggable drag-student' activityid='"+populatedEvent.memberList[i]['id']+"' studentId='"+populatedStudentId+"' >"+populatedEvent.memberList[i]['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                        }            
+
+                    }
+                    var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
                     populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                    populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                     self.addContext(studentId,eventColorObj.display,appointmentObj);
                 }else{
+                    if(populatedEvent.memberList){
+                        for (var i = 0; i < populatedEvent.memberList.length; i++) {
+                            var populatedParentId = appointmentObj['type']+"_"+populatedEvent.memberList[i]['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+                            var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
+                            if(!populatedEvent.memberList[i].isExceptional){
+                                exceptionalCount+=1;
+                            }
+                            populatedEvent.title += "<span class='draggable drag-parent' activityid='"+populatedEvent.memberList[i]['id']+"' parentId='"+populatedParentId+"' >"+populatedEvent.memberList[i]['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                        }
+                    }
+                    var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
                     populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                    populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount),eventColorObj);
                     self.addContext(parentId,eventColorObj.display,appointmentObj);
                 }
-            //}
-            // else{
-            //     if( eventColorObj.display == "student"){
-            //         populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >1<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-            //         self.addContext(studentId,eventColorObj.display,appointmentObj);
-            //     }else{
-            //         populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >1<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-            //         self.addContext(parentId,eventColorObj.display,appointmentObj);
-            //     }
-            // }
-            
+            }else{
+                //if (self.appointment.fullCalendar(getView)=='resourceDay') {
+                    var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
+                    if( eventColorObj.display == "student"){
+                        populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                        self.addContext(studentId,eventColorObj.display,appointmentObj);
+                    }else{
+                        populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                        self.addContext(parentId,eventColorObj.display,appointmentObj);
+                    }
+                //}
+                // else{
+                //     if( eventColorObj.display == "student"){
+                //         populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >1<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                //         self.addContext(studentId,eventColorObj.display,appointmentObj);
+                //     }else{
+                //         populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >1<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                //         self.addContext(parentId,eventColorObj.display,appointmentObj);
+                //     }
+                // }
+            }
         }
 
         populatedEvent.type = appointmentObj['type'];
@@ -1673,16 +1677,20 @@ function SylvanAppointment(){
         }
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
 
-        if( eventColorObj.display == "student"){
-            var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-            self.addContext(studentId,eventColorObj.display,appointmentObj);
+        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+            eventObj['title'] = '<span class="app-placeholder placeholder_week">1..</span>';
+            eventObj['noOfApp'] = 1;
         }else{
-            var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
-            eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office'>location_on</i></span>";
-            self.addContext(parentId,eventColorObj.display,appointmentObj);
+            if( eventColorObj.display == "student"){
+                var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                self.addContext(studentId,eventColorObj.display,appointmentObj);
+            }else{
+                var parentId = appointmentObj['type']+"_"+appointmentObj['parentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
+                eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office'>location_on</i></span>";
+                self.addContext(parentId,eventColorObj.display,appointmentObj);
+            }
         }
-
         eventObj = self.addConflictMsg(eventObj);
         this.eventList.push(eventObj);
         self.appointment.fullCalendar('removeEvents');
