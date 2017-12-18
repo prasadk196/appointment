@@ -1748,6 +1748,14 @@ function SylvanAppointment(){
                     self.appointment.fullCalendar( 'refetchEvents');
                 }else{
                     var eventObj = {};
+                    var etitle = '';
+                    if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                        etitle= '';
+                    }
+                    else{
+                        etitle= eventColorObj.name;
+                    }
+                    
                     eventObj = {
                         id:eventId,
                         resourceId:'unassignedId',
@@ -1755,7 +1763,7 @@ function SylvanAppointment(){
                         start:appointmentHrObj['startObj'],
                         end:appointmentHrObj['endObj'],
                         allDay : false,
-                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+eventColorObj.name+"</span>",
+                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+ etitle +"</span>",
                         type:appointmentHrObj['type'],
                         // borderColor:eventColorObj.borderColor,
                         color:"#333",
@@ -1848,16 +1856,29 @@ function SylvanAppointment(){
     }
 
     this.addPlaceHolders = function(capacity,eventColorObj){
+        var self = this;
         var html = '';
-        if(capacity){
-            if(eventColorObj.display == 'student'){
-                for (var i = 0; i < capacity; i++) {
-                    html+= '<span class="app-placeholder student-'+eventColorObj.type+'">Student name</span>';
+        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+            if(capacity){
+                if(eventColorObj.display == 'student'){
+                        html+= '<span class="app-placeholder student-'+eventColorObj.type+'"><span style="font-size:14px;">'+capacity+'</span></span>';
+                }
+                else if(eventColorObj.display == 'parent'){
+                    html+= '<span class="app-placeholder customer-'+eventColorObj.type+'"><span style="font-size:14px;">'+capacity+'</span></span>';
                 }
             }
-            else if(eventColorObj.display == 'parent'){
-                for (var i = 0; i < capacity; i++) {
-                    html+= '<span class="app-placeholder customer-'+eventColorObj.type+'">Customer name</span>';
+        }
+        else{
+            if(capacity){
+                if(eventColorObj.display == 'student'){
+                    for (var i = 0; i < capacity; i++) {
+                        html+= '<span class="app-placeholder student-'+eventColorObj.type+'">Student name</span>';
+                    }
+                }
+                else if(eventColorObj.display == 'parent'){
+                    for (var i = 0; i < capacity; i++) {
+                        html+= '<span class="app-placeholder customer-'+eventColorObj.type+'">Customer name</span>';
+                    }
                 }
             }
         }
@@ -2133,6 +2154,7 @@ function SylvanAppointment(){
     //Week view of calendar
     this.weekView = function () {
         var self = this;
+        self.eventList = [];
         wjQuery('.loading').show();
         if(self.appointment != undefined){
             self.appointment.fullCalendar('removeEvents');
