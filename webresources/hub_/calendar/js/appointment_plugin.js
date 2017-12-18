@@ -53,7 +53,7 @@ setTimeout(function () {
                 //wjQuery(".loading").show();
                 sylvanAppointment.next(locationId);
             }
-            fetchResources(locationId);
+            //fetchResources(locationId);
         });
 
         wjQuery('.prevBtn').off('click').on('click', function () {
@@ -75,7 +75,7 @@ setTimeout(function () {
                 //wjQuery(".loading").show();
                 sylvanAppointment.prev(locationId);
             }
-            fetchResources(locationId);
+            //fetchResources(locationId);
         });
         wjQuery('.wkView').off('click').on('click', function () {
                 sylvanAppointment.weekView();
@@ -84,24 +84,24 @@ setTimeout(function () {
             sylvanAppointment.dayView();
         });
 
-        wjQuery('#datepicker').datepicker({
+         wjQuery('#datepicker').datepicker({
             buttonImage: "/webresources/hub_/calendar/images/calendar.png",
             buttonImageOnly: true,
             changeMonth: true,
             changeYear: true,
             showOn: 'button',
             onSelect: function (date) {
-                //wjQuery(".loading").show();
-                //sylvanAppointment.clearEvents();
-                sylvanAppointment.calendarDate = moment(moment(moment(date).format('MM/DD/YYYY')).format('YYYY-MM-DD')).toDate();
-                wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-                if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                wjQuery('.headerDate').text(date);
+                if (moment(new Date(date)).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
                     wjQuery('.headerDate').addClass('today');
                 }
                 else {
                     wjQuery('.headerDate').removeClass('today');
                 }
-                fetchResources(locationId);
+                if(sylvanAppointment.appointment != undefined){
+                    wjQuery(".loading").show();
+                    sylvanAppointment.dateFromCalendar(date, locationId);
+                }
                 wjQuery('#datepicker').hide();
             }
         });
@@ -152,8 +152,8 @@ setTimeout(function () {
                         firstClm = false;
                     }
                     sylvanAppointment.staffList.push({
-                        name: staffData[i]['_hub_staffid_value@OData.Community.Display.V1.FormattedValue'],
-                        id: staffData[i]._hub_staffid_value,
+                        name: convertedStaffList[i]['_hub_staffid_value@OData.Community.Display.V1.FormattedValue'],
+                        id: convertedStaffList[i]._hub_staffid_value,
                     });
                 }
             }
@@ -660,6 +660,28 @@ function SylvanAppointment(){
         }
     }
 
+    this.dateFromCalendar = function (date, locationId) {
+        var self = this;
+        var displayDate = new Date(date);
+        self.appointment.fullCalendar('gotoDate', displayDate);
+        wjQuery('.headerDate').text(date);
+        if (moment(date).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+            wjQuery('.headerDate').addClass('today');
+        }
+        else {
+            wjQuery('.headerDate').removeClass('today');
+        }
+        var currentView = self.appointment.fullCalendar('getView');
+        if (currentView.name == 'resourceDay') {
+            var dayOfWeek = moment(date).format('dddd');
+            var dayofMonth = moment(date).format('M/D');
+            wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
+        }
+        self.clearEvents();
+        var currentCalendarDate = moment(date).format("YYYY-MM-DD");
+        self.refreshCalendarEvent(this.locationId, true);
+    }
+
     this.next = function (locationId) {
         this.appointment.fullCalendar('next');
         var currentCalendarDate = this.appointment.fullCalendar('getDate');
@@ -706,6 +728,8 @@ function SylvanAppointment(){
                     }
                 }
                 if (currentView.name == 'agendaWeek') {
+                    self.eventList = [];
+                    self.weekEventObject = {};
                     self.businessClosure = [];
                     startDate  = moment(currentCalendarDate).format("YYYY-MM-DD");
                     endDate = moment(moment(currentView.start).add(6, 'd')).format("YYYY-MM-DD");
@@ -1586,14 +1610,26 @@ function SylvanAppointment(){
                 self.addContext(parentId,eventColorObj.display,appointmentObj);
             }
         }else{
-            var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
-            if( eventColorObj.display == "student"){
-                populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-                self.addContext(studentId,eventColorObj.display,appointmentObj);
-            }else{
-                populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
-                self.addContext(parentId,eventColorObj.display,appointmentObj);
-            }
+            //if (self.appointment.fullCalendar(getView)=='resourceDay') {
+                var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
+                if( eventColorObj.display == "student"){
+                    populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                    self.addContext(studentId,eventColorObj.display,appointmentObj);
+                }else{
+                    populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >"+appointmentObj['parentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+                    self.addContext(parentId,eventColorObj.display,appointmentObj);
+                }
+            //}
+            // else{
+            //     if( eventColorObj.display == "student"){
+            //         populatedEvent.title += "<span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >1<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+            //         self.addContext(studentId,eventColorObj.display,appointmentObj);
+            //     }else{
+            //         populatedEvent.title += "<span class='draggable drag-parent' activityid='"+appointmentObj['id']+"' parentId='"+parentId+"' >1<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
+            //         self.addContext(parentId,eventColorObj.display,appointmentObj);
+            //     }
+            // }
+            
         }
 
         populatedEvent.type = appointmentObj['type'];
@@ -1861,10 +1897,10 @@ function SylvanAppointment(){
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             if(capacity){
                 if(eventColorObj.display == 'student'){
-                        html+= '<span class="app-placeholder student-'+eventColorObj.type+'"><span style="font-size:14px;">'+capacity+'</span></span>';
+                        html+= '<span class="app-placeholder placeholder_week student-'+eventColorObj.type+'">'+capacity+'</span>';
                 }
                 else if(eventColorObj.display == 'parent'){
-                    html+= '<span class="app-placeholder customer-'+eventColorObj.type+'"><span style="font-size:14px;">'+capacity+'</span></span>';
+                    html+= '<span class="app-placeholder placeholder_week customer-'+eventColorObj.type+'">'+capacity+'</span>';
                 }
             }
         }
