@@ -696,13 +696,25 @@ function SylvanAppointment(){
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
             var currentView = self.appointment.fullCalendar('getView');
             // fetch master schedule data based on below flag
-            var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
-            if (currentView.name == 'resourceDay') {
-                startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
-                self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
-                if (self.businessClosure == null) {
+                var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
+                if (currentView.name == 'resourceDay') {
                     self.businessClosure = [];
+                    startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+                    self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
+                    if (self.businessClosure == null) {
+                        self.businessClosure = [];
+                    }
                 }
+                if (currentView.name == 'agendaWeek') {
+                    self.businessClosure = [];
+                    startDate  = moment(currentCalendarDate).format("YYYY-MM-DD");
+                    endDate = moment(moment(currentView.start).add(6, 'd')).format("YYYY-MM-DD");
+                    self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
+                    if (self.businessClosure == null) {
+                        self.businessClosure = [];
+                    }
+                }
+
                 var findingLeaveFlag = true;
                 if (self.businessClosure.length) {
                     for (var i = 0; i < self.businessClosure.length; i++) {
@@ -747,7 +759,7 @@ function SylvanAppointment(){
                     wjQuery('.loading').hide();
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
                 }
-            }
+            
         }, 300);
     }
 
@@ -2128,8 +2140,10 @@ function SylvanAppointment(){
             if (self.appointment.fullCalendar('getView').name != 'agendaWeek') {
                 self.appointment.fullCalendar('changeView', 'agendaWeek');
             }
+            this.weekEventObject = {};
+            this.appointment.fullCalendar('removeEvents');
             this.refreshCalendarEvent(this.locationId,true);
-            wjQuery('.loading').hide();
+            //wjQuery('.loading').hide();
         }
         else{
          wjQuery('.loading').hide();
@@ -2138,6 +2152,7 @@ function SylvanAppointment(){
     // Day View Of Calendar
     this.dayView = function(){
         var self = this;
+        self.eventList = [];
         wjQuery('.loading').show();
         if(self.appointment != undefined){
             self.appointment.fullCalendar('removeEvents');
