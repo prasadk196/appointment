@@ -5548,8 +5548,37 @@ function AgendaEventRenderer() {
 		// set all positions/dimensions at once
 		for (i=0; i<segCnt; i++) {
 			seg = segs[i];
+			event = seg.event;
 			if (eventElement = seg.element) {
-				eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
+				// eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
+				var filtertedEvent = segs.filter(function(el) {
+					return 	(
+								(
+			                    el.event.start.getTime() <= event.start.getTime() && 
+			                    el.event.end.getTime() >= event.end.getTime()
+				                ) ||
+				                (
+				                    event.start.getTime() <= el.event.start.getTime() && 
+				                    event.end.getTime() >= el.event.end.getTime()
+				                ) ||
+				                (
+				                    el.event.end.getTime() > event.start.getTime() &&
+				                    event.end.getTime() > el.event.start.getTime() 
+				                )
+				    				// el.event.start.getTime() == event.start.getTime()
+			                )
+
+				});
+
+
+				if(filtertedEvent.length > 1){
+					var fcContentWidth = (parseInt($("#appointment").width()) - 220)/7;
+					eventElement[0].style.width = fcContentWidth/filtertedEvent.length + "px";
+					// eventElement[0].style.width = (Math.max(0, seg.outerWidth - seg.hsides)/filtertedEvent.length) + 'px';
+				}else{
+					eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
+				}
+				
 				height = Math.max(0, seg.outerHeight - seg.vsides);
 				eventElement[0].style.height = height + 'px';
 				event = seg.event;
