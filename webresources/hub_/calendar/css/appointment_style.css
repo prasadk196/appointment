@@ -390,3 +390,52 @@ ul{
     width: 78px !important;
 }
 .placeholder_week{text-align: center; font-size: 15px;}
+
+/* ===================Filter Code============= */
+.filter-section {
+    width: 300px;
+    background: #fff;
+    z-index: 10;
+    border: 1px solid;
+    position: absolute;
+    margin-left: -275px;
+}
+.filter-container {
+    width: calc(100% - 26px);
+    display: inline-block;
+}
+.filter-label-outer {
+    width: 25px;
+    height: inherit;
+    cursor: pointer;
+    display: inline;
+    float: right;
+    border-left: 1px solid #ddd;
+}
+.filter-slide-icon {
+    display: inline-block;
+    height: 15px;
+    width: 16px;
+    background: url(../images/chevron_right.png) no-repeat;
+}
+.filter-label {
+    transform: rotate(-90deg);
+    text-align: center;
+    position: relative;
+    top: 50%;
+    width: 60px;
+    left: -18px;
+}
+.filter-header-container {
+    padding: 5px 10px;
+}
+.filter-title {
+    display: inline-block;
+}
+.filter-nav-icon {
+    display: inline-block;
+    height: 15px;
+    width: 16px;
+    background: url(../images/chevron_right.png) no-repeat;
+    vertical-align: text-bottom;
+}
