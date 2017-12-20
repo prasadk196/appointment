@@ -130,6 +130,16 @@ var locations =  [
       appointmentHour:false
     }
   ];
+var time = [
+  {
+    id:"2h_time",
+    name:"2 Hours"
+  },
+  {
+    id:"4h_time",
+    name:"4 Hours"
+  }
+];
 
 var staff = [
     {
@@ -1082,6 +1092,10 @@ function Data(){
 
   this.getAppointmentStaff = function(locationId,startDate,endDate){
     return staff;
+  }
+
+  this.getTime = function(){
+    return time;
   }
 
   this.getAppointment = function(locationId){

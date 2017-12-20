@@ -167,9 +167,9 @@ setTimeout(function () {
         fetchResources(locationId);
     }, 500);   
         var filterObject = {
-            staff: data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate) == null ? [] : data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate),
-            appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
-            
+            Staff: data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate) == null ? [] : data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate),
+            Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
+            time: data.getTime() == null ? [] : data.getTime()
         }
         sylvanAppointment.generateFilterObject(filterObject);     
 }, 500);
@@ -773,7 +773,7 @@ function SylvanAppointment(){
             windowResize: function (view) {
                 // self.appointment.fullCalendar('option', 'height', window.innerHeight - 60);
             }
-        };
+        }
 
         if (args != undefined) {
             this.calendarOptions.year = args.getFullYear();
@@ -804,7 +804,14 @@ function SylvanAppointment(){
         this.filterSlide(false);
 
         wjQuery('.filter-header').on('click', function () {
-            var id = wjQuery(this).parent().attr('id');
+            self.filterEventData(this);
+        });
+    }
+    // =====================Filter Code=====================
+    this.filterEventData = function(fdata){
+        var self = this;
+        var checkedList = [];
+        var id = wjQuery(fdata).parent().attr('id');
             var flag = wjQuery("#" + id).hasClass("open");
             if (flag) {
                 wjQuery(this).parent().children('.option-header-container').remove();
@@ -822,106 +829,90 @@ function SylvanAppointment(){
                         '</label>' +
                     '</div>');
                     } else {
+                        if (index == 'Appointments') {
+                            wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].name + ' option-header-container">' +
+                              '<label class="cursor option-title">' +
+                                  '<input type="checkbox" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].type + '">' + self.filters[index][i].name +
+                              '</label>' +
+                          '</div>');
+                        }
+                        else{
                             wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].id + ' option-header-container">' +
                               '<label class="cursor option-title">' +
                                   '<input type="checkbox" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].id + '">' + self.filters[index][i].name +
                               '</label>' +
                           '</div>');
                         }
+                    }
                 }
                 wjQuery('#' + id).addClass('open');
                 wjQuery("#" + id).find('.filter-nav-icon').addClass('open');
 
-                // wjQuery(".filterCheckBox").click(function () {
-                //     wjQuery(".loading").show();
-                //     var searchVal = wjQuery(this).val();
-                //     if(searchVal.search("_time") != -1){
-                //         searchVal = searchVal.split("_")[0];
-                //         var d = new Date();
-                //         var n = d.getHours();
-                //         var scrollNum = (n - 8) * 161;
-                //         $("#scrollarea").animate({ scrollTop: scrollNum }, 500, function(){
-                //             wjQuery(".loading").hide();
-                //         });
-                //     }else{
-                //         if (wjQuery(this).is(':checked')) {
-                //             self.eventList = [];
-                //             self.calendar.fullCalendar('removeEvents');
-                //             self.calendar.fullCalendar('removeEventSource');
-                //             var index = checkedList.map(function (y) {
-                //                 return y;
-                //             }).indexOf(searchVal);
-                //             if (index == -1) {
-                //                 checkedList.push(searchVal);
-                //             }
-                //             self.calendar.fullCalendar('refetchEvents');
-                //         } else {
-                //             self.eventList = [];
-                //             self.calendar.fullCalendar('removeEvents');
-                //             self.calendar.fullCalendar('removeEventSource');
-                //             var index = checkedList.map(function (y) {
-                //                 return y;
-                //             }).indexOf(searchVal);
-                //             if (index != -1) {
-                //                 checkedList.splice(checkedList.indexOf(searchVal), 1);
-                //             }
-                //             self.calendar.fullCalendar('refetchEvents');
-                //         }
-                //         if (checkedList.length == 0) {
-                //             self.populateStudentEvent(self.convertedStudentObj, true);
-                //             self.populateSOFPane(self.sofList, self.calendarOptions.minTime, self.calendarOptions.maxTime);
-                //             self.populateTeacherEvent(self.convertedTeacherObj, true);
-                //             self.populateTAPane(self.taList);
-                //             self.openSofPane();
-                //         } else {
-                //             var newArray = [];
-                //             var sofNewArray = [];
-                //             sofNewArray['Personal Instruction'] = [];
-                //             sofNewArray['Group Instruction'] = [];
-                //             sofNewArray['Group Facilitation'] = [];
-                //             var taNewArray = [];
-                //             wjQuery.each(checkedList, function (k, v) {
-                //                 var vasdjfjsdfsjdf = self.filterItems(self.convertedStudentObj, v, "default");
-                //                 newArray = wjQuery.merge(self.filterItems(self.convertedStudentObj, v, "default"), newArray);
-                //                 taNewArray = wjQuery.merge(self.filterItems(self.taList, v, "tapane"), taNewArray);
-                //                 piResponse = self.filterItems(self.sofList['Personal Instruction'], v, "sofpane");
-                //                 giResponse = self.filterItems(self.sofList['Group Instruction'], v, "sofpane");
-                //                 gfResponse = self.filterItems(self.sofList['Group Facilitation'], v, "sofpane");
-
-                //                 var piIndex = sofNewArray['Personal Instruction'].map(function (x) {
-                //                     return x;
-                //                 }).indexOf(v);
-                //                 if (piIndex == -1) {
-                //                     sofNewArray['Personal Instruction'] = wjQuery.merge(piResponse, sofNewArray['Personal Instruction']);
-                //                 }
-
-                //                 var giIndex = sofNewArray['Group Instruction'].map(function (y) {
-                //                     return y;
-                //                 }).indexOf(v);
-                //                 if (giIndex == -1) {
-                //                     sofNewArray['Group Instruction'] = wjQuery.merge(giResponse, sofNewArray['Group Instruction']);
-                //                 }
-
-                //                 var gfIndex = sofNewArray['Group Facilitation'].map(function (z) {
-                //                     return z;
-                //                 }).indexOf(v);
-                //                 if (gfIndex == -1) {
-                //                     sofNewArray['Group Facilitation'] = wjQuery.merge(gfResponse, sofNewArray['Group Facilitation']);
-                //                 }
-                //             });
-                //             self.populateSOFPane(sofNewArray, self.calendarOptions.minTime, self.calendarOptions.maxTime);
-                //             self.populateStudentEvent(newArray, true);
-                //             self.populateTeacherEvent(self.convertedTeacherObj, true);
-                //             self.populateTAPane(taNewArray);
-                //             self.openSofPane();
-                //         }
-                //     }
-                // });
+                wjQuery(".filterCheckBox").click(function () {
+                    //wjQuery(".loading").show();
+                    var searchVal = wjQuery(this).val();
+                    if(searchVal.search("_time") != -1){
+                        searchVal = searchVal.split("_")[0];
+                        var d = new Date();
+                        var n = d.getHours();
+                        var hr = 0;
+                        if (searchVal == '2h') {
+                            hr = 2;
+                        }
+                        else{
+                            hr = 4;
+                        }
+                        var scrollNum = hr * 120;
+                        
+                        $("#scrollarea").animate({ scrollTop: scrollNum }, 500, function(){
+                            wjQuery(".loading").hide();
+                        });
+                     }
+                    else{
+                        if (wjQuery(this).is(':checked')) {
+                            // self.eventList = [];
+                            // self.appointment.fullCalendar('removeEvents');
+                            // self.appointment.fullCalendar('removeEventSource');
+                            var index = checkedList.map(function (y) {
+                                return y;
+                            }).indexOf(searchVal);
+                            if (index == -1) {
+                                checkedList.push(searchVal);
+                            }
+                            self.appointment.fullCalendar('refetchEvents');
+                        } else {
+                            // self.eventList = [];
+                            // self.appointment.fullCalendar('removeEvents');
+                            // self.appointment.fullCalendar('removeEventSource');
+                            var index = checkedList.map(function (y) {
+                                return y;
+                            }).indexOf(searchVal);
+                            if (index != -1) {
+                                checkedList.splice(checkedList.indexOf(searchVal), 1);
+                            }
+                            self.appointment.fullCalendar('refetchEvents');
+                        }
+                        if (checkedList.length == 0) {
+                            self.appointment.fullCalendar('removeEvents');
+                            self.appointment.fullCalendar('removeEventSource');
+                            self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+                            self.appointment.fullCalendar('refetchEvents');
+                        } 
+                        else {
+                            var newArray = [];
+                            wjQuery.each(checkedList, function (k, v) {
+                                newArray = newArray.concat(self.filterItems(v, "Appointments"));
+                            })
+                            self.appointment.fullCalendar('removeEvents');
+                            self.appointment.fullCalendar('removeEventSource');
+                            self.appointment.fullCalendar('addEventSource', { events: newArray });
+                            self.appointment.fullCalendar('refetchEvents');
+                        }
+                    }
+                });
             }
-        });
     }
-    // =====================Filter Code=====================
-        this.calendarFilter = function () {
+    this.calendarFilter = function () {
         var self = this;
         this.buildFilterBody();
     }
@@ -941,7 +932,7 @@ function SylvanAppointment(){
         wjQuery.each(filterObj, function (key, value) {
             self.filters[key] = [];
             wjQuery.each(value, function (ke, val) {
-                if (key == "staff") {
+                if (key == "Staff") {
                     self.filters[key].push(
                         { 
                             id: val['hub_staffid'],
@@ -950,8 +941,11 @@ function SylvanAppointment(){
                             endDate: undefined,
                             radio: false 
                         });
-                } else if (key == "appointments") {
+                } else if (key == "Appointments") {
                         self.filters[key].push({ type: val.type, name: val.name,display:val.display,appointmentHour:val.appointmentHour, radio: false });
+                  
+                } else if (key == "time") {
+                        self.filters[key].push({ id: val.id, name: val.name,radio: true });
                   
                 }  
             });
@@ -979,6 +973,27 @@ function SylvanAppointment(){
         wjQuery('.filter-container').css({ 'height': wjQuery('.filter-section').next().height() - 2 + "px", "overflow-y": "auto" });
     }
 
+    this.filterItems = function (filterTerm, filterFor) {
+        var self = this;
+        var availableEvents = [];
+        self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+        if (filterFor == 'Appointments') {
+            availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
+                return el.type == filterTerm;
+            });
+        }
+        else{
+            return obj.filter(function (el) {
+                if (el.subject == undefined || el.subject == null) {
+                  el.subject = ""
+                }
+                if ((el.id == filterTerm || el.gradeId == filterTerm || el.subject.toLowerCase() == filterTerm.toLowerCase()) && self.selectedDeliveryType.indexOf(el['deliveryTypeId']) != -1) {
+                    return el;
+                }
+            });
+        }
+        return availableEvents;
+    }
     
 //=======================Filter Code end======================
     this.dateFromCalendar = function (date, locationId) {
@@ -1004,32 +1019,47 @@ function SylvanAppointment(){
     }
 
     this.next = function (locationId) {
-        this.appointment.fullCalendar('next');
+        var self = this;
+        self.appointment.fullCalendar('next');
         var currentCalendarDate = this.appointment.fullCalendar('getDate');
+        wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+        if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+            wjQuery('.headerDate').addClass('today');
+        }
+        else {
+            wjQuery('.headerDate').removeClass('today');
+        }
         var currentView = this.appointment.fullCalendar('getView');
         if (currentView.name == 'resourceDay') {
             var dayOfWeek = moment(currentCalendarDate).format('dddd');
             var dayofMonth = moment(currentCalendarDate).format('M/D');
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
         }
-        this.clearEvents();
+        self.clearEvents();
         currentCalendarDate = moment(currentCalendarDate).format("YYYY-MM-DD");
-        this.refreshCalendarEvent(this.locationId, true);
+        self.refreshCalendarEvent(this.locationId, true);
     }
 
     this.prev = function (locationId) {
-        this.appointment.fullCalendar('prev');
+        var self = this;
+        self.appointment.fullCalendar('prev');
         var currentCalendarDate = this.appointment.fullCalendar('getDate');
-    
+        wjQuery('.headerDate').text(moment(currentCalendarDate).format('MM/DD/YYYY'));
+        if (moment(currentCalendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+            wjQuery('.headerDate').addClass('today');
+        }
+        else {
+            wjQuery('.headerDate').removeClass('today');
+        }
         var currentView = this.appointment.fullCalendar('getView');
         if (currentView.name == 'resourceDay') {
             var dayOfWeek = moment(currentCalendarDate).format('dddd');
             var dayofMonth = moment(currentCalendarDate).format('M/D');
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
         }
-        this.clearEvents();
+        self.clearEvents();
         currentCalendarDate = moment(currentCalendarDate).format("YYYY-MM-DD");
-        this.refreshCalendarEvent(this.locationId, true);
+        self.refreshCalendarEvent(this.locationId, true);
     }
 
     this.clearBusinessClosure = function(){
@@ -1044,7 +1074,6 @@ function SylvanAppointment(){
         wjQuery('.fc-col' + 5).not('.fc-widget-header').css('background-color', '#fff');
         wjQuery('.fc-col' + 6).not('.fc-widget-header').css('background-color', '#fff');
     }
-
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
         wjQuery('.loading').show();
