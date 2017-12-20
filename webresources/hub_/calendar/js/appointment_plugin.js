@@ -1086,7 +1086,8 @@ function SylvanAppointment(){
     this.populateBusinessClosure = function(){
         var self = this;
         var currentView = self.appointment.fullCalendar('getView');
-        for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
+        currentView.end = moment(moment(currentView.start).add(6, 'd'))._d;
+        for(var j = currentView.start.getTime();j<=currentView.end.getTime();j=j+(24*60*60*1000)){
             var sample = -1;
             for (var b = 0; b < self.leaveDays.length; b++) {
                 if(moment(self.leaveDays[b]).format('YYYY-MM-DD') == moment(j).format('YYYY-MM-DD')){
@@ -1116,10 +1117,10 @@ function SylvanAppointment(){
         this.leaveDays = [];
         var currentView = self.appointment.fullCalendar('getView');
         currentView.end = moment(moment(currentView.start).add(6, 'd'))._d;
-        for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
+        for(var j = currentView.start.getTime();j<=currentView.end.getTime();j=j+(24*60*60*1000)){
             for (var i = 0; i < self.businessClosure.length; i++) {
-                var businessStartDate = moment(self.businessClosure[i]['hub_startdatetime']).format("YYYY-MM-DD");
-                var businessEndDate = moment(self.businessClosure[i]['hub_enddatetime']).format("YYYY-MM-DD");
+                var businessStartDate = moment(self.businessClosure[i]['hub_startdatetime']).format("MM-DD-YYYY");
+                var businessEndDate = moment(self.businessClosure[i]['hub_enddatetime']).format("MM-DD-YYYY");
                 businessStartDate = new Date(businessStartDate + ' ' + '00:00').getTime();
                 businessEndDate = new Date(businessEndDate + ' ' + '00:00').getTime();
                 if (j >= businessStartDate && j <= businessEndDate) {
