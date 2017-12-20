@@ -1975,6 +1975,14 @@ function SylvanAppointment(){
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
                 }else{
                     var eventObj = {};
+                    var etitle = '';
+                    if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                        etitle= '';
+                    }
+                    else{
+                        etitle= eventColorObj.name;
+                    }
+                    
                     eventObj = {
                         id:eventId,
                         resourceId:'unassignedId',
@@ -1982,7 +1990,7 @@ function SylvanAppointment(){
                         start:appointmentHrObj['startObj'],
                         end:appointmentHrObj['endObj'],
                         allDay : false,
-                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+ eventColorObj.name +"</span>",
+                        title : "<span class='appointmentTitle' id='"+eventId+"' appHourId='"+appointmentHrObj['appointmentHourId']+"'>"+ etitle +"</span>",
                         type:appointmentHrObj['type'],
                         // borderColor:eventColorObj.borderColor,
                         color:"#333",
@@ -2010,10 +2018,6 @@ function SylvanAppointment(){
                     }
 
 
-                    // Week view title condition
-                    if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                        eventObj.title = '<span class="app-placeholder placeholder_week ">'+appointmentHrObj['capacity']+'</span>';
-                    }
 
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');
@@ -2069,15 +2073,27 @@ function SylvanAppointment(){
     this.addPlaceHolders = function(capacity,eventColorObj){
         var self = this;
         var html = '';
-        if(capacity){
-            if(eventColorObj.display == 'student'){
-                for (var i = 0; i < capacity; i++) {
-                    html+= '<span class="app-placeholder student-'+eventColorObj.type+'">Student name</span>';
+        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+            if(capacity){
+                if(eventColorObj.display == 'student'){
+                        html+= '<span class="app-placeholder placeholder_week student-'+eventColorObj.type+'">'+capacity+'</span>';
+                }
+                else if(eventColorObj.display == 'parent'){
+                    html+= '<span class="app-placeholder placeholder_week customer-'+eventColorObj.type+'">'+capacity+'</span>';
                 }
             }
-            else if(eventColorObj.display == 'parent'){
-                for (var i = 0; i < capacity; i++) {
-                    html+= '<span class="app-placeholder customer-'+eventColorObj.type+'">Customer name</span>';
+        }
+        else{
+            if(capacity){
+                if(eventColorObj.display == 'student'){
+                    for (var i = 0; i < capacity; i++) {
+                        html+= '<span class="app-placeholder student-'+eventColorObj.type+'">Student name</span>';
+                    }
+                }
+                else if(eventColorObj.display == 'parent'){
+                    for (var i = 0; i < capacity; i++) {
+                        html+= '<span class="app-placeholder customer-'+eventColorObj.type+'">Customer name</span>';
+                    }
                 }
             }
         }
