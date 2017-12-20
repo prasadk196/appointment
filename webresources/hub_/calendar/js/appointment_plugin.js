@@ -802,16 +802,19 @@ function SylvanAppointment(){
             wjQuery(".fc-agenda-divider.fc-widget-header").after("<div class='filter-section'></div>");
         this.calendarFilter();
         this.filterSlide(false);
-
-        wjQuery('.filter-header').on('click', function () {
-            self.filterEventData(this);
-        });
+        this.filterEventData();
+        
     }
     // =====================Filter Code=====================
-    this.filterEventData = function(fdata){
+    this.filterEventData = function(){
         var self = this;
-        var checkedList = [];
-        var id = wjQuery(fdata).parent().attr('id');
+        var isfetch = false;
+        wjQuery('.filter-header').on('click', function () {
+            self.generateFilterObject(self.filterObject);
+            //self.filters = self.filterObject;
+            
+            var checkedList = [];
+        var id = wjQuery(this).parent().attr('id');
             var flag = wjQuery("#" + id).hasClass("open");
             if (flag) {
                 wjQuery(this).parent().children('.option-header-container').remove();
@@ -850,6 +853,7 @@ function SylvanAppointment(){
 
                 wjQuery(".filterCheckBox").click(function () {
                     //wjQuery(".loading").show();
+                    var newArray = [];
                     var searchVal = wjQuery(this).val();
                     if(searchVal.search("_time") != -1){
                         searchVal = searchVal.split("_")[0];
@@ -899,10 +903,25 @@ function SylvanAppointment(){
                             self.appointment.fullCalendar('refetchEvents');
                         } 
                         else {
-                            var newArray = [];
+                            
+                            var allsEvent = [];
                             wjQuery.each(checkedList, function (k, v) {
-                                newArray = newArray.concat(self.filterItems(v, "Appointments"));
+                                if (indices[1] == 'Appointments') {
+                                    newArray = newArray.concat(self.filterItems(v, "Appointments"));
+                                }
+                                else if(indices[1] == 'Staff'){
+                                    newArray = newArray.concat(self.filterItems(v, "default"));
+                                    var filterStaff = self.staffList.filter(function (el) {
+                                      return el.id == v;
+                                    });
+                                    //self.populateStaff(filterStaff, isfetch);
+                                }
+                                else{
+
+                                }
                             })
+                            
+                            //localStorage.setItem('filterDataObj', newArray);
                             self.appointment.fullCalendar('removeEvents');
                             self.appointment.fullCalendar('removeEventSource');
                             self.appointment.fullCalendar('addEventSource', { events: newArray });
@@ -911,6 +930,8 @@ function SylvanAppointment(){
                     }
                 });
             }
+        });
+        
     }
     this.calendarFilter = function () {
         var self = this;
@@ -950,9 +971,16 @@ function SylvanAppointment(){
                 }  
             });
         });
+        //localStorage.setItem('filterObjData' , JSON.stringify(self.filters));
     }
     this.buildFilterBody = function () {
         var self = this;
+        // if (this.filters.length) {
+        //     var filterObjData = JSON.parse(localStorage.getItem('filterObjData'));
+        //     if (filterObjData != undefined && filterObjData.length) {
+        //         self.filters = filterObjData;
+        //     }
+        // }
         wjQuery('.filter-section').html('<div class="filter-container"></div>' +
             '<div class="filter-label-outer">' +
                 '<span class="filter-slide-icon"></span>' +
@@ -976,6 +1004,8 @@ function SylvanAppointment(){
     this.filterItems = function (filterTerm, filterFor) {
         var self = this;
         var availableEvents = [];
+        self.appointment.fullCalendar('removeEvents');
+        self.appointment.fullCalendar('removeEventSource');
         self.appointment.fullCalendar('addEventSource', { events: self.eventList });
         if (filterFor == 'Appointments') {
             availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
@@ -983,14 +1013,10 @@ function SylvanAppointment(){
             });
         }
         else{
-            return obj.filter(function (el) {
-                if (el.subject == undefined || el.subject == null) {
-                  el.subject = ""
-                }
-                if ((el.id == filterTerm || el.gradeId == filterTerm || el.subject.toLowerCase() == filterTerm.toLowerCase()) && self.selectedDeliveryType.indexOf(el['deliveryTypeId']) != -1) {
-                    return el;
-                }
+            availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
+                return el.resourceId == filterTerm;
             });
+            
         }
         return availableEvents;
     }
@@ -1035,6 +1061,7 @@ function SylvanAppointment(){
             var dayofMonth = moment(currentCalendarDate).format('M/D');
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
         }
+
         self.clearEvents();
         currentCalendarDate = moment(currentCalendarDate).format("YYYY-MM-DD");
         self.refreshCalendarEvent(this.locationId, true);
@@ -1180,6 +1207,7 @@ function SylvanAppointment(){
                 self.populateBusinessClosure();
             }
         }, 300);
+        
     }
 
     this.populateBusinessClosure = function(){
