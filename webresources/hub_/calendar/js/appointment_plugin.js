@@ -127,7 +127,7 @@ setTimeout(function () {
         }
 
         function fetchResources(locationId) {
-            //wjQuery(".loading").show();
+            wjQuery(".loading").show();
             sylvanAppointment.locationId = locationId;
             if(wjQuery('#dayBtn:checked').val() == 'on'){
                 sylvanAppointment.startDate =  sylvanAppointment.calendarDate;
@@ -903,7 +903,7 @@ function SylvanAppointment(){
 
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
-        //wjQuery('.loading').show();
+        wjQuery('.loading').show();
         setTimeout(function () {
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
             var currentView = self.appointment.fullCalendar('getView');
