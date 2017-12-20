@@ -185,30 +185,35 @@ function SylvanAppointment(){
     this.appointmentHours = [];
     this.conflictMsg = ["Out of office appointment conflict","Staff not available conflict"];
     this.appointmentHourException = [];
-
+    this.leaveDays = [];
+    this.businessClosure = [];
 
     this.clearEvents = function () {
         var self = this;
-        self.filters = new Object();
-        self.eventList = [];
-        self.appointmentList = [];
-        self.appointmentHours = [];
-        self.appointmentHourException = [];
-        self.appointment.fullCalendar('removeEvents');
-        self.appointment.fullCalendar('removeEventSource');
+        this.filters = new Object();
+        this.eventList = [];
+        this.appointmentList = [];
+        this.appointmentHours = [];
+        this.appointmentHourException = [];
+        this.appointment.fullCalendar('removeEvents');
+        this.appointment.fullCalendar('removeEventSource');
+        this.businessClosure = [];
+        this.leaveDays = [];
     }
 
     this.clearAll = function () {
         var self = this;
-        self.filters = new Object();
-        self.eventList = [];
-        self.staffList = [];
-        self.appointmentList = [];
-        self.appointmentHours = [];
-        self.appointmentHourException = [];
-        self.appointment.fullCalendar('removeEvents');
-        self.appointment.fullCalendar('removeEventSource');
-        self.appointment.fullCalendar('destroy');
+        this.filters = new Object();
+        this.eventList = [];
+        this.staffList = [];
+        this.appointmentList = [];
+        this.appointmentHours = [];
+        this.appointmentHourException = [];
+        this.businessClosure = [];
+        this.leaveDays = [];
+        this.appointment.fullCalendar('removeEvents');
+        this.appointment.fullCalendar('removeEventSource');
+        this.appointment.fullCalendar('destroy');
     }
 
     this.getRequiredAttendees = function(id,requiredAttendeesList){
@@ -268,6 +273,8 @@ function SylvanAppointment(){
                 if(index != 'requiredAttendees'){
                     var startObj = "";
                     var startObj = "";
+                    appointmentObj['hub_start_date'] = moment(appointmentObj['hub_start_date']).format("MM-DD-YYYY");
+                    appointmentObj['hub_end_date'] = moment(appointmentObj['hub_end_date']).format("MM-DD-YYYY");
                     if(appointmentObj['hub_fulldayappointment']){
                         startObj = new Date(appointmentObj['hub_start_date']+" "+DEFAULT_START_TIME);
                         endObj = new Date(appointmentObj['hub_end_date']+" "+DEFAULT_END_TIME);
@@ -444,6 +451,64 @@ function SylvanAppointment(){
                 tempList.push(obj);
             });
             this.appointmentHourException = tempList;
+        }
+        return tempList;
+    }
+
+    this.formatWeekObjects = function(args, label){
+        var self = this;
+        args = args == null ? [] : args; 
+        if(label == "appointmentHours"){
+            tempList = [];
+            var currentView = self.appointment.fullCalendar('getView');
+            currentView.start = new Date(currentView.start).setHours(0);
+            currentView.start = new Date(new Date(currentView.start).setMinutes(0));
+            currentView.start = new Date(new Date(currentView.start).setSeconds(0));
+            currentView.end = new Date(currentView.end).setHours(0);
+            currentView.end = new Date(new Date(currentView.end).setMinutes(0));
+            currentView.end = new Date(new Date(currentView.end).setSeconds(0));
+            currentView.end = new Date(moment(currentView.end).subtract(1, "days"));
+
+            // Loop through all backend appointment hours
+            wjQuery.each(args, function(index, appointmentHour) {
+                var appEffectiveStartDate = appointmentHour['hub_effectivestartdate'];
+                var appEffectiveEndDate;
+                if(appointmentHour['hub_effectiveenddate'] != undefined){
+                    appEffectiveEndDate = moment(appointmentHour['hub_effectiveenddate']).format("MM-DD-YYYY");
+                }
+                else{
+                    appEffectiveEndDate = moment(currentView.end).format("MM-DD-YYYY");
+                }
+                appEffectiveStartDate = new Date(appEffectiveStartDate + ' ' + '00:00').getTime();
+                appEffectiveEndDate = new Date(appEffectiveEndDate + ' ' + '23:59').getTime();
+                
+                for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
+                    if(j >= appEffectiveStartDate && j <= appEffectiveEndDate){
+                        if(appointmentHour['hub_days'] == self.getDayValue(j)){
+                            var duration = appointmentHour['aworkhours_x002e_hub_duration'];
+                            for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
+                                var startObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
+                                var endObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
+                                tempList.push({
+                                    appointmentHourId:appointmentHour['hub_timingsid'],
+                                    type:appointmentHour['aworkhours_x002e_hub_type'],
+                                    typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
+                                    startObj:startObj,
+                                    endObj:endObj,
+                                    capacity:appointmentHour['hub_capacity'],
+                                    duration : duration,
+                                    workHourId:appointmentHour['aworkhours_x002e_hub_workhoursid'],
+                                    objOwner:{
+                                        id:appointmentHour['_ownerid_value'], 
+                                        entityType:appointmentHour['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+            this.appointmentHours = tempList;
         }
         return tempList;
     }
@@ -632,8 +697,8 @@ function SylvanAppointment(){
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
                 }
                 else{
-                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#fff');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
+                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#fff');
                 }
             },
             editable: false,
@@ -901,32 +966,36 @@ function SylvanAppointment(){
         this.refreshCalendarEvent(this.locationId, true);
     }
 
+    this.clearBusinessClosure = function(){
+        var self = this;
+        this.clearEvents();
+        // wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
+        wjQuery('.fc-col' + 0).not('.fc-widget-header').css('background-color', '#fff');
+        wjQuery('.fc-col' + 1).not('.fc-widget-header').css('background-color', '#fff');
+        wjQuery('.fc-col' + 2).not('.fc-widget-header').css('background-color', '#fff');
+        wjQuery('.fc-col' + 3).not('.fc-widget-header').css('background-color', '#fff');
+        wjQuery('.fc-col' + 4).not('.fc-widget-header').css('background-color', '#fff');
+        wjQuery('.fc-col' + 5).not('.fc-widget-header').css('background-color', '#fff');
+        wjQuery('.fc-col' + 6).not('.fc-widget-header').css('background-color', '#fff');
+    }
+
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
         wjQuery('.loading').show();
+        // wjQuery(".fc-widget-content").css('background-color', '#fff');
+        self.clearBusinessClosure();
         setTimeout(function () {
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
             var currentView = self.appointment.fullCalendar('getView');
             // fetch master schedule data based on below flag
-                var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
-                if (currentView.name == 'resourceDay') {
+            var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
+            if (currentView.name == 'resourceDay') {
+                self.eventList = [];
+                self.businessClosure = [];
+                startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+                self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
+                if (self.businessClosure == null) {
                     self.businessClosure = [];
-                    startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
-                    self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
-                    if (self.businessClosure == null) {
-                        self.businessClosure = [];
-                    }
-                }
-                if (currentView.name == 'agendaWeek') {
-                    self.eventList = [];
-                    self.weekEventObject = {};
-                    self.businessClosure = [];
-                    startDate  = moment(currentCalendarDate).format("YYYY-MM-DD");
-                    endDate = moment(moment(currentView.start).add(6, 'd')).format("YYYY-MM-DD");
-                    self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
-                    if (self.businessClosure == null) {
-                        self.businessClosure = [];
-                    }
                 }
 
                 var findingLeaveFlag = true;
@@ -973,9 +1042,93 @@ function SylvanAppointment(){
                     wjQuery('.loading').hide();
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
                 }
-            
+            }
+            if (currentView.name == 'agendaWeek') {
+                self.eventList = [];
+                self.weekEventObject = {};
+                self.businessClosure = [];
+                startDate = moment(currentView.start).format("YYYY-MM-DD");
+                endDate = moment(moment(currentView.start).add(6, 'd')).format("YYYY-MM-DD");
+                currentView.end = moment(moment(currentView.start).add(6, 'd'))._d;
+                self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
+                if (self.businessClosure == null) {
+                    self.businessClosure = [];
+                }
+                self.findLeaveDays();
+                var appointmentHourException = self.formatObjects(data.getappointmentExceptions(locationId,startDate,endDate), "appointmentException");
+                var appointmentHours = data.getAppointmentHours(locationId,startDate,endDate, false);
+                if (appointmentHours == null) {
+                    appointmentHours = [];
+                }
+                self.populateAppointmentHours(self.formatWeekObjects(appointmentHours, "appointmentHours"));
+                var staffExceptions = data.getStaffExceptions(locationId,startDate,endDate);
+                if (staffExceptions == null) {
+                    staffExceptions = [];
+                }
+                self.populateStaffExceptionAppointment(self.formatObjects(staffExceptions, "staffExceptions"));
+                var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
+                if (appList == null) {
+                    appList = [];
+                    if(appList.requiredAttendees == null){
+                        appList.requiredAttendees = [];
+                    }
+                }
+                self.appointmentList = (isFetch || self.appointmentList.length == 0) ? self.formatObjects(appList, "appointmentList") : self.appointmentList;
+                if (self.appointmentList == null) {
+                    self.appointmentList = [];
+                }
+                self.populateAppointmentEvent(self.appointmentList);
+                self.populateBusinessClosure();
+            }
         }, 300);
     }
+
+    this.populateBusinessClosure = function(){
+        var self = this;
+        var currentView = self.appointment.fullCalendar('getView');
+        for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
+            var sample = -1;
+            for (var b = 0; b < self.leaveDays.length; b++) {
+                if(moment(self.leaveDays[b]).format('YYYY-MM-DD') == moment(j).format('YYYY-MM-DD')){
+                    sample = b;
+                    var obj = {
+                        start: new Date(j),
+                        allDay: true,
+                        className: "leave-day-class",
+                        title:'',
+                    };
+                    self.eventList.push(obj);
+                }
+            }
+        }
+        self.appointment.fullCalendar('removeEvents');
+        self.appointment.fullCalendar('removeEventSource');
+        self.appointment.fullCalendar('addEventSource', { events: self.eventList });
+        self.appointment.fullCalendar('refetchEvents');
+    }
+
+    this.populateWeekEvents = function(){
+
+    }
+
+    this.findLeaveDays = function(){
+        var self = this;
+        this.leaveDays = [];
+        var currentView = self.appointment.fullCalendar('getView');
+        currentView.end = moment(moment(currentView.start).add(6, 'd'))._d;
+        for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
+            for (var i = 0; i < self.businessClosure.length; i++) {
+                var businessStartDate = moment(self.businessClosure[i]['hub_startdatetime']).format("YYYY-MM-DD");
+                var businessEndDate = moment(self.businessClosure[i]['hub_enddatetime']).format("YYYY-MM-DD");
+                businessStartDate = new Date(businessStartDate + ' ' + '00:00').getTime();
+                businessEndDate = new Date(businessEndDate + ' ' + '00:00').getTime();
+                if (j >= businessStartDate && j <= businessEndDate) {
+                    this.leaveDays.push(new Date(j));
+                }
+            }
+        }
+    };
+
 
     this.findDataSource = function (currentCalendarDate,view) {
         var now = new Date();
@@ -1856,7 +2009,7 @@ function SylvanAppointment(){
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-            eventObj['title'] = '<span class="app-placeholder placeholder_week">1..</span>';
+            eventObj['title'] = '<span class="app-placeholder placeholder_week">1....</span>';
             eventObj['noOfApp'] = 1;
         }else{
             if( eventColorObj.display == "student"){
