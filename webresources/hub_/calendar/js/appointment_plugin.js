@@ -751,6 +751,9 @@ function SylvanAppointment(){
             },
             eventClick: function(calEvent, jsEvent, view) {
                 // self.renderWeekModal(calEvent, jsEvent, view);
+                if (view.name == 'agendaWeek'){
+                    self.apptDetailPopup(calEvent);
+                }
             },
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
@@ -1124,11 +1127,11 @@ function SylvanAppointment(){
                     appointmentHours = [];
                 }
                 self.populateAppointmentHours(self.formatWeekObjects(appointmentHours, "appointmentHours"));
-                var staffExceptions = data.getStaffExceptions(locationId,startDate,endDate);
-                if (staffExceptions == null) {
-                    staffExceptions = [];
-                }
-                self.populateStaffExceptionAppointment(self.formatWeekObjects(staffExceptions, "staffExceptions"));
+                // var staffExceptions = data.getStaffExceptions(locationId,startDate,endDate);
+                // if (staffExceptions == null) {
+                //     staffExceptions = [];
+                // }
+                // self.populateStaffExceptionAppointment(self.formatWeekObjects(staffExceptions, "staffExceptions"));
                 var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
                 if (appList == null) {
                     appList = [];
@@ -1624,7 +1627,7 @@ function SylvanAppointment(){
         wjQuery("#dialog").dialog({
             resizable: false,
             height: "auto",
-            width: 350,
+            width: "350px",
             modal: true,
             show: {
                 effect: 'bounce',
@@ -1655,7 +1658,7 @@ function SylvanAppointment(){
         wjQuery("#dialog").dialog({
             resizable: false,
             height: "auto",
-            width: 350,
+            width: "350px",
             modal: true,
             show: {
                 effect: 'bounce',
@@ -2633,6 +2636,27 @@ function SylvanAppointment(){
         else{
          wjQuery('.loading').hide();
         }
+    }
+
+    this.apptDetailPopup = function (event) {
+        var self = this;
+        var uniqueId = event.id.split("_");
+        var apptObj = self.getEventColor(uniqueId[0]);
+        var html = "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
+        wjQuery("#dialog > .dialog-msg").html(html);
+        wjQuery("#dialog").dialog({
+            modal: true,
+            resizable: false,
+            height: "auto",
+            width: "80%",
+            title: 'Appt Detail <br>'+moment(event.start).format("dddd hh:mm A"),
+            show: {
+                effect: 'bounce',
+                complete: function() {
+                    wjQuery(".loading").hide();
+                }
+            },
+        });
     }
 
 }

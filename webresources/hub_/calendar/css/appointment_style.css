@@ -247,7 +247,7 @@ i.material-icons.cursor.float-right {
     border: 1px solid rgb(221, 221, 221);
 }
 div.ui-widget{
-    width: 350px !important;
+    /*width: 350px !important;*/
 }
 .ui-timepicker.ui-widget.ui-widget-content.ui-menu.ui-corner-all,.ui-timepicker .ui-timepicker-viewport{
     width: 170px !important;
@@ -438,4 +438,8 @@ ul{
     width: 16px;
     background: url(../images/chevron_right.png) no-repeat;
     vertical-align: text-bottom;
+}
+
+.appt-title{
+    font-weight: bold;
 }
