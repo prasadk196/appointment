@@ -2642,7 +2642,27 @@ function SylvanAppointment(){
         var self = this;
         var uniqueId = event.id.split("_");
         var apptObj = self.getEventColor(uniqueId[0]);
-        var html = "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
+        var html =  "<div class='each-appt'>"+
+                        "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                    "</div>"+
+                    "<div class='each-appt'>"+
+                        "<span class='appt-title'>2. </b>"+apptObj.name+"</b></span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                    "</div>"+
+                    "<div class='each-appt'>"+
+                        "<span class='appt-title'>3. </b>"+apptObj.name+"</b></span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                    "</div>"+
+                    "<div class='each-appt'>"+
+                        "<span class='appt-title'>4. </b>"+apptObj.name+"</b></span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
+                    "</div>";
+
         wjQuery("#dialog > .dialog-msg").html(html);
         wjQuery("#dialog").dialog({
             modal: true,

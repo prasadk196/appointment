@@ -440,6 +440,16 @@ ul{
     vertical-align: text-bottom;
 }
 
+.each-appt{
+    display: inline-block;
+    width: calc(100%/3);
+    margin: 10px 0px;
+}
+
 .appt-title{
     font-weight: bold;
+}
+
+.appt-stud{
+    display: block;
 }
