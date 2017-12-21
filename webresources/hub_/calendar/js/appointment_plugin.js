@@ -1048,6 +1048,10 @@ function SylvanAppointment(){
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
         wjQuery('.loading').show();
+        var isOpen = wjQuery( ".ui-dialog" );
+        if(isOpen.length){
+            wjQuery("#dialog").dialog("close");
+        }
         // wjQuery(".fc-widget-content").css('background-color', '#fff');
         self.clearBusinessClosure();
         setTimeout(function () {
