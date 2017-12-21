@@ -1984,7 +1984,11 @@ function SylvanAppointment(){
         var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             populatedEvent['noOfApp'] += 1;
-            populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'...</span>';
+            if(populatedEvent.hasOwnProperty("appHourId")){
+                populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
+            }else{
+                populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'</span>';
+            }
         }else{
             if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
                 populatedEvent.title = "<span class='appointmentTitle'>"+eventColorObj.name+"</span>";
@@ -2075,13 +2079,13 @@ function SylvanAppointment(){
             memberList : [appointmentObj],
             conflictMsg:[],
             outOfOffice:appointmentObj["outofoffice"],
-            resourceId:appointmentObj['staffId']
+            resourceId:appointmentObj['staffId'],
+            noOfApp:1
         }
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-            eventObj['title'] = '<span class="app-placeholder placeholder_week">1....</span>';
-            eventObj['noOfApp'] = 1;
+            eventObj['title'] = '<span class="app-placeholder placeholder_week">1</span>';
         }else{
             if( eventColorObj.display == "student"){
                 var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
@@ -2222,7 +2226,8 @@ function SylvanAppointment(){
                         conflictMsg:[],
                         // backgroundColor:eventColorObj.backgroundColor,
                         memberList:[],
-                        appHourId:appointmentHrObj['appointmentHourId']
+                        appHourId:appointmentHrObj['appointmentHourId'],
+                        noOfApp:0
                     }
                     // Appointment hour exception validation
                     var isexception = self.appointmentHourException.filter(function(x) {
@@ -2300,10 +2305,10 @@ function SylvanAppointment(){
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             if(capacity){
                 if(eventColorObj.display == 'student'){
-                        html+= '<span class="app-placeholder placeholder_week student-'+eventColorObj.type+'">'+capacity+'</span>';
+                        html+= '<span class="app-placeholder placeholder_week student-'+eventColorObj.type+'">0/'+capacity+'</span>';
                 }
                 else if(eventColorObj.display == 'parent'){
-                    html+= '<span class="app-placeholder placeholder_week customer-'+eventColorObj.type+'">'+capacity+'</span>';
+                    html+= '<span class="app-placeholder placeholder_week customer-'+eventColorObj.type+'">0/'+capacity+'</span>';
                 }
             }
         }
@@ -2647,26 +2652,15 @@ function SylvanAppointment(){
         var uniqueId = event.id.split("_");
         var apptObj = self.getEventColor(uniqueId[0]);
         var html =  "<div class='each-appt'>"+
-                        "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                    "</div>"+
-                    "<div class='each-appt'>"+
-                        "<span class='appt-title'>2. </b>"+apptObj.name+"</b></span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                    "</div>"+
-                    "<div class='each-appt'>"+
-                        "<span class='appt-title'>3. </b>"+apptObj.name+"</b></span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                    "</div>"+
-                    "<div class='each-appt'>"+
-                        "<span class='appt-title'>4. </b>"+apptObj.name+"</b></span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                        "<span class='appt-stud'>Student1 10th, subject1</span>"+
-                    "</div>";
-
+                        "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
+        if(event.hasOwnProperty("memberList") && event.memberList.length){
+            for(var h = 0; h<event.memberList.length; h++ ){
+                var memberObj = event.memberList[h];
+                html +=     "<span class='appt-stud'>"+memberObj.studentName+" 10th, subject1</span>";
+            }
+        }
+            html += "</div>";
+        
         wjQuery("#dialog > .dialog-msg").html(html);
         wjQuery("#dialog").dialog({
             modal: true,
