@@ -275,54 +275,62 @@ function SylvanAppointment(){
                     var startObj = "";
                     appointmentObj['hub_start_date'] = moment(appointmentObj['hub_start_date']).format("MM-DD-YYYY");
                     appointmentObj['hub_end_date'] = moment(appointmentObj['hub_end_date']).format("MM-DD-YYYY");
-                    if(appointmentObj['hub_fulldayappointment']){
-                        startObj = new Date(appointmentObj['hub_start_date']+" "+DEFAULT_START_TIME);
-                        endObj = new Date(appointmentObj['hub_end_date']+" "+DEFAULT_END_TIME);
-                    }else{
-                        startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
-                        endObj = new Date(appointmentObj['hub_end_date']+" "+appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue']);
-                    }
-                    var obj = {
-                        id: appointmentObj['activityid'],
-                        type:appointmentObj['hub_type'],
-                        typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
-                        startObj:startObj,
-                        endObj:endObj,
-                        allDayAppointment : !!appointmentObj['hub_fulldayappointment'],
-                        outofoffice : !!appointmentObj['hub_outofofficeappointment'],
-                        requiredattendees : self.getRequiredAttendees(appointmentObj['activityid'],args.requiredAttendees),
-                        isExceptional : !!appointmentObj['hub_exception'] ,
-                        locationId:appointmentObj['_hub_location_value'],
-                        diagnosticId : appointmentObj['_hub_diagnosticserviceid_value'],
-                        diagnosticName : appointmentObj['_hub_diagnosticserviceid_value@OData.Community.Display.V1.FormattedValue'],
-                        status:appointmentObj['hub_appointmentstatus'],
-                        pricelistId : appointmentObj['_hub_pricelist_value'],
-                        studentId:appointmentObj['_hub_student_value'],
-                        studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
-                        parentId:appointmentObj['_regardingobjectid_value'],
-                        parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
-                        objOwner:{
-                            id:appointmentObj['_ownerid_value'], 
-                            entityType:appointmentObj['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
+                    var j = new Date(appointmentObj['hub_start_date']);
+                    
+                    // Exclude business closure day appointments from list. 
+                    var pushObj = self.leaveDays.filter(function(elm) {
+                        return elm.getTime() == j.getTime();
+                    });
+                    if(pushObj.length == 0){
+                        if(appointmentObj['hub_fulldayappointment']){
+                            startObj = new Date(appointmentObj['hub_start_date']+" "+DEFAULT_START_TIME);
+                            endObj = new Date(appointmentObj['hub_end_date']+" "+DEFAULT_END_TIME);
+                        }else{
+                            startObj = new Date(appointmentObj['hub_start_date']+" "+appointmentObj['hub_starttime@OData.Community.Display.V1.FormattedValue']);
+                            endObj = new Date(appointmentObj['hub_end_date']+" "+appointmentObj['hub_endtime@OData.Community.Display.V1.FormattedValue']);
                         }
-                    };
-                    if(appointmentObj['_hub_staff_value'] != undefined){
-                        obj.staffId = appointmentObj['_hub_staff_value'];
-                        obj.staffValue = appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'];
-                    }
-                    else{
-                        obj.staffId = 'unassignedId';
-                        obj.staffValue = 'unassignedId'
-                    }
-                    var index = -1;
-                    for (var i = 0; i < tempList.length; i++) {
-                        if(tempList[i].id == obj.id){
-                            index = i;
-                            break;
+                        var obj = {
+                            id: appointmentObj['activityid'],
+                            type:appointmentObj['hub_type'],
+                            typeValue:appointmentObj['hub_type@OData.Community.Display.V1.FormattedValue'],
+                            startObj:startObj,
+                            endObj:endObj,
+                            allDayAppointment : !!appointmentObj['hub_fulldayappointment'],
+                            outofoffice : !!appointmentObj['hub_outofofficeappointment'],
+                            requiredattendees : self.getRequiredAttendees(appointmentObj['activityid'],args.requiredAttendees),
+                            isExceptional : !!appointmentObj['hub_exception'] ,
+                            locationId:appointmentObj['_hub_location_value'],
+                            diagnosticId : appointmentObj['_hub_diagnosticserviceid_value'],
+                            diagnosticName : appointmentObj['_hub_diagnosticserviceid_value@OData.Community.Display.V1.FormattedValue'],
+                            status:appointmentObj['hub_appointmentstatus'],
+                            pricelistId : appointmentObj['_hub_pricelist_value'],
+                            studentId:appointmentObj['_hub_student_value'],
+                            studentName:appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
+                            parentId:appointmentObj['_regardingobjectid_value'],
+                            parentName:appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
+                            objOwner:{
+                                id:appointmentObj['_ownerid_value'], 
+                                entityType:appointmentObj['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
+                            }
+                        };
+                        if(appointmentObj['_hub_staff_value'] != undefined){
+                            obj.staffId = appointmentObj['_hub_staff_value'];
+                            obj.staffValue = appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'];
                         }
+                        else{
+                            obj.staffId = 'unassignedId';
+                            obj.staffValue = 'unassignedId'
+                        }
+                        var index = -1;
+                        for (var i = 0; i < tempList.length; i++) {
+                            if(tempList[i].id == obj.id){
+                                index = i;
+                                break;
+                            }
+                        }
+                        if(index == -1)
+                            tempList.push(obj);    
                     }
-                    if(index == -1)
-                        tempList.push(obj);    
                 }
             });
         }
@@ -467,7 +475,7 @@ function SylvanAppointment(){
             currentView.end = new Date(currentView.end).setHours(0);
             currentView.end = new Date(new Date(currentView.end).setMinutes(0));
             currentView.end = new Date(new Date(currentView.end).setSeconds(0));
-            currentView.end = new Date(moment(currentView.end).subtract(1, "days"));
+            // currentView.end = new Date(moment(currentView.end).subtract(1, "days"));
 
             // Loop through all backend appointment hours
             wjQuery.each(args, function(index, appointmentHour) {
@@ -483,32 +491,87 @@ function SylvanAppointment(){
                 appEffectiveEndDate = new Date(appEffectiveEndDate + ' ' + '23:59').getTime();
                 
                 for(var j = currentView.start.getTime();j<currentView.end.getTime();j=j+(24*60*60*1000)){
-                    if(j >= appEffectiveStartDate && j <= appEffectiveEndDate){
-                        if(appointmentHour['hub_days'] == self.getDayValue(j)){
-                            var duration = appointmentHour['aworkhours_x002e_hub_duration'];
-                            for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
-                                var startObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
-                                var endObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
-                                tempList.push({
-                                    appointmentHourId:appointmentHour['hub_timingsid'],
-                                    type:appointmentHour['aworkhours_x002e_hub_type'],
-                                    typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
-                                    startObj:startObj,
-                                    endObj:endObj,
-                                    capacity:appointmentHour['hub_capacity'],
-                                    duration : duration,
-                                    workHourId:appointmentHour['aworkhours_x002e_hub_workhoursid'],
-                                    objOwner:{
-                                        id:appointmentHour['_ownerid_value'], 
-                                        entityType:appointmentHour['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
-                                    }
-                                });
+                    var pushObj = self.leaveDays.filter(function(elm) {
+                        return elm.getTime() == j;
+                    });
+                    if(pushObj.length == 0){
+                        if(j >= appEffectiveStartDate && j <= appEffectiveEndDate){
+                            if(appointmentHour['hub_days'] == self.getDayValue(j)){
+                                var duration = appointmentHour['aworkhours_x002e_hub_duration'];
+                                for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
+                                    var startObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
+                                    var endObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
+                                    tempList.push({
+                                        appointmentHourId:appointmentHour['hub_timingsid'],
+                                        type:appointmentHour['aworkhours_x002e_hub_type'],
+                                        typeValue:appointmentHour['aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue'],
+                                        startObj:startObj,
+                                        endObj:endObj,
+                                        capacity:appointmentHour['hub_capacity'],
+                                        duration : duration,
+                                        workHourId:appointmentHour['aworkhours_x002e_hub_workhoursid'],
+                                        objOwner:{
+                                            id:appointmentHour['_ownerid_value'], 
+                                            entityType:appointmentHour['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
                 }
             });
             this.appointmentHours = tempList;
+        }else if(label == "staffExceptions"){
+            tempList = [];
+            this.staffExceptions = [];
+            
+            var currentView = self.appointment.fullCalendar('getView');
+            currentView.start = new Date(currentView.start).setHours(0);
+            currentView.start = new Date(new Date(currentView.start).setMinutes(0));
+            currentView.start = new Date(new Date(currentView.start).setSeconds(0));
+            currentView.end = new Date(currentView.end).setHours(0);
+            currentView.end = new Date(new Date(currentView.end).setMinutes(0));
+            currentView.end = new Date(new Date(currentView.end).setSeconds(0));
+            // currentView.end = new Date(moment(currentView.end).subtract(1, "days"));
+
+            wjQuery.each(args, function(index, exceptionObj) {
+                var exceptionStartDate = new Date(exceptionObj['hub_startdate']);
+                // Set time for start date
+                exceptionStartDate = new Date(exceptionStartDate).setHours(0);
+                exceptionStartDate = new Date(new Date(exceptionStartDate).setMinutes(0));
+                exceptionStartDate = new Date(new Date(exceptionStartDate).setSeconds(0));
+
+                var exceptionEndDate = exceptionObj['hub_enddate'];
+                exceptionEndDate = exceptionEndDate == undefined ? exceptionStartDate : new Date(exceptionEndDate);
+                // Set time for end date
+                exceptionEndDate = new Date(exceptionEndDate).setHours(0);
+                exceptionEndDate = new Date(new Date(exceptionEndDate).setMinutes(0));
+                exceptionEndDate = new Date(new Date(exceptionEndDate).setSeconds(0));
+                
+                for(var j = currentView.start.getTime();j<=currentView.end.getTime();j=j+(24*60*60*1000)){
+                    var pushObj = self.leaveDays.filter(function(elm) {
+                        return elm.getTime() == j;
+                    });
+                    if(pushObj.length == 0){
+                        var obj = {};
+                        obj.id = exceptionObj['astaff_x002e_hub_staffid'];
+                        if(j >= exceptionStartDate.getTime() && j <= exceptionEndDate.getTime()){
+                            if(exceptionObj['hub_entireday']){
+                                obj.startObj = new Date(new Date(j).setHours(8));
+                                obj.endObj = new Date(new Date(j).setHours(20));
+                            }else{
+                                obj.startObj = new Date(j).setHours(exceptionObj["hub_starttime"]/60);
+                                obj.startObj = new Date(new Date(obj.startObj).setMinutes(exceptionObj["hub_starttime"]%60));
+                                obj.endObj = new Date(j).setHours(exceptionObj["hub_endtime"]/60);
+                                obj.endObj = new Date(new Date(obj.endObj).setMinutes(exceptionObj["hub_endtime"]%60));
+                            }
+                            tempList.push(obj);
+                        }
+                    }
+                }
+            });
+            this.staffExceptions = tempList;
         }
         return tempList;
     }
@@ -1065,7 +1128,7 @@ function SylvanAppointment(){
                 if (staffExceptions == null) {
                     staffExceptions = [];
                 }
-                self.populateStaffExceptionAppointment(self.formatObjects(staffExceptions, "staffExceptions"));
+                self.populateStaffExceptionAppointment(self.formatWeekObjects(staffExceptions, "staffExceptions"));
                 var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
                 if (appList == null) {
                     appList = [];
