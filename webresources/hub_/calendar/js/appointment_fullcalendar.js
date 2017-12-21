@@ -5574,7 +5574,7 @@ function AgendaEventRenderer() {
 				if(filtertedEvent.length > 1){
 					var fcContentWidth = (parseInt($("#appointment").width()) - 220)/7;
 					eventElement[0].style.width = fcContentWidth/filtertedEvent.length + "px";
-					// eventElement[0].style.width = (Math.max(0, seg.outerWidth - seg.hsides)/filtertedEvent.length) + 'px';
+					// eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
 				}else{
 					eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
 				}
