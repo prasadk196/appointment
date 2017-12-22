@@ -5572,9 +5572,9 @@ function AgendaEventRenderer() {
 
 
 				if(filtertedEvent.length > 1){
-					var fcContentWidth = parseFloat($(".fc-widget-header").width()*2);
-					eventElement[0].style.width = Math.max(fcContentWidth/filtertedEvent.length) + "px";
-					// eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
+					// var fcContentWidth = parseFloat($(".fc-widget-header").width()*2);
+					// eventElement[0].style.width = Math.max(fcContentWidth/filtertedEvent.length) + "px";
+					eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
 				}else{
 					eventElement[0].style.width = Math.max(0, seg.outerWidth - seg.hsides) + 'px';
 				}
