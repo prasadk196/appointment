@@ -771,7 +771,7 @@ function SylvanAppointment(){
             resources: self.staffList,
             events: self.eventList,
             windowResize: function (view) {
-                // self.appointment.fullCalendar('option', 'height', window.innerHeight - 60);
+                self.appointment.fullCalendar('option', 'height', window.innerHeight - 60);
             }
         }
 
