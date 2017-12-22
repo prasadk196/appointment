@@ -169,7 +169,7 @@ setTimeout(function () {
         var filterObject = {
             Staff: data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate) == null ? [] : data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate),
             Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
-            time: data.getTime() == null ? [] : data.getTime()
+            time: data.getTime() == null ? [] : data.getTime(),
         }
         sylvanAppointment.generateFilterObject(filterObject);     
 }, 500);
@@ -187,6 +187,8 @@ function SylvanAppointment(){
     this.appointmentHourException = [];
     this.leaveDays = [];
     this.businessClosure = [];
+    this.parents = [];
+    this.students = [];
 
     this.clearEvents = function () {
         var self = this;
@@ -781,6 +783,7 @@ function SylvanAppointment(){
             this.calendarOptions.date = args.getDate();
         }
         self.appointment = wjQuery('#appointment').fullCalendar(this.calendarOptions);
+        
         self.loadMasterInformation();
     }
 
@@ -800,6 +803,7 @@ function SylvanAppointment(){
 
         if (wjQuery('.filter-section').length == 0)
             wjQuery(".fc-agenda-divider.fc-widget-header").after("<div class='filter-section'></div>");
+        self.generateFilterObject(self.filterObject);
         this.calendarFilter();
         this.filterSlide(false);
         this.filterEventData();
@@ -839,6 +843,20 @@ function SylvanAppointment(){
                               '</label>' +
                           '</div>');
                         }
+                        else if(index == 'students'){
+                            wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].studentId + ' option-header-container">' +
+                              '<label class="cursor option-title">' +
+                                  '<input type="checkbox" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].studentId + '">' + self.filters[index][i].name +
+                              '</label>' +
+                          '</div>');
+                        }
+                        else if(index == 'parents'){
+                            wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].parentId + ' option-header-container">' +
+                              '<label class="cursor option-title">' +
+                                  '<input type="checkbox" class="filterCheckBox" name="' + index + '" value="' + self.filters[index][i].parentId + '">' + self.filters[index][i].name +
+                              '</label>' +
+                          '</div>');
+                        }
                         else{
                             wjQuery('#' + id).append('<div class="option_' + self.filters[index][i].id + ' option-header-container">' +
                               '<label class="cursor option-title">' +
@@ -866,7 +884,7 @@ function SylvanAppointment(){
                         else{
                             hr = 4;
                         }
-                        var scrollNum = hr * 120;
+                        var scrollNum = hr * 155;
                         
                         $("#scrollarea").animate({ scrollTop: scrollNum }, 500, function(){
                             wjQuery(".loading").hide();
@@ -911,13 +929,16 @@ function SylvanAppointment(){
                                 }
                                 else if(indices[1] == 'Staff'){
                                     newArray = newArray.concat(self.filterItems(v, "default"));
-                                    var filterStaff = self.staffList.filter(function (el) {
-                                      return el.id == v;
-                                    });
+                                    // var filterStaff = self.staffList.filter(function (el) {
+                                    //   return el.id == v;
+                                    // });
                                     //self.populateStaff(filterStaff, isfetch);
                                 }
-                                else{
-
+                                else if(indices[1] == 'students'){
+                                    newArray = newArray.concat(self.filterItems(v, "student"));
+                                }
+                                else if(indices[1] == 'parents'){
+                                    newArray = newArray.concat(self.filterItems(v, "parent"));
                                 }
                             })
                             
@@ -968,7 +989,11 @@ function SylvanAppointment(){
                 } else if (key == "time") {
                         self.filters[key].push({ id: val.id, name: val.name,radio: true });
                   
-                }  
+                }else if(key == "students"){
+                    self.filters[key].push({ id: val.id, studentId: val.studentId,name: val.studentName,type: val.type,radio: false });
+                }else if(key == "parents") {
+                    self.filters[key].push({ id: val.id, parentId: val.parentId,name: val.parentName,type: val.type,radio: false });
+                } 
             });
         });
         //localStorage.setItem('filterObjData' , JSON.stringify(self.filters));
@@ -1012,11 +1037,42 @@ function SylvanAppointment(){
                 return el.type == filterTerm;
             });
         }
-        else{
+        else if(filterFor == 'Appointments'){
             availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
                 return el.resourceId == filterTerm;
             });
             
+        }
+        else if (filterFor == 'student') {
+            availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
+                
+                if (el.memberList.length>0) {
+                    for (var abcd = 0; abcd < el.memberList.length; abcd++) {
+                        if(el.memberList[abcd].studentId == filterTerm){
+                            return el;
+                        }
+                    }
+                }
+                
+            });
+        }
+        else if (filterFor == 'parent') {
+            availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
+                
+                if (el.memberList.length>0) {
+                    for (var i = 0; i < el.memberList.length; i++) {
+                        if (el.memberList[i].parentId == filterTerm) {
+                            return el;
+                        }
+                    }
+                }
+                
+            });
+        }
+        else{
+            availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
+                return el.resourceId == filterTerm;
+            });
         }
         return availableEvents;
     }
@@ -1162,7 +1218,15 @@ function SylvanAppointment(){
                     if (self.appointmentList == null) {
                         self.appointmentList = [];
                     }
+                    
                     self.populateAppointmentEvent(self.appointmentList);
+                    self.filterStudentParent(self.appointmentList);
+                    if (self.parents.length || self.students.length) {
+                        self.filterObject.students = self.students;
+                        self.filterObject.parents = self.parents;
+                        //self.generateFilterObject(self.filterObject);
+                        self.loadMasterInformation();
+                    }
                 }
                 else{
                     wjQuery('.loading').hide();
@@ -2222,6 +2286,7 @@ function SylvanAppointment(){
                 }else{
                     self.addEventObj(appointmentObj);
                 }
+                
             });
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
             self.draggable('draggable');
@@ -2230,7 +2295,31 @@ function SylvanAppointment(){
             wjQuery(".loading").hide();
         }
     }
-
+    this.filterStudentParent = function(appointmentList){
+        var self = this;
+        self.students = [];
+        self.parents = [];
+        wjQuery.each(appointmentList, function(index, appointmentObj) {
+            var appintmenttypeofObj = self.getEventColor(appointmentObj["type"]);
+            if (appintmenttypeofObj.display == 'student') {
+                var index1 = self.students.map(function (y) {
+                    return y.studentId;
+                }).indexOf(appointmentObj.studentId);
+                if(index1 == -1){
+                    self.students.push(appointmentObj);
+                }
+            }
+            else{
+                var index1 = self.parents.map(function (y) {
+                    return y.parentId;
+                }).indexOf(appointmentObj.parentId);
+                if(index1 == -1){
+                    self.parents.push(appointmentObj);
+                }
+            }
+        })
+        
+    }
     this.populateAppointmentHours = function(appointmentHours){
         var self = this;
         appointmentHours = appointmentHours == null ? [] : appointmentHours;
