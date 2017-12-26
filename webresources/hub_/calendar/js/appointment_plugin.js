@@ -757,12 +757,18 @@ function SylvanAppointment(){
                     self.apptDetailPopup(calEvent);
                 }
             },
+            eventMouseover: function(event, jsEvent, view ){
+                if (view.name == 'agendaWeek'){
+                    self.apptDetailTitle(event);
+                }
+            },
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
                     wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('border-color', '#ddd');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
+                    self.apptDetailTitle(event);
                 }
                 else{
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
@@ -1164,7 +1170,6 @@ function SylvanAppointment(){
         if(isOpen.length){
             wjQuery("#dialog").dialog("close");
         }
-        // wjQuery(".fc-widget-content").css('background-color', '#fff');
         self.clearBusinessClosure();
         setTimeout(function () {
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
@@ -1227,6 +1232,7 @@ function SylvanAppointment(){
                         //self.generateFilterObject(self.filterObject);
                         self.loadMasterInformation();
                     }
+
                 }
                 else{
                     wjQuery('.loading').hide();
@@ -1269,6 +1275,8 @@ function SylvanAppointment(){
                 }
                 self.populateAppointmentEvent(self.appointmentList);
                 self.populateBusinessClosure();
+                wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
+                //wjQuery(".fc-widget-content > div").css('background-color', 'none');
             }
         }, 300);
         
@@ -2108,7 +2116,7 @@ function SylvanAppointment(){
             if(populatedEvent.hasOwnProperty("appHourId")){
                 populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
             }else{
-                populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'</span>';
+                populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
             }
         }else{
             if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
@@ -2792,20 +2800,40 @@ function SylvanAppointment(){
          wjQuery('.loading').hide();
         }
     }
-
+    this.apptDetailTitle = function(event){
+        var self = this;
+        if (event.id != undefined) {
+            var uniqueId = event.id.split("_");
+            var apptObj = self.getEventColor(uniqueId[0]);
+            //wjQuery('.app-placeholder').addClass('tooltip');
+            wjQuery('.app-placeholder').attr('title',apptObj.name);
+            wjQuery('.app-placeholder').css('cursor','pointer');
+        }
+        
+    }
     this.apptDetailPopup = function (event) {
         var self = this;
         var uniqueId = event.id.split("_");
         var apptObj = self.getEventColor(uniqueId[0]);
-        var html =  "<div class='each-appt'>"+
+        // var html =  "<div class='each-appt'>"+
+        //                 "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
+        // if(event.hasOwnProperty("memberList") && event.memberList.length){
+        //     for(var h = 0; h<event.memberList.length; h++ ){
+        //         var memberObj = event.memberList[h];
+        //         html +=     "<span class='appt-stud'>"+memberObj.studentName+" 10th, subject1</span>";
+        //     }
+        // }
+        //     html += "</div>";
+        var html =  "<div class='each-appt' style='width:100%'>"+
                         "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
         if(event.hasOwnProperty("memberList") && event.memberList.length){
+            html+= "<table class='table table-striped table-bordered table-sm'><thead><tr><th>#</th><th>Student Name</th> <th>Parent Name</th></tr></thead><tbody>";
             for(var h = 0; h<event.memberList.length; h++ ){
                 var memberObj = event.memberList[h];
-                html +=     "<span class='appt-stud'>"+memberObj.studentName+" 10th, subject1</span>";
+             html+= "<tr><td>"+(h+1)+"</td><td>"+memberObj.studentName+"</td><td>"+memberObj.parentName+"</td></tr>";
             }
         }
-            html += "</div>";
+            html += "</tbody></table></div>";
         
         wjQuery("#dialog > .dialog-msg").html(html);
         wjQuery("#dialog").dialog({
@@ -2815,7 +2843,7 @@ function SylvanAppointment(){
             width: "80%",
             title: 'Appt Detail <br>'+moment(event.start).format("dddd hh:mm A"),
             show: {
-                effect: 'bounce',
+                effect: 'slide',
                 complete: function() {
                     wjQuery(".loading").hide();
                 }
