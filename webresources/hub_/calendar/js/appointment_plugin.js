@@ -2848,6 +2848,12 @@ function SylvanAppointment(){
                     wjQuery(".loading").hide();
                 }
             },
+            hide: {
+                effect: "slide",
+                complete: function() {
+                    wjQuery(".loading").hide();
+                }
+            }
         });
     }
 
