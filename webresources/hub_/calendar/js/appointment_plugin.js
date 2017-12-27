@@ -110,56 +110,52 @@ setTimeout(function () {
             }
             if(sylvanAppointment.staffList.length){
                 sylvanAppointment.refreshCalendarEvent(locationId, true);
-                 wjQuery('.nextBtn').off('click').on('click', function () {
-            //wjQuery(".loading").show();
-            //sylvanAppointment.calendarDate  = new Date(wjQuery('.headerDate').text());
-            
-            wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-            if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
-                wjQuery('.headerDate').addClass('today');
-            }
-            else {
-                wjQuery('.headerDate').removeClass('today');
-            }
-            if(sylvanAppointment.appointment != undefined){
-                //wjQuery(".loading").show();
-                sylvanAppointment.next(locationId);
-            }
-            //fetchResources(locationId);
-        });
+                wjQuery('.nextBtn').off('click').on('click', function () {
+                    wjQuery(".loading").show();
+                    wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
+                    if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                        wjQuery('.headerDate').addClass('today');
+                    }
+                    else {
+                        wjQuery('.headerDate').removeClass('today');
+                    }
+                    if(sylvanAppointment.appointment != undefined){
+                        //wjQuery(".loading").show();
+                        sylvanAppointment.next(locationId);
+                    }
+                    //fetchResources(locationId);
+                });
 
-        wjQuery('.prevBtn').off('click').on('click', function () {
-            //wjQuery(".loading").show();
-            //sylvanAppointment.calendarDate  = new Date(wjQuery('.headerDate').text());
-            
-            if(wjQuery('#dayBtn:checked').val() == 'on'){
-                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 1));
-            }
-            else{
-                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 7));
-            }
-            wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-            if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
-                wjQuery('.headerDate').addClass('today');
-            }
-            else {
-                wjQuery('.headerDate').removeClass('today');
-            }
-            if(sylvanAppointment.appointment != undefined){
-                //wjQuery(".loading").show();
-                sylvanAppointment.prev(locationId);
-            }
-            //fetchResources(locationId);
-        });
-        wjQuery('.wkView').off('click').on('click', function () {
-                sylvanAppointment.weekView();
-        });
-        wjQuery('.dayView').off('click').on('click', function () {
-            sylvanAppointment.dayView();
-        });
-        wjQuery(".refresh-icon").off('click').on('click',function (){
-            fetchResources(sylvanAppointment.locationId);
-        });
+            wjQuery('.prevBtn').off('click').on('click', function () {
+                wjQuery(".loading").show();
+                if(wjQuery('#dayBtn:checked').val() == 'on'){
+                    sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 1));
+                }
+                else{
+                    sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 7));
+                }
+                wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
+                if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                    wjQuery('.headerDate').addClass('today');
+                }
+                else {
+                    wjQuery('.headerDate').removeClass('today');
+                }
+                if(sylvanAppointment.appointment != undefined){
+                    //wjQuery(".loading").show();
+                    sylvanAppointment.prev(locationId);
+                }
+                //fetchResources(locationId);
+            });
+            wjQuery('.wkView').off('click').on('click', function () {
+                    sylvanAppointment.weekView();
+            });
+            wjQuery('.dayView').off('click').on('click', function () {
+                sylvanAppointment.dayView();
+            });
+            wjQuery(".refresh-icon").off('click').on('click',function (){
+                sylvanAppointment.refreshCalendarEvent(locationId, true);
+            });
             }else{
                 wjQuery(".loading").hide();
             }
