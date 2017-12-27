@@ -757,18 +757,13 @@ function SylvanAppointment(){
                     self.apptDetailPopup(calEvent);
                 }
             },
-            eventMouseover: function(event, jsEvent, view ){
-                if (view.name == 'agendaWeek'){
-                    self.apptDetailTitle(event);
-                }
-            },
+            
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
                     wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('border-color', '#ddd');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
-                    self.apptDetailTitle(event);
                 }
                 else{
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
@@ -2806,17 +2801,7 @@ function SylvanAppointment(){
          wjQuery('.loading').hide();
         }
     }
-    this.apptDetailTitle = function(event){
-        var self = this;
-        if (event.id != undefined) {
-            var uniqueId = event.id.split("_");
-            var apptObj = self.getEventColor(uniqueId[0]);
-            //wjQuery('.app-placeholder').addClass('tooltip');
-            wjQuery('.app-placeholder').attr('title',apptObj.name);
-            wjQuery('.app-placeholder').css('cursor','pointer');
-        }
-        
-    }
+
     this.apptDetailPopup = function (event) {
         var self = this;
         var uniqueId = event.id.split("_");
