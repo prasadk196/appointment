@@ -2294,6 +2294,15 @@ function SylvanAppointment(){
                 }else{
                     self.addEventObj(appointmentObj);
                 }
+                // if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                //     var uniqueId = eventId.split('_');
+                //     var allevent = self.appointment.fullCalendar('clientEvents', function(e){
+                //         var clientid = e.id.split('_');
+                //         if (clientid[0] == uniqueId[0] && clientid[1] == uniqueId[1] && clientid[2] == uniqueId[2] && clientid[4] == 'unassignedId') {
+                //             return e;
+                //         }
+                //     });
+                // }
                 
             });
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
