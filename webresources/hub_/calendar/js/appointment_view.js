@@ -1072,8 +1072,8 @@ var appointmentExceptions = [
     "hub_start_time@OData.Community.Display.V1.FormattedValue":"08:30 AM",
     "hub_start_time":510,
     "hub_appointment_slot_exceptionid":"6c1aa1cb-1fc2-e711-8100-c4346bacfbbc",
-    "hub_date@OData.Community.Display.V1.FormattedValue":"11/5/2017",
-    "hub_date":"2017-11-01T00:00:00Z",
+    "hub_date@OData.Community.Display.V1.FormattedValue":"12/27/2017",
+    "hub_date":"2017-12-27T00:00:00Z",
     "aworkhours_x002e_hub_type@OData.Community.Display.V1.FormattedValue":"Initial Assessment",
     "aworkhours_x002e_hub_type":4
   }

@@ -444,7 +444,7 @@ function SylvanAppointment(){
         else if(label == "appointmentException"){
             tempList = [];
             wjQuery.each(args, function(index, appException) {
-                appException['hub_date'] = moment(new Date(appException['hub_date'])).format("YYYY-MM-DD");
+                appException['hub_date'] = moment(new Date(appException['hub_date'])).format("MM-DD-YYYY");
                 var startObj = new Date(appException['hub_date']+" "+self.convertMinsNumToTime(appException['hub_start_time']));
                 var endObj = new Date(appException['hub_date']+" "+self.convertMinsNumToTime(appException['hub_end_time']));
                 var eventId = appException['aworkhours_x002e_hub_type']+"_"+startObj+"_"+endObj+"_"+"unassignedId";
@@ -2338,25 +2338,33 @@ function SylvanAppointment(){
                 var eventId = appointmentHrObj["type"]+"_"+appointmentHrObj['startObj']+"_"+appointmentHrObj['endObj']+"_unassignedId";
                 var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
                 if(eventPopulated.length){
-                    eventPopulated[0].capacity += appointmentHrObj['capacity'];
-                    eventPopulated[0].title += self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
-                    var eventIndex = 0;
-                    for(var r=0; r<self.eventList.length;r++){
-                        if(self.eventList[r].id == eventPopulated.id){
-                            eventIndex = r;
+                    // Appointment hour exception validation
+                    var isexception = self.appointmentHourException.filter(function(x) {
+                       return x.eventId == eventId;
+                    });
+                    if(isexception.length){
+                        eventPopulated[0].title = "";
+                    }else{
+                        eventPopulated[0].capacity += appointmentHrObj['capacity'];
+                        eventPopulated[0].title += self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
+                        var eventIndex = 0;
+                        for(var r=0; r<self.eventList.length;r++){
+                            if(self.eventList[r].id == eventPopulated.id){
+                                eventIndex = r;
+                            }
                         }
-                    }
-                    if(eventIndex != -1){
-                        self.eventList[eventIndex] = eventPopulated;
-                    }
+                        if(eventIndex != -1){
+                            self.eventList[eventIndex] = eventPopulated;
+                        }
 
-                    // Week view title condition
-                    if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                        eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">'+eventPopulated[0].capacity+'</span>';
-                    }
+                        // Week view title condition
+                        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                            eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">'+eventPopulated[0].capacity+'</span>';
+                        }
 
-                    self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
-                    self.showTooltip();
+                        self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
+                        self.showTooltip();
+                    }
                 }else{
                     var eventObj = {};
                     var etitle = '';
@@ -2403,7 +2411,7 @@ function SylvanAppointment(){
                         self.addContext(eventId,"appointmentHour",appointmentHrObj);
                     }else{
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                            eventObj.title = "<span class='app-placeholder placeholder_week tooltip' title='"+eventColorObj.name+"' >0</span>";
+                            eventObj.title = "";
                         }
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
