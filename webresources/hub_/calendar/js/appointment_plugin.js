@@ -1271,6 +1271,7 @@ function SylvanAppointment(){
                 self.populateAppointmentEvent(self.appointmentList);
                 self.populateBusinessClosure();
                 wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
+                self.showTooltip();
                 //wjQuery(".fc-widget-content > div").css('background-color', 'none');
             }
         }, 300);
@@ -2110,12 +2111,12 @@ function SylvanAppointment(){
             populatedEvent['noOfApp'] += 1;
             if(populatedEvent.hasOwnProperty("appHourId")){
                 if(eventColorObj.appointmentHour){
-                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
                 }else{
-                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'</span>';
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
                 }
             }else{
-                populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
+                populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
             }
         }else{
             if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
@@ -2187,6 +2188,7 @@ function SylvanAppointment(){
             this.appointment.fullCalendar('updateEvent', populatedEvent);
             this.appointment.fullCalendar( 'refetchEvents');
             self.draggable("draggable");
+            self.showTooltip();
         }
     } 
 
@@ -2213,7 +2215,7 @@ function SylvanAppointment(){
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-            eventObj['title'] = '<span class="app-placeholder placeholder_week">1/1</span>';
+            eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1/1</span>';
         }else{
             if( eventColorObj.display == "student"){
                 var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
@@ -2231,6 +2233,7 @@ function SylvanAppointment(){
         self.appointment.fullCalendar('removeEventSource');
         self.appointment.fullCalendar('addEventSource', { events: this.eventList });
         self.appointment.fullCalendar('refetchEvents');
+        self.showTooltip();
     }
 
     this.addConflictMsg = function(eventObj){
@@ -2297,6 +2300,7 @@ function SylvanAppointment(){
             });
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
             self.draggable('draggable');
+            self.showTooltip();
             wjQuery(".loading").hide();
         }else{
             wjQuery(".loading").hide();
@@ -2350,10 +2354,11 @@ function SylvanAppointment(){
 
                     // Week view title condition
                     if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                        eventPopulated[0].title = '<span class="app-placeholder placeholder_week ">'+eventPopulated[0].capacity+'</span>';
+                        eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">'+eventPopulated[0].capacity+'</span>';
                     }
 
                     self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
+                    self.showTooltip();
                 }else{
                     var eventObj = {};
                     var etitle = '';
@@ -2392,7 +2397,7 @@ function SylvanAppointment(){
                             eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
                         }else{
                             if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                                eventObj.title = "<span class='app-placeholder placeholder_week'>0</span>";
+                                eventObj.title = "<span class='app-placeholder placeholder_week tooltip' title='"+eventColorObj.name+"' >0</span>";
                             }
                         }
                         eventObj['backgroundColor'] = eventColorObj.backgroundColor;
@@ -2413,6 +2418,7 @@ function SylvanAppointment(){
             this.eventList = self.eventList;
             wjQuery(".loading").hide();
             this.draggable('draggable');
+            this.showTooltip();
         }
     }
 
@@ -2459,12 +2465,7 @@ function SylvanAppointment(){
         var html = '';
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             if(capacity){
-                if(eventColorObj.display == 'student'){
-                        html+= '<span class="app-placeholder placeholder_week student-'+eventColorObj.type+'">0/'+capacity+'</span>';
-                }
-                else if(eventColorObj.display == 'parent'){
-                    html+= '<span class="app-placeholder placeholder_week customer-'+eventColorObj.type+'">0/'+capacity+'</span>';
-                }
+                html= '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >0/'+capacity+'</span>';
             }
         }
         else{
