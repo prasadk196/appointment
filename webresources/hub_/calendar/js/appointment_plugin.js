@@ -34,56 +34,6 @@ setTimeout(function () {
             }
         });
 
-        wjQuery('.nextBtn').off('click').on('click', function () {
-            //wjQuery(".loading").show();
-            if(wjQuery('#dayBtn:checked').val() == 'on'){
-                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() + 1));
-            }
-            else{
-                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() + 7));
-            }
-            wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-            if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
-                wjQuery('.headerDate').addClass('today');
-            }
-            else {
-                wjQuery('.headerDate').removeClass('today');
-            }
-            if(sylvanAppointment.appointment != undefined){
-                //wjQuery(".loading").show();
-                sylvanAppointment.next(locationId);
-            }
-            //fetchResources(locationId);
-        });
-
-        wjQuery('.prevBtn').off('click').on('click', function () {
-            //wjQuery(".loading").show();
-            if(wjQuery('#dayBtn:checked').val() == 'on'){
-                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 1));
-            }
-            else{
-                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 7));
-            }
-            wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-            if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
-                wjQuery('.headerDate').addClass('today');
-            }
-            else {
-                wjQuery('.headerDate').removeClass('today');
-            }
-            if(sylvanAppointment.appointment != undefined){
-                //wjQuery(".loading").show();
-                sylvanAppointment.prev(locationId);
-            }
-            //fetchResources(locationId);
-        });
-        wjQuery('.wkView').off('click').on('click', function () {
-                sylvanAppointment.weekView();
-        });
-        wjQuery('.dayView').off('click').on('click', function () {
-            sylvanAppointment.dayView();
-        });
-
          wjQuery('#datepicker').datepicker({
             buttonImage: "/webresources/hub_/calendar/images/calendar.png",
             buttonImageOnly: true,
@@ -101,6 +51,7 @@ setTimeout(function () {
                 if(sylvanAppointment.appointment != undefined){
                     wjQuery(".loading").show();
                     sylvanAppointment.dateFromCalendar(date, locationId);
+                    sylvanAppointment.calendarDate = new Date(date);
                 }
                 wjQuery('#datepicker').hide();
             }
@@ -159,12 +110,63 @@ setTimeout(function () {
             }
             if(sylvanAppointment.staffList.length){
                 sylvanAppointment.refreshCalendarEvent(locationId, true);
+                 wjQuery('.nextBtn').off('click').on('click', function () {
+            //wjQuery(".loading").show();
+            //sylvanAppointment.calendarDate  = new Date(wjQuery('.headerDate').text());
+            
+            wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
+            if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                wjQuery('.headerDate').addClass('today');
+            }
+            else {
+                wjQuery('.headerDate').removeClass('today');
+            }
+            if(sylvanAppointment.appointment != undefined){
+                //wjQuery(".loading").show();
+                sylvanAppointment.next(locationId);
+            }
+            //fetchResources(locationId);
+        });
+
+        wjQuery('.prevBtn').off('click').on('click', function () {
+            //wjQuery(".loading").show();
+            //sylvanAppointment.calendarDate  = new Date(wjQuery('.headerDate').text());
+            
+            if(wjQuery('#dayBtn:checked').val() == 'on'){
+                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 1));
+            }
+            else{
+                sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 7));
+            }
+            wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
+            if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                wjQuery('.headerDate').addClass('today');
+            }
+            else {
+                wjQuery('.headerDate').removeClass('today');
+            }
+            if(sylvanAppointment.appointment != undefined){
+                //wjQuery(".loading").show();
+                sylvanAppointment.prev(locationId);
+            }
+            //fetchResources(locationId);
+        });
+        wjQuery('.wkView').off('click').on('click', function () {
+                sylvanAppointment.weekView();
+        });
+        wjQuery('.dayView').off('click').on('click', function () {
+            sylvanAppointment.dayView();
+        });
+        wjQuery(".refresh-icon").off('click').on('click',function (){
+            fetchResources(sylvanAppointment.locationId);
+        });
             }else{
                 wjQuery(".loading").hide();
             }
             
         }
         fetchResources(locationId);
+        
     }, 500);   
         var filterObject = {
             Staff: data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate) == null ? [] : data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate),
@@ -757,13 +759,13 @@ function SylvanAppointment(){
                     self.apptDetailPopup(calEvent);
                 }
             },
-            
             eventRender: function(event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
                     wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('border-color', '#ddd');
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
+                    
                 }
                 else{
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'); 
@@ -2216,6 +2218,7 @@ function SylvanAppointment(){
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1/1</span>';
+
         }else{
             if( eventColorObj.display == "student"){
                 var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
@@ -2407,6 +2410,8 @@ function SylvanAppointment(){
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
+
+
 
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');
@@ -2802,7 +2807,7 @@ function SylvanAppointment(){
          wjQuery('.loading').hide();
         }
     }
-
+    
     this.apptDetailPopup = function (event) {
         var self = this;
         var uniqueId = event.id.split("_");
