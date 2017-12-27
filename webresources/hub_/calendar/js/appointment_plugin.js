@@ -2114,7 +2114,11 @@ function SylvanAppointment(){
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             populatedEvent['noOfApp'] += 1;
             if(populatedEvent.hasOwnProperty("appHourId")){
-                populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
+                if(eventColorObj.appointmentHour){
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
+                }else{
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'</span>';
+                }
             }else{
                 populatedEvent['title'] = '<span class="app-placeholder placeholder_week">'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
             }
@@ -2214,7 +2218,7 @@ function SylvanAppointment(){
         eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-            eventObj['title'] = '<span class="app-placeholder placeholder_week">1</span>';
+            eventObj['title'] = '<span class="app-placeholder placeholder_week">1/1</span>';
         }else{
             if( eventColorObj.display == "student"){
                 var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
@@ -2391,6 +2395,10 @@ function SylvanAppointment(){
                     if(isexception.length == 0){
                         if(eventColorObj.appointmentHour){
                             eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
+                        }else{
+                            if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                                eventObj.title = "<span class='app-placeholder placeholder_week'>0</span>";
+                            }
                         }
                         eventObj['backgroundColor'] = eventColorObj.backgroundColor;
                         eventObj['borderColor'] = eventColorObj.borderColor;
@@ -2399,8 +2407,6 @@ function SylvanAppointment(){
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
-
-
 
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');
