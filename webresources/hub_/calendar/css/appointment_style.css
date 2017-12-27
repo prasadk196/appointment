@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    overflow: hidden;
 }
 
 #appointment {
@@ -356,6 +357,7 @@ button{
     background: #ffffff;
     color: #333333;
     padding: 5px;
+    overflow-y:hidden; 
 }
 
 

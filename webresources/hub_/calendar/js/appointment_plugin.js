@@ -1270,7 +1270,6 @@ function SylvanAppointment(){
                 self.populateBusinessClosure();
                 wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '');
                 self.showTooltip();
-                //wjQuery(".fc-widget-content > div").css('background-color', 'none');
             }
         }, 300);
         
@@ -2403,6 +2402,9 @@ function SylvanAppointment(){
                         eventObj['borderColor'] = eventColorObj.borderColor;
                         self.addContext(eventId,"appointmentHour",appointmentHrObj);
                     }else{
+                        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                            eventObj.title = "<span class='app-placeholder placeholder_week tooltip' title='"+eventColorObj.name+"' >0</span>";
+                        }
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
