@@ -2828,7 +2828,16 @@ function SylvanAppointment(){
                 html+= "<table class='table table-striped table-bordered table-sm'><thead><tr><th>#</th><th>Student Name</th> <th>Parent Name</th></tr></thead><tbody>";
                 for(var h = 0; h<event.memberList.length; h++ ){
                     var memberObj = event.memberList[h];
-                 html+= "<tr><td>"+(h+1)+"</td><td>"+memberObj.studentName+"</td><td>"+memberObj.parentName+"</td></tr>";
+                    if ((memberObj.studentName != undefined && memberObj.studentName != '') && (memberObj.parentName != undefined && memberObj.parentName != '')) {
+                        html+= "<tr><td>"+(h+1)+"</td><td>"+memberObj.studentName+"</td><td>"+memberObj.parentName+"</td></tr>";
+                    }
+                    else if ((memberObj.studentName != undefined && memberObj.studentName != '') && (memberObj.parentName == undefined || memberObj.parentName == '')) {
+                        html+= "<tr><td>"+(h+1)+"</td><td>"+memberObj.studentName+"</td><td>--</td></tr>";
+                    }
+                    else if ((memberObj.studentName == undefined || memberObj.studentName == '') && (memberObj.parentName != undefined && memberObj.parentName != '')) {
+                        html+= "<tr><td>"+(h+1)+"</td><td>--</td><td>"+memberObj.parentName+"</td></tr>";
+                    }
+                 
                 }
             }
             html += "</tbody></table></div>";
