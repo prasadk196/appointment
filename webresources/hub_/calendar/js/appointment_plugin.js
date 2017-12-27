@@ -2343,7 +2343,9 @@ function SylvanAppointment(){
                        return x.eventId == eventId;
                     });
                     if(isexception.length){
-                        eventPopulated[0].title = "";
+                        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                            eventObj.title = '<span class="app-placeholder placeholder_week" ></span>';
+                        }
                     }else{
                         eventPopulated[0].capacity += appointmentHrObj['capacity'];
                         eventPopulated[0].title += self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
@@ -2411,7 +2413,7 @@ function SylvanAppointment(){
                         self.addContext(eventId,"appointmentHour",appointmentHrObj);
                     }else{
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                            eventObj.title = "";
+                            eventObj.title = '<span class="app-placeholder placeholder_week" ></span>';
                         }
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
@@ -2818,25 +2820,24 @@ function SylvanAppointment(){
         var self = this;
         var uniqueId = event.id.split("_");
         var apptObj = self.getEventColor(uniqueId[0]);
-        // var html =  "<div class='each-appt'>"+
-        //                 "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
-        // if(event.hasOwnProperty("memberList") && event.memberList.length){
-        //     for(var h = 0; h<event.memberList.length; h++ ){
-        //         var memberObj = event.memberList[h];
-        //         html +=     "<span class='appt-stud'>"+memberObj.studentName+" 10th, subject1</span>";
-        //     }
-        // }
-        //     html += "</div>";
-        var html =  "<div class='each-appt' style='width:100%'>"+
-                        "<span class='appt-title'>1. </b>"+apptObj.name+"</b></span>";
-        if(event.hasOwnProperty("memberList") && event.memberList.length){
-            html+= "<table class='table table-striped table-bordered table-sm'><thead><tr><th>#</th><th>Student Name</th> <th>Parent Name</th></tr></thead><tbody>";
-            for(var h = 0; h<event.memberList.length; h++ ){
-                var memberObj = event.memberList[h];
-             html+= "<tr><td>"+(h+1)+"</td><td>"+memberObj.studentName+"</td><td>"+memberObj.parentName+"</td></tr>";
+        var html ="";
+        if(wjQuery(event.title).text().length){
+            html =  "<div class='each-appt' style='width:100%'>"+
+                            "<span class='appt-title'></b>"+apptObj.name+"</b></span>";
+            if(event.hasOwnProperty("memberList") && event.memberList.length){
+                html+= "<table class='table table-striped table-bordered table-sm'><thead><tr><th>#</th><th>Student Name</th> <th>Parent Name</th></tr></thead><tbody>";
+                for(var h = 0; h<event.memberList.length; h++ ){
+                    var memberObj = event.memberList[h];
+                 html+= "<tr><td>"+(h+1)+"</td><td>"+memberObj.studentName+"</td><td>"+memberObj.parentName+"</td></tr>";
+                }
             }
-        }
             html += "</tbody></table></div>";
+        }else{
+           html =  "<div class='each-appt' style='width:100%'>"+
+                            "<span class='appt-title exception'></b>"+apptObj.name+"</b> (exception appointment)</span>";
+
+        }
+        
         
         wjQuery("#dialog > .dialog-msg").html(html);
         wjQuery("#dialog").dialog({
@@ -2844,7 +2845,7 @@ function SylvanAppointment(){
             resizable: false,
             height: "auto",
             width: "80%",
-            title: 'Appt Detail <br>'+moment(event.start).format("dddd hh:mm A"),
+            title: 'Appt Detail <br>'+moment(event.start).format("dddd hh:mm A")+' to '+moment(event.end).format("hh:mm A"),
             show: {
                 effect: 'slide',
                 complete: function() {
