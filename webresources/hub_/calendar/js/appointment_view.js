@@ -79,7 +79,7 @@ var locations =  [
       borderColor:"#9acaea",
       backgroundColor:"#ebf5fb",
       display:"student",
-      appointmentHour:false
+      appointmentHour:true
     },
     {
       type:7,
