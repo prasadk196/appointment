@@ -2314,34 +2314,19 @@ function SylvanAppointment(){
         var self = this;
         if(appointmentList.length){
             wjQuery.each(appointmentList, function(index, appointmentObj) {
-                var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
+                var eventId = "";
+                if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                    eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_unassignedId";
+                }else{
+                    eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
+                }
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
                 if(populatedEvent.length){
                     self.updateEventObj(appointmentObj, populatedEvent[0], eventId);
                 }else{
                     self.addEventObj(appointmentObj);
                 }
-                
-                // if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                //     var uniqueId = eventId.split('_');
-                //     allevent = self.appointment.fullCalendar('clientEvents', function(e){
-                //         if (e.id != undefined) {
-                //             var clientid = e.id.split('_');
-                //             if (clientid[0] == uniqueId[0] && clientid[1] == uniqueId[1] && clientid[2] == uniqueId[2]) {
-                //                 console.log(e.id);
-                //                 if (clientid[3] != 'unassignedId') {
-                //                     e['id'] = clientid[0]+'_'+clientid[1]+'_'+clientid[2]+'_'+'unassignedId';
-                //                     //self.updateEventObj(appointmentObj, e, e.id);
-                //                 }
-                //             }
-                //             return e;
-                //         }
-                        
-                //     });
-                // }
-                
             });  
-            //console.log(allevent);
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
             self.draggable('draggable');
             self.showTooltip();
@@ -2395,6 +2380,16 @@ function SylvanAppointment(){
                     }else{
                         eventPopulated[0].capacity += appointmentHrObj['capacity'];
                         eventPopulated[0].title += self.addPlaceHolders(eventPopulated[0].capacity,eventColorObj);
+                        
+                        // Week view title condition
+                        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                            if(eventColorObj.appointmentHour){
+                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">0/'+eventPopulated[0].capacity+'</span>';
+                            }else{
+                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">'+eventPopulated[0].capacity+'</span>';
+                            }
+                        }
+
                         var eventIndex = 0;
                         for(var r=0; r<self.eventList.length;r++){
                             if(self.eventList[r].id == eventPopulated.id){
@@ -2404,12 +2399,6 @@ function SylvanAppointment(){
                         if(eventIndex != -1){
                             self.eventList[eventIndex] = eventPopulated;
                         }
-
-                        // Week view title condition
-                        if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                            eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">'+eventPopulated[0].capacity+'</span>';
-                        }
-
                         self.appointment.fullCalendar('updateEvent', eventPopulated[0]); 
                         self.showTooltip();
                     }
@@ -2464,8 +2453,6 @@ function SylvanAppointment(){
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
-
-
 
                     self.eventList.push(eventObj);
                     self.appointment.fullCalendar( 'removeEventSource');
