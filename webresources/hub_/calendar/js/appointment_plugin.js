@@ -1248,6 +1248,36 @@ function SylvanAppointment(){
         }
     }
 
+    // this.moveToUnassigned = function(element){
+    //     var self = this;
+    //     var uniqIdArry = [];
+    //     var eventFor = '';
+    //     var activityId = wjQuery(element).attr("activityid");
+    //     if(element.hasAttribute("parentid")){
+    //         uniqIdArry = wjQuery(element).attr("parentid").split('_');
+    //         eventFor = 'parent';
+    //     }else if(element.hasAttribute("studentid")){
+    //         uniqIdArry = wjQuery(element).attr("studentid").split('_');
+    //         eventFor = 'student';
+    //     }
+    //     var index = self.findUniqueAppointment(uniqIdArry, activityId);
+    //     if(index != -1){
+    //         element.remove();
+    //         var responseObj = data.moveToUnassigned({'activityid': self.appointmentList[index].id});
+    //         if(responseObj){
+    //             var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+    //             newAppointmentObj['staffId'] = 'unassignedId';
+    //             newAppointmentObj['staffValue'] = 'unassignedId';
+    //             var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+    //             var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+    //             self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry, activityId);
+    //             self.populateAppointmentEvent([newAppointmentObj]);
+    //             self.appointmentList.splice(index,1);
+    //             self.appointmentList.push(newAppointmentObj);
+    //         }
+    //     }
+    // }
+
     this.moveToUnassigned = function(element){
         var self = this;
         var uniqIdArry = [];
@@ -1260,21 +1290,48 @@ function SylvanAppointment(){
             uniqIdArry = wjQuery(element).attr("studentid").split('_');
             eventFor = 'student';
         }
-        var index = self.findUniqueAppointment(uniqIdArry, activityId);
-        if(index != -1){
-            element.remove();
-            var responseObj = data.moveToUnassigned({'activityid': self.appointmentList[index].id});
-            if(responseObj){
-                var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
-                newAppointmentObj['staffId'] = 'unassignedId';
-                newAppointmentObj['staffValue'] = 'unassignedId';
-                var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
-                var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
-                self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry, activityId);
-                self.populateAppointmentEvent([newAppointmentObj]);
-                self.appointmentList.splice(index,1);
-                self.appointmentList.push(newAppointmentObj);
+        var eventColorObj = self.getEventColor(uniqIdArry[0]);
+        var unassignedEvent = self.appointment.fullCalendar('clientEvents',uniqIdArry[0]+"_"+uniqIdArry[2]+"_"+uniqIdArry[3]+"_unassignedId");
+        var allowToDrop = true;
+        if(unassignedEvent.length){
+            for(var k=0;k<unassignedEvent.length;k++){
+                var eachEvent = unassignedEvent[k];
+                if(eachEvent.hasOwnProperty("memberList")){
+                    for(var ka=0;ka<eachEvent['memberList'].length;ka++){
+                        var eachEventMember = eachEvent['memberList'][ka];
+                        if(eachEventMember[eventColorObj.display+"Id"] == uniqIdArry[1]){
+                            allowToDrop = false;
+                            break;
+                        }
+                    }
+                }
+                if(!allowToDrop){
+                    allowToDrop = false;
+                    break;
+                }
             }
+        }
+        if(allowToDrop){
+            var index = self.findUniqueAppointment(uniqIdArry, activityId);
+            if(index != -1){
+                element.remove();
+                var responseObj = data.moveToUnassigned({'activityid': self.appointmentList[index].id});
+                if(responseObj){
+                    var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
+                    newAppointmentObj['staffId'] = 'unassignedId';
+                    newAppointmentObj['staffValue'] = 'unassignedId';
+                    var prevEventId = self.appointmentList[index]['type']+"_"+self.appointmentList[index]['startObj']+"_"+self.appointmentList[index]['endObj']+"_"+self.appointmentList[index]['staffId'];
+                    var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
+                    self.updatePrevEvent(prevEvent,element,eventFor,uniqIdArry, activityId);
+                    self.populateAppointmentEvent([newAppointmentObj]);
+                    self.appointmentList.splice(index,1);
+                    self.appointmentList.push(newAppointmentObj);
+                }
+            }else{
+                wjQuery(".loading").hide();
+            }
+        }else{
+            self.alertPopup(eventColorObj.display+" exist.");
         }
     }
 
