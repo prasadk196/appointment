@@ -2286,8 +2286,6 @@ function SylvanAppointment(){
     this.populateAppointmentEvent = function(appointmentList){
         var self = this;
         if(appointmentList.length){
-            var count = 0;
-            var allevent = [];
             wjQuery.each(appointmentList, function(index, appointmentObj) {
                 var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
@@ -2316,7 +2314,7 @@ function SylvanAppointment(){
                 // }
                 
             });  
-            console.log(allevent);
+            //console.log(allevent);
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
             self.draggable('draggable');
             self.showTooltip();
