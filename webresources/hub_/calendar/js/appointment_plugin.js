@@ -1146,7 +1146,7 @@ function SylvanAppointment(){
 
     this.clearBusinessClosure = function(){
         var self = this;
-        this.clearEvents();
+        // this.clearEvents();
         // wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
         wjQuery('.fc-col' + 0).not('.fc-widget-header').css('background-color', '#fff');
         wjQuery('.fc-col' + 1).not('.fc-widget-header').css('background-color', '#fff');
@@ -1165,11 +1165,11 @@ function SylvanAppointment(){
         }
         self.clearBusinessClosure();
         setTimeout(function () {
-            var currentCalendarDate = self.appointment.fullCalendar('getDate');
             var currentView = self.appointment.fullCalendar('getView');
             // fetch master schedule data based on below flag
-            var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
+            // var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
             if (currentView.name == 'resourceDay') {
+                var currentCalendarDate = self.appointment.fullCalendar('getDate');
                 self.eventList = [];
                 self.businessClosure = [];
                 startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
@@ -1205,7 +1205,7 @@ function SylvanAppointment(){
                         staffExceptions = [];
                     }
                     self.populateStaffExceptionAppointment(self.formatObjects(staffExceptions, "staffExceptions"));
-                    var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
+                    var appList = data.getAppointment(locationId,startDate,endDate);
                     if (appList == null) {
                         appList = [];
                         if(appList.requiredAttendees == null){
@@ -1225,14 +1225,12 @@ function SylvanAppointment(){
                         //self.generateFilterObject(self.filterObject);
                         self.loadMasterInformation();
                     }
-
                 }
                 else{
                     wjQuery('.loading').hide();
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
                 }
-            }
-            if (currentView.name == 'agendaWeek') {
+            }else if (currentView.name == 'agendaWeek') {
                 self.eventList = [];
                 self.weekEventObject = {};
                 self.businessClosure = [];
