@@ -2386,7 +2386,7 @@ function SylvanAppointment(){
                             if(eventColorObj.appointmentHour){
                                 eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">0/'+eventPopulated[0].capacity+'</span>';
                             }else{
-                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">'+eventPopulated[0].capacity+'</span>';
+                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">0</span>';
                             }
                         }
 
