@@ -1448,7 +1448,7 @@ function SylvanAppointment(){
             }
         }
         // End of Appointment hour validation
-
+        
         // Different type of appointment Validation
         if(newEvent.length == 0){
             var availableEvent = self.appointment.fullCalendar('clientEvents',function(el){
