@@ -781,29 +781,68 @@ function SylvanAppointment(){
                         var prevEvent = self.appointment.fullCalendar('clientEvents',prevEventId);
                         var newEvent = self.appointment.fullCalendar('clientEvents',newEventId);
                         // Check all confirmation meassages here
-                        var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
-                        if(errArry.alert.length){
-                            var messageString = '';
-                            for (var i = 0; i < errArry.alert.length; i++) {
-                                messageString += errArry.alert[i]+", ";
-                            }
-                            messageString = messageString.substr(0,messageString.length-2);
-                            errArry.confirmation = [];
-                            self.alertPopup(messageString);
-                        }else if(errArry.confirmation.length){
-                            var messageString = '';
-                            for (var i = 0; i < errArry.confirmation.length; i++) {
-                                messageString += errArry.confirmation[i]+", ";
-                            }
-                            messageString = messageString.substr(0,messageString.length-2);
-                            if(errArry.confirmation.indexOf("Appointment Hour is not available") == -1){
-                                self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", false);
+                        //overlaping Validation Start
+                        var isexist = false;
+                        var checkEventexit = self.appointment.fullCalendar('clientEvents',function(el){
+                            return  el.memberList.length > 0 && el.id != prevEvent[0].id &&
+                                    (
+                                        (
+                                            newAppointmentObj.start.getTime() <= el.start.getTime() && 
+                                            newAppointmentObj.end.getTime() >= el.end.getTime()
+                                        ) ||
+                                        (
+                                            el.start.getTime() <= newAppointmentObj.start.getTime() && 
+                                            el.end.getTime() >= newAppointmentObj.end.getTime()
+                                        ) ||
+                                        (
+                                            newAppointmentObj.end.getTime() > el.start.getTime() &&
+                                            el.end.getTime() > newAppointmentObj.start.getTime() 
+                                        )
+                                    )
+                        })
+                        if (checkEventexit.length) {
+                            
+                            wjQuery.each(checkEventexit, function(k, v) {
+                                var eventTypes = self.getEventColor(v.type);
+                                for (var i = 0; i < v.memberList.length; i++) {
+                                    if (eventTypes.display == 'student') {
+                                        isexist = newAppointmentObj.studentId == v.memberList[i].studentId;
+                                    }
+                                    else{
+                                        isexist= newAppointmentObj.parentId == v.memberList[i].parentId;
+                                    }
+                                    if (isexist) {
+                                        self.alertPopup("The selected appointment is already scheduled for the respective timeslot.");
+                                        break;
+                                    }
+                                }
+                            });
+                        }
+                        if (!isexist) {
+                            var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
+                            if(errArry.alert.length){
+                                var messageString = '';
+                                for (var i = 0; i < errArry.alert.length; i++) {
+                                    messageString += errArry.alert[i]+", ";
+                                }
+                                messageString = messageString.substr(0,messageString.length-2);
+                                errArry.confirmation = [];
+                                self.alertPopup(messageString);
+                            }else if(errArry.confirmation.length){
+                                var messageString = '';
+                                for (var i = 0; i < errArry.confirmation.length; i++) {
+                                    messageString += errArry.confirmation[i]+", ";
+                                }
+                                messageString = messageString.substr(0,messageString.length-2);
+                                if(errArry.confirmation.indexOf("Appointment Hour is not available") == -1){
+                                    self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", false);
+                                }else{
+                                    self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", true);
+                                }
                             }else{
-                                self.confirmPopup(self, date, allDay, ev, ui, resource, elm,messageString+". Do you wish to continue?", true);
+                                // Allow to drop event directly
+                                self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
                             }
-                        }else{
-                            // Allow to drop event directly
-                            self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
                         }
                     }
                 }else{
@@ -828,6 +867,9 @@ function SylvanAppointment(){
             // 3. end time
             // 4. staff id
         // Appointment hour validation
+        
+        
+        //overlaping validation End
         var eventColorObj = self.getEventColor(uniqueId[0]);
         if(eventColorObj.appointmentHour){
             var showPopup = true;
@@ -848,6 +890,7 @@ function SylvanAppointment(){
                 }
             }
         }
+        
         // End of Appointment hour validation
 
         // Different type of appointment Validation
@@ -1057,6 +1100,7 @@ function SylvanAppointment(){
         }
 
         return messageObject;
+    
     }
 
 
