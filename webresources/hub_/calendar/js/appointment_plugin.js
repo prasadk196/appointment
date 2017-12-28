@@ -2209,12 +2209,12 @@ function SylvanAppointment(){
             resourceId:appointmentObj['staffId'],
             noOfApp:1
         }
-        eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1/1</span>';
-
+            eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_unassignedId";
         }else{
+            eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
             if( eventColorObj.display == "student"){
                 var studentId = appointmentObj['type']+"_"+appointmentObj['studentId']+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj["staffId"];
                 eventObj['title'] = "<span class='appointmentTitle'>"+eventColorObj.name+"</span><span class='draggable drag-student' activityid='"+appointmentObj['id']+"' studentId='"+studentId+"' >"+appointmentObj['studentName']+"<i class='"+outOfOfficeClass+" material-icons tooltip' title='Out of office' >location_on</i></span>";
@@ -2286,6 +2286,8 @@ function SylvanAppointment(){
     this.populateAppointmentEvent = function(appointmentList){
         var self = this;
         if(appointmentList.length){
+            var count = 0;
+            var allevent = [];
             wjQuery.each(appointmentList, function(index, appointmentObj) {
                 var eventId = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
@@ -2294,17 +2296,27 @@ function SylvanAppointment(){
                 }else{
                     self.addEventObj(appointmentObj);
                 }
+                
                 // if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
                 //     var uniqueId = eventId.split('_');
-                //     var allevent = self.appointment.fullCalendar('clientEvents', function(e){
-                //         var clientid = e.id.split('_');
-                //         if (clientid[0] == uniqueId[0] && clientid[1] == uniqueId[1] && clientid[2] == uniqueId[2] && clientid[4] == 'unassignedId') {
+                //     allevent = self.appointment.fullCalendar('clientEvents', function(e){
+                //         if (e.id != undefined) {
+                //             var clientid = e.id.split('_');
+                //             if (clientid[0] == uniqueId[0] && clientid[1] == uniqueId[1] && clientid[2] == uniqueId[2]) {
+                //                 console.log(e.id);
+                //                 if (clientid[3] != 'unassignedId') {
+                //                     e['id'] = clientid[0]+'_'+clientid[1]+'_'+clientid[2]+'_'+'unassignedId';
+                //                     //self.updateEventObj(appointmentObj, e, e.id);
+                //                 }
+                //             }
                 //             return e;
                 //         }
+                        
                 //     });
                 // }
                 
-            });
+            });  
+            console.log(allevent);
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
             self.draggable('draggable');
             self.showTooltip();
