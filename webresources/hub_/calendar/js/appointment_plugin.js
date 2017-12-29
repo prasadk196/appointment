@@ -1152,7 +1152,7 @@ function SylvanAppointment(){
 
     this.clearBusinessClosure = function(){
         var self = this;
-        // this.clearEvents();
+        this.clearEvents();
         // wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
         wjQuery('.fc-col' + 0).not('.fc-widget-header').css('background-color', '#fff');
         wjQuery('.fc-col' + 1).not('.fc-widget-header').css('background-color', '#fff');
