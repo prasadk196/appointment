@@ -1407,14 +1407,17 @@ function SylvanAppointment(){
                             var eventTypes = self.getEventColor(newAppointmentObj.type);
                             wjQuery.each(checkEventexit, function(k, v) {
                                 for (var i = 0; i < v.memberList.length; i++) {
-                                    if (eventTypes.display == 'student') {
-                                        isexist = newAppointmentObj.studentId == v.memberList[i].studentId;
-                                    }
-                                    else{
-                                        isexist= newAppointmentObj.parentId == v.memberList[i].parentId;
-                                    }
-                                    if(isexist){
-                                        break;
+                                    var subEventType = self.getEventColor(v.memberList[i].type);
+                                    if(subEventType.display == eventTypes.display){
+                                        if (eventTypes.display == 'student') {
+                                            isexist = newAppointmentObj.studentId == v.memberList[i].studentId;
+                                        }
+                                        else{
+                                            isexist= newAppointmentObj.parentId == v.memberList[i].parentId;
+                                        }
+                                        if(isexist){
+                                            break;
+                                        }
                                     }
                                 }
                                 if(isexist){
