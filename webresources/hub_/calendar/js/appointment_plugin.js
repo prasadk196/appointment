@@ -801,8 +801,8 @@ function SylvanAppointment(){
                                     )
                         })
                         if (checkEventexit.length) {
+                            var eventTypes = self.getEventColor(newAppointmentObj.type);
                             wjQuery.each(checkEventexit, function(k, v) {
-                                var eventTypes = self.getEventColor(v.type);
                                 for (var i = 0; i < v.memberList.length; i++) {
                                     if (eventTypes.display == 'student') {
                                         isexist = newAppointmentObj.studentId == v.memberList[i].studentId;
