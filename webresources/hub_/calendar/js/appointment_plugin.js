@@ -1418,7 +1418,7 @@ function SylvanAppointment(){
                                     }
                                 }
                                 if(isexist){
-                                    return true;
+                                    return false;
                                 }
                             });                 
                         }
