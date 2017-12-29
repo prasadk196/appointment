@@ -1404,7 +1404,6 @@ function SylvanAppointment(){
                                     )
                         })
                         if (checkEventexit.length) {
-                            
                             wjQuery.each(checkEventexit, function(k, v) {
                                 var eventTypes = self.getEventColor(v.type);
                                 for (var i = 0; i < v.memberList.length; i++) {
@@ -1414,12 +1413,14 @@ function SylvanAppointment(){
                                     else{
                                         isexist= newAppointmentObj.parentId == v.memberList[i].parentId;
                                     }
-                                    if (isexist) {
-                                        self.alertPopup("The selected appointment is already scheduled for the respective timeslot.");
+                                    if(isexist){
                                         break;
                                     }
                                 }
-                            });
+                                if(isexist){
+                                    return true;
+                                }
+                            });                 
                         }
                         if (!isexist) {
                             var errArry = self.checkEventValidation(newEvent, prevEvent, newAppointmentObj, uniqueId);
@@ -1446,6 +1447,8 @@ function SylvanAppointment(){
                                 // Allow to drop event directly
                                 self.updateAppointmentOnDrop(self, date, allDay, ev, ui, resource, elm, false);
                             }
+                        }else{
+                            self.alertPopup("The selected appointment is already scheduled for the respective timeslot.");
                         }
                     }
                 }else{
