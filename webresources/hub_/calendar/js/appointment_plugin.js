@@ -1286,7 +1286,11 @@ function SylvanAppointment(){
                 if (typeof (responseObj) == 'string' && responseObj != "" || typeof (responseObj) == 'boolean' && responseObj) {
                     elm.remove();
                     self.updatePrevEvent(prevEvent,elm,eventFor, uniqueId, activityId);
-                    newAppointmentObj['id'] = responseObj;
+                    if(responseObj == true){
+                        newAppointmentObj['id'] = activityId;
+                    }else{
+                        newAppointmentObj['id'] = responseObj;
+                    }
                     self.populateAppointmentEvent([newAppointmentObj]);
                     this.appointmentList.splice(index,1);
                     this.appointmentList.push(newAppointmentObj);
