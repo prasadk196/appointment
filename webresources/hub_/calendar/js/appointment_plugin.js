@@ -1258,7 +1258,7 @@ function SylvanAppointment(){
                 //     staffExceptions = [];
                 // }
                 // self.populateStaffExceptionAppointment(self.formatWeekObjects(staffExceptions, "staffExceptions"));
-                var appList = data.getAppointment(locationId,moment(self.startDate).format('YYYY-MM-DD'),moment(self.endDate).format('YYYY-MM-DD'));
+                var appList = data.getAppointment(locationId,startDate, endDate);
                 if (appList == null) {
                     appList = [];
                     if(appList.requiredAttendees == null){
