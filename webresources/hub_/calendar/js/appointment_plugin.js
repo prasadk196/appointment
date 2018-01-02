@@ -1241,8 +1241,7 @@ function SylvanAppointment(){
                 self.weekEventObject = {};
                 self.businessClosure = [];
                 startDate = moment(currentView.start).format("YYYY-MM-DD");
-                endDate = moment(moment(currentView.start).add(6, 'd')).format("YYYY-MM-DD");
-                currentView.end = moment(moment(currentView.start).add(6, 'd'))._d;
+                endDate = moment(currentView.end).format("YYYY-MM-DD");
                 self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
                 if (self.businessClosure == null) {
                     self.businessClosure = [];
