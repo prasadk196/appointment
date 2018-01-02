@@ -1386,7 +1386,7 @@ function SylvanAppointment(){
                         //overlaping Validation Start
                         var isexist = false;
                         var checkEventexit = self.appointment.fullCalendar('clientEvents',function(el){
-                            return  el.memberList.length > 0 && el.id != prevEvent[0].id &&
+                            return  el.memberList != undefined && el.memberList.length > 0 && el.id != prevEvent[0].id &&
                                     (
                                         (
                                             newAppointmentObj.start.getTime() <= el.start.getTime() && 
@@ -1949,6 +1949,11 @@ function SylvanAppointment(){
         var eventColorObj = self.getEventColor(uniqIdArry[0]);
         var unassignedEvent = self.appointment.fullCalendar('clientEvents',uniqIdArry[0]+"_"+uniqIdArry[2]+"_"+uniqIdArry[3]+"_unassignedId");
         var allowToDrop = true;
+        // if(isexception.length){
+        //     // if(messageObject.alert.indexOf("Appointment can not be placed in an exceptional appointment hour.") == -1){
+        //     //     messageObject.alert.push("Appointment can not be placed in an exceptional appointment hour.");
+        //     // }
+        // }
         if(unassignedEvent.length){
             for(var k=0;k<unassignedEvent.length;k++){
                 var eachEvent = unassignedEvent[k];
