@@ -1949,25 +1949,16 @@ function SylvanAppointment(){
         var eventColorObj = self.getEventColor(uniqIdArry[0]);
         var unassignedEvent = self.appointment.fullCalendar('clientEvents',uniqIdArry[0]+"_"+uniqIdArry[2]+"_"+uniqIdArry[3]+"_unassignedId");
         var allowToDrop = true;
-        var apexception = false;
         if(unassignedEvent.length){
             for(var k=0;k<unassignedEvent.length;k++){
                 var eachEvent = unassignedEvent[k];
-
                 if(eachEvent.hasOwnProperty("memberList")){
-                    if (eachEvent.type != eventColorObj.type) {
-                        for(var ka=0;ka<eachEvent['memberList'].length;ka++){
-                            var eachEventMember = eachEvent['memberList'][ka];
-                            if(eachEventMember[eventColorObj.display+"Id"] == uniqIdArry[1]){
-                                allowToDrop = false;
-                                break;
-                            }
+                    for(var ka=0;ka<eachEvent['memberList'].length;ka++){
+                        var eachEventMember = eachEvent['memberList'][ka];
+                        if(eachEventMember[eventColorObj.display+"Id"] == uniqIdArry[1]){
+                            allowToDrop = false;
+                            break;
                         }
-                    }
-                    else{
-                        allowToDrop = false;
-                        apexception = true;
-                        break;
                     }
                 }
                 if(!allowToDrop){
@@ -1996,12 +1987,7 @@ function SylvanAppointment(){
                 wjQuery(".loading").hide();
             }
         }else{
-            if (apexception) {
-                self.alertPopup("Appointment hours exception occurs");
-            }
-            else{
-                self.alertPopup(eventColorObj.display+" exist.");
-            }
+            self.alertPopup(eventColorObj.display+" exist.");
         }
     }
 
