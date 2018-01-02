@@ -1347,6 +1347,11 @@ function SylvanAppointment(){
         var eventColorObj = self.getEventColor(uniqIdArry[0]);
         var unassignedEvent = self.appointment.fullCalendar('clientEvents',uniqIdArry[0]+"_"+uniqIdArry[2]+"_"+uniqIdArry[3]+"_unassignedId");
         var allowToDrop = true;
+        // if(isexception.length){
+        //     // if(messageObject.alert.indexOf("Appointment can not be placed in an exceptional appointment hour.") == -1){
+        //     //     messageObject.alert.push("Appointment can not be placed in an exceptional appointment hour.");
+        //     // }
+        // }
         if(unassignedEvent.length){
             for(var k=0;k<unassignedEvent.length;k++){
                 var eachEvent = unassignedEvent[k];
