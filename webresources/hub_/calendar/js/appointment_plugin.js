@@ -784,7 +784,7 @@ function SylvanAppointment(){
                         //overlaping Validation Start
                         var isexist = false;
                         var checkEventexit = self.appointment.fullCalendar('clientEvents',function(el){
-                            return  el.memberList.length > 0 && el.id != prevEvent[0].id &&
+                            return  el.memberList != undefined && el.memberList.length > 0 && el.id != prevEvent[0].id &&
                                     (
                                         (
                                             newAppointmentObj.start.getTime() <= el.start.getTime() && 
