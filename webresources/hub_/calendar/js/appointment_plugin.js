@@ -1708,7 +1708,7 @@ function SylvanAppointment(){
                             exceptCount+= 1;
                         }
                     }
-                    newCapacity+= exceptCount;
+                    newCapacity = exceptCount;
                     
                     if(eventFor == 'student'){
                         for (var i = 0; i < newCapacity; i++) {
