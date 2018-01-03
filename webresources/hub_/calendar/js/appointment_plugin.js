@@ -1756,7 +1756,9 @@ function SylvanAppointment(){
         wjQuery("#dialog").dialog({
             resizable: false,
             height: "auto",
-            width: "350px",
+            width: 350,
+            title:'',
+            draggable:false,
             modal: true,
             show: {
                 effect: 'bounce',
@@ -1787,7 +1789,9 @@ function SylvanAppointment(){
         wjQuery("#dialog").dialog({
             resizable: false,
             height: "auto",
-            width: "350px",
+            width: 350,
+            title:'',
+            draggable:false,
             modal: true,
             show: {
                 effect: 'bounce',
@@ -1967,6 +1971,8 @@ function SylvanAppointment(){
             resizable: false,
             height: "auto",
             width: 350,
+            title:'',
+            draggable:false,
             modal: true,
             show: {
                 effect: 'bounce',
