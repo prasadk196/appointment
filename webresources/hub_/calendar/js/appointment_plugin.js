@@ -2970,7 +2970,6 @@ function SylvanAppointment(){
 
         }
         
-        wjQuery("#dialog").dialog( "destroy" );
         wjQuery("#dialog > .dialog-msg").html(html);
         wjQuery("#dialog").dialog({
             modal: true,
