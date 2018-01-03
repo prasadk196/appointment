@@ -1748,6 +1748,22 @@ function SylvanAppointment(){
                         prevEvent[0].title += eventTitleHTML[i].outerHTML;
                     }
                 }
+                if(prevEvent[0].capacity != undefined){
+                    var newCapacity = 0;
+                    if (eventTitleHTML.length < (prevEvent[0].capacity+1)) {
+                        newCapacity = (prevEvent[0].capacity+1) - eventTitleHTML.length ;
+                    }
+                    if(eventFor == 'student'){
+                        for (var i = 0; i < newCapacity; i++) {
+                            prevEvent[0].title += '<span class="app-placeholder">Student name</span>';
+                        }
+                    }
+                    else if(eventFor == 'parent'){
+                        for (var i = 0; i < newCapacity; i++) {
+                            prevEvent[0].title += '<span class="app-placeholder">Customer name</span>';
+                        }
+                    }
+                }
                 if ((eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") || 
                     eventTitleHTML.length == 2 && eventTitleHTML[0].className == "appointmentTitle" && eventTitleHTML[1].className == "conflict" ) {
                     for (var i = 0; i < this.eventList.length; i++) {
@@ -1783,6 +1799,7 @@ function SylvanAppointment(){
                 this.appointment.fullCalendar('refetchEvents');
             }
         }
+        
         self.draggable('draggable');
         wjQuery(".loading").hide();
     }
