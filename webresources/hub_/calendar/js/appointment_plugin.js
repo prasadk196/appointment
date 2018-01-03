@@ -2980,10 +2980,10 @@ function SylvanAppointment(){
 
         }
         
-        
         wjQuery("#dialog > .dialog-msg").html(html);
         wjQuery("#dialog").dialog({
             modal: true,
+            draggable: false,
             resizable: false,
             height: "auto",
             width: "80%",
