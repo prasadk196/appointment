@@ -1155,6 +1155,8 @@ function SylvanAppointment(){
             resizable: false,
             height: "auto",
             width: 350,
+            title:'',
+            draggable:false,
             modal: true,
             show: {
                 effect: 'bounce',
@@ -1186,6 +1188,8 @@ function SylvanAppointment(){
             resizable: false,
             height: "auto",
             width: 350,
+            title:'',
+            draggable:false,
             modal: true,
             show: {
                 effect: 'bounce',
@@ -1365,6 +1369,8 @@ function SylvanAppointment(){
             resizable: false,
             height: "auto",
             width: 350,
+            title:'',
+            draggable:false,
             modal: true,
             show: {
                 effect: 'bounce',
