@@ -1074,6 +1074,16 @@ function SylvanAppointment(){
                     if (eventTitleHTML.length < (prevEvent[0].capacity+1)) {
                         newCapacity = (prevEvent[0].capacity+1) - eventTitleHTML.length ;
                     }
+                    for (var j = 0; j < prevEvent[0].memberList.length; j++) {
+                        if(prevEvent[0].memberList[j].isExceptional == true){
+                            newCapacity+= 1;
+                        }
+                        else{
+                            newCapacity = newCapacity;
+                        }
+
+                    }
+                    
                     if(eventFor == 'student'){
                         for (var i = 0; i < newCapacity; i++) {
                             prevEvent[0].title += '<span class="app-placeholder">Student name</span>';
