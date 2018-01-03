@@ -1671,32 +1671,7 @@ function SylvanAppointment(){
                         prevEvent[0].title += eventTitleHTML[i].outerHTML;
                     }
                 }
-                if(prevEvent[0].capacity != undefined){
-                    var newCapacity = 0;
-                    if (eventTitleHTML.length < (prevEvent[0].capacity+1)) {
-                        newCapacity = (prevEvent[0].capacity+1) - eventTitleHTML.length ;
-                    }
-                    for (var j = 0; j < prevEvent[0].memberList.length; j++) {
-                        if(prevEvent[0].memberList[j].isExceptional == true){
-                            newCapacity+= 1;
-                        }
-                        else{
-                            newCapacity = newCapacity;
-                        }
-
-                    }
-                    
-                    if(eventFor == 'student'){
-                        for (var i = 0; i < newCapacity; i++) {
-                            prevEvent[0].title += '<span class="app-placeholder">Student name</span>';
-                        }
-                    }
-                    else if(eventFor == 'parent'){
-                        for (var i = 0; i < newCapacity; i++) {
-                            prevEvent[0].title += '<span class="app-placeholder">Customer name</span>';
-                        }
-                    }
-                }
+                
                 if ((eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") || 
                     eventTitleHTML.length == 2 && eventTitleHTML[0].className == "appointmentTitle" && eventTitleHTML[1].className == "conflict" ) {
                     for (var i = 0; i < this.eventList.length; i++) {
@@ -1721,6 +1696,30 @@ function SylvanAppointment(){
                     prevEvent = self.addConflictMsg(prevEvent[0]);
                     this.appointment.fullCalendar('updateEvent', prevEvent);
                     this.appointment.fullCalendar('refetchEvents');
+                }
+                if(prevEvent.capacity != undefined){
+                    var newCapacity = 0;
+                    var exceptCount = 0;
+                    if (eventTitleHTML.length < (prevEvent.capacity+1)) {
+                        exceptCount = (prevEvent.capacity+1) - eventTitleHTML.length;
+                    }
+                    for (var j = 0; j < prevEvent.memberList.length; j++) {
+                        if(prevEvent.memberList[j].isExceptional == true){
+                            exceptCount+= 1;
+                        }
+                    }
+                    newCapacity+= exceptCount;
+                    
+                    if(eventFor == 'student'){
+                        for (var i = 0; i < newCapacity; i++) {
+                            prevEvent.title += '<span class="app-placeholder">Student name</span>';
+                        }
+                    }
+                    else if(eventFor == 'parent'){
+                        for (var i = 0; i < newCapacity; i++) {
+                            prevEvent.title += '<span class="app-placeholder">Customer name</span>';
+                        }
+                    }
                 }
             }else {
                 for (var i = 0; i < this.eventList.length; i++) {
