@@ -3003,6 +3003,11 @@ function SylvanAppointment(){
                 complete: function() {
                     wjQuery(".loading").hide();
                 }
+            },
+            buttons: {
+                Close: function () {
+                    wjQuery(this).dialog("close");
+                }
             }
         });
     }
