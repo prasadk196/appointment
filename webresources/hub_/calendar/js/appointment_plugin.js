@@ -1226,7 +1226,7 @@ function SylvanAppointment(){
                     
                     self.populateAppointmentEvent(self.appointmentList);
                     self.filterStudentParent(self.appointmentList);
-                    if (self.parents.length || self.students.length || self.Staff.length) {
+                    if (self.parents.length != undefined || self.students != undefined) {
                         self.filterObject.students = self.students;
                         self.filterObject.parents = self.parents;
                         //self.generateFilterObject(self.filterObject);
