@@ -160,17 +160,17 @@ setTimeout(function () {
             }else{
                 wjQuery(".loading").hide();
             }
-            var filterObject = {
-                Staff: data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate) == null ? [] : data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate),
-                Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
-                time: data.getTime() == null ? [] : data.getTime(),
-            }
-            sylvanAppointment.generateFilterObject(filterObject); 
+            
         }
         fetchResources(locationId);
         
     }, 500);   
-            
+        var filterObject = {
+            Staff: data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate) == null ? [] : data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate),
+            Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
+            time: data.getTime() == null ? [] : data.getTime(),
+        }
+        sylvanAppointment.generateFilterObject(filterObject);     
 }, 500);
     
 
