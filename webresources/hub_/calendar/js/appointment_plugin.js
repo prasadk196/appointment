@@ -88,6 +88,7 @@ setTimeout(function () {
                 sylvanAppointment.startDate =  getSunday(sylvanAppointment.calendarDate);
                 sylvanAppointment.endDate =  new Date(new Date(sylvanAppointment.startDate).setDate(new Date(sylvanAppointment.startDate).getDate() + 6));
             }
+
             var convertedStaffList = sylvanAppointment.formatObjects(data.getAppointmentStaff(locationId,moment(sylvanAppointment.startDate).format('YYYY-MM-DD'),moment(sylvanAppointment.endDate).format('YYYY-MM-DD')), "staffList");
             if(sylvanAppointment.appointment == undefined || sylvanAppointment.appointment.fullCalendar('getView').name == 'resourceDay'){
                 sylvanAppointment.populateStaff(convertedStaffList);
@@ -165,7 +166,7 @@ setTimeout(function () {
         
     }, 500);   
         var filterObject = {
-            Staff: data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate) == null ? [] : data.getAppointmentStaff(locationId,currentCalendarDate,currentCalendarDate),
+            Staff: data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate) == null ? [] : data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate),
             Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
             time: data.getTime() == null ? [] : data.getTime(),
         }
@@ -1225,10 +1226,11 @@ function SylvanAppointment(){
                     
                     self.populateAppointmentEvent(self.appointmentList);
                     self.filterStudentParent(self.appointmentList);
-                    if (self.parents.length || self.students.length) {
+                    if (self.parents.length || self.students.length || self.Staff.length) {
                         self.filterObject.students = self.students;
                         self.filterObject.parents = self.parents;
                         //self.generateFilterObject(self.filterObject);
+
                         self.loadMasterInformation();
                     }
                 }
