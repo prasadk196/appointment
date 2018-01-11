@@ -166,7 +166,7 @@ setTimeout(function () {
         
     }, 500);   
         var filterObject = {
-            Staff: data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate) == null ? [] : data.getAppointmentStaff(locationId,sylvanAppointment.startDate,sylvanAppointment.endDate),
+            Staff: [],
             Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
             time: data.getTime() == null ? [] : data.getTime(),
         }
@@ -808,12 +808,7 @@ function SylvanAppointment(){
 
         if (wjQuery('.filter-section').length == 0)
             wjQuery(".fc-agenda-divider.fc-widget-header").after("<div class='filter-section'></div>");
-        self.generateFilterObject(self.filterObject);
-        this.calendarFilter();
-        this.filterSlide(false);
-        this.filterEventData();
-        wjQuery('.fc-event-bg').on('focusout', function ( event ){
-    event.stopImmediatePropagation();} ).tooltip();
+        
     }
     // =====================Filter Code=====================
     this.filterEventData = function(){
@@ -983,10 +978,10 @@ function SylvanAppointment(){
                 if (key == "Staff") {
                     self.filters[key].push(
                         { 
-                            id: val['hub_staffid'],
-                            name: val['hub_name'],
-                            startDate: val['hub_startdate@OData.Community.Display.V1.FormattedValue'],
-                            endDate: undefined,
+                            id: val.id,
+                            name: val.name,
+                            startDate: val.startDate,
+                            endDate: val.endDate,
                             radio: false 
                         });
                 } else if (key == "Appointments") {
@@ -1229,10 +1224,15 @@ function SylvanAppointment(){
                     if (self.parents.length != undefined || self.students != undefined) {
                         self.filterObject.students = self.students;
                         self.filterObject.parents = self.parents;
+                        self.filterObject.Staff = self.staffList;
                         //self.generateFilterObject(self.filterObject);
-
-                        self.loadMasterInformation();
+                        
+                        //self.loadMasterInformation();
                     }
+                    self.generateFilterObject(self.filterObject);
+                    self.calendarFilter();
+                    self.filterSlide(false);
+                    self.filterEventData();
                 }
                 else{
                     wjQuery('.loading').hide();
