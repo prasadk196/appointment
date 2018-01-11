@@ -2604,9 +2604,9 @@ function SylvanAppointment(){
         var self = this;
         var html = '';
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-            if(capacity){
+            // if(capacity){
                 html= '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >0/'+capacity+'</span>';
-            }
+            // }
         }
         else{
             if(capacity){
