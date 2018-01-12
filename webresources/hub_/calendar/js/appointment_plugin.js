@@ -2468,7 +2468,7 @@ function SylvanAppointment(){
                     });
                     if(isexception.length){
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                            eventObj.title = '<span class="app-placeholder placeholder_week" ></span>';
+                            eventPopulated[0].title = '<span class="app-placeholder placeholder_week" ></span>';
                         }
                     }else{
                         eventPopulated[0].capacity += appointmentHrObj['capacity'];
