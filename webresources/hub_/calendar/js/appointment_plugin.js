@@ -2162,7 +2162,7 @@ function SylvanAppointment(){
                         this.appointmentHourException.push(appHrExp);
                         appointmentEvent[0].title = wjQuery(appointmentEvent[0].title)[0].outerHTML;
                         self.appointment.fullCalendar('updateEvent', appointmentEvent);
-                        self.appointment.fullCalendar('refetchEvents');
+                        //self.appointment.fullCalendar('refetchEvents');
                         wjQuery.contextMenu( 'destroy', 'span[id="' + appHrExp['eventId'] + '"]');
                         self.draggable('draggable');
                         wjQuery(".loading").hide();
