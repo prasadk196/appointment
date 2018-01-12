@@ -228,12 +228,12 @@ function SylvanAppointment(){
                     name:staffObj["hub_name"]
                 };
 
-                if(staffObj['hub_startdate'] != undefined){
-                    obj['startDate'] = new Date(staffObj['hub_startdate']);
+                if(staffObj['hub_startdate@OData.Community.Display.V1.FormattedValue'] != undefined){
+                    obj['startDate'] = new Date(staffObj['hub_startdate@OData.Community.Display.V1.FormattedValue']);
                 }
 
-                if(staffObj['hub_enddate'] != undefined){
-                    obj['endDate'] = new Date(staffObj['hub_enddate']);
+                if(staffObj['hub_enddate@OData.Community.Display.V1.FormattedValue'] != undefined){
+                    obj['endDate'] = new Date(staffObj['hub_enddate@OData.Community.Display.V1.FormattedValue']);
                 }else{
                     // add present day as end date
                     obj['endDate'] = undefined ;
@@ -302,13 +302,13 @@ function SylvanAppointment(){
             tempList = [];
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
             wjQuery.each(args, function(index, appointmentHour) {
-                var appEffectiveStartDate = appointmentHour['hub_effectivestartdate'];
+                var appEffectiveStartDate = appointmentHour['hub_effectivestartdate@OData.Community.Display.V1.FormattedValue'];
                 var appEffectiveEndDate,addAppFlag = false;
-                if(appointmentHour['hub_effectiveenddate'] != undefined){
-                    appEffectiveEndDate = moment(appointmentHour['hub_effectiveenddate']).format("YYYY-MM-DD");
+                if(appointmentHour['hub_effectiveenddate@OData.Community.Display.V1.FormattedValue'] != undefined){
+                    appEffectiveEndDate = appointmentHour['hub_effectiveenddate@OData.Community.Display.V1.FormattedValue'];
                 }
                 else{
-                    appEffectiveEndDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+                    appEffectiveEndDate = moment(currentCalendarDate).format("MM-DD-YYYY");
                 }
                 appEffectiveStartDate = new Date(appEffectiveStartDate + ' ' + '00:00').getTime();
                 appEffectiveEndDate = new Date(appEffectiveEndDate + ' ' + '23:59').getTime();
@@ -318,8 +318,8 @@ function SylvanAppointment(){
                 if(addAppFlag && appointmentHour['hub_days'] == self.getDayValue(currentCalendarDate)){
                     var duration = appointmentHour['aworkhours_x002e_hub_duration'];
                     for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
-                        var startObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
-                        var endObj = new Date(moment(currentCalendarDate).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
+                        var startObj = new Date(moment(currentCalendarDate).format('MM-DD-YYYY')+" "+self.convertMinsNumToTime(i)); 
+                        var endObj = new Date(moment(currentCalendarDate).format('MM-DD-YYYY')+" "+self.convertMinsNumToTime(i+duration)); 
                         tempList.push({
                             appointmentHourId:appointmentHour['hub_timingsid'],
                             type:appointmentHour['aworkhours_x002e_hub_type'],
@@ -342,20 +342,20 @@ function SylvanAppointment(){
         else if(label == "staffExceptions"){
             tempList = [];
             this.staffExceptions = [];
-            var currentCalendarDate = moment(self.appointment.fullCalendar('getDate')).format("YYYY-MM-DD");
+            var currentCalendarDate = moment(self.appointment.fullCalendar('getDate')).format("MM-DD-YYYY");
             currentCalendarDate = new Date(currentCalendarDate).setHours(0);
             currentCalendarDate = new Date(new Date(currentCalendarDate).setMinutes(0));
             currentCalendarDate = new Date(new Date(currentCalendarDate).setSeconds(0));
             wjQuery.each(args, function(index, exceptionObj) {
                 var obj = {};
                 obj.id = exceptionObj['astaff_x002e_hub_staffid'];
-                var exceptionStartDate = new Date(exceptionObj['hub_startdate']);
+                var exceptionStartDate = new Date(exceptionObj['hub_startdate@OData.Community.Display.V1.FormattedValue']);
                 // Set time for start date
                 exceptionStartDate = new Date(exceptionStartDate).setHours(0);
                 exceptionStartDate = new Date(new Date(exceptionStartDate).setMinutes(0));
                 exceptionStartDate = new Date(new Date(exceptionStartDate).setSeconds(0));
 
-                var exceptionEndDate = exceptionObj['hub_enddate'];
+                var exceptionEndDate = exceptionObj['hub_enddate@OData.Community.Display.V1.FormattedValue'];
                 exceptionEndDate = exceptionEndDate == undefined ? exceptionStartDate : new Date(exceptionEndDate);
                 // Set time for end date
                 exceptionEndDate = new Date(exceptionEndDate).setHours(0);
@@ -382,8 +382,8 @@ function SylvanAppointment(){
                     id: staffObj["_hub_staffid_value"],
                     name: staffObj["_hub_staffid_value@OData.Community.Display.V1.FormattedValue"],
                     availableDays:[],
-                    start:staffObj["hub_startdate"],
-                    end:staffObj["hub_enddate"]
+                    start:staffObj["hub_startdate@OData.Community.Display.V1.FormattedValue"],
+                    end:staffObj["hub_enddate@OData.Community.Display.V1.FormattedValue"]
                 }; 
                 var allKeys = Object.keys(staffObj);
                 wjQuery.each(staffObj, function(k, val){
@@ -408,7 +408,7 @@ function SylvanAppointment(){
         else if(label == "appointmentException"){
             tempList = [];
             wjQuery.each(args, function(index, appException) {
-                appException['hub_date'] = moment(new Date(appException['hub_date'])).format("YYYY-MM-DD");
+                appException['hub_date'] = moment(new Date(appException['hub_date'])).format("MM-DD-YYYY");
                 var startObj = new Date(appException['hub_date']+" "+self.convertMinsNumToTime(appException['hub_start_time']));
                 var endObj = new Date(appException['hub_date']+" "+self.convertMinsNumToTime(appException['hub_end_time']));
                 var eventId = appException['aworkhours_x002e_hub_type']+"_"+startObj+"_"+endObj+"_"+"unassignedId";
@@ -679,8 +679,8 @@ function SylvanAppointment(){
                 var findingLeaveFlag = true;
                 if (self.businessClosure.length) {
                     for (var i = 0; i < self.businessClosure.length; i++) {
-                        var businessStartDate = moment(self.businessClosure[i]['hub_startdatetime']).format("YYYY-MM-DD");
-                        var businessEndDate = moment(self.businessClosure[i]['hub_enddatetime']).format("YYYY-MM-DD");
+                        var businessStartDate = moment(self.businessClosure[i]['hub_startdatetime']).format("MM-DD-YYYY");
+                        var businessEndDate = moment(self.businessClosure[i]['hub_enddatetime']).format("MM-DD-YYYY");
                         businessStartDate = new Date(businessStartDate + ' ' + '00:00').getTime();
                         businessEndDate = new Date(businessEndDate + ' ' + '00:00').getTime();
                         var calendarStartDate = new Date(startDate + ' ' + '00:00').getTime();
@@ -945,7 +945,7 @@ function SylvanAppointment(){
         // staff availabilty check 
         if(newAppointmentObj['resourceId'] != "unassignedId"){
             var currentCalendarDate = self.appointment.fullCalendar('getDate');
-            startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+            startDate = endDate = moment(currentCalendarDate).format("MM-DD-YYYY");
             var dayList = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
             var availableStaff = self.formatObjects(data.getStaffAvailable(self.locationId, startDate, endDate), "staffAvailable");
             if(availableStaff.length){
