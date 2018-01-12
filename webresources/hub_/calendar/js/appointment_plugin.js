@@ -2900,11 +2900,11 @@ function SylvanAppointment(){
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').css('text-align', 'center');
             if (self.appointment.fullCalendar('getView').name != 'agendaWeek') {
                 self.appointment.fullCalendar('changeView', 'agendaWeek');
+                wjQuery('thead .fc-agenda-axis fc-widget-header fc-first').text('');
             }
             this.weekEventObject = {};
             this.appointment.fullCalendar('removeEvents');
             this.refreshCalendarEvent(this.locationId,true);
-            //wjQuery('.loading').hide();
         }
         else{
          wjQuery('.loading').hide();
