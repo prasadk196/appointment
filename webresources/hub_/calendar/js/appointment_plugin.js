@@ -2228,7 +2228,11 @@ function SylvanAppointment(){
             populatedEvent['noOfApp'] += 1;
             if(populatedEvent.hasOwnProperty("appHourId")){
                 if(eventColorObj.appointmentHour){
-                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['capacity']+'</span>';
+                    if(populatedEvent['noOfApp'] > populatedEvent['capacity']){
+                        populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
+                    }else{
+                        populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                    }
                 }else{
                     populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
                 }
@@ -2992,7 +2996,7 @@ function SylvanAppointment(){
             resizable: false,
             height: "auto",
             width: "80%",
-            title: 'Appt Detail <br>'+moment(event.start).format("dddd hh:mm A")+' to '+moment(event.end).format("hh:mm A"),
+            title: 'Appt detail <br>'+moment(event.start).format("dddd hh:mm A")+' to '+moment(event.end).format("hh:mm A"),
             show: {
                 effect: 'slide',
                 complete: function() {
