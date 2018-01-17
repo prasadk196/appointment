@@ -1338,6 +1338,9 @@ function SylvanAppointment(){
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
                 }
             }else if (currentView.name == 'agendaWeek') {
+                if(wjQuery('#appointment div.fc-content').hasClass('fc-scroll-content')){
+                    wjQuery('#appointment div.fc-content').removeClass('fc-scroll-content');
+                }
                 self.eventList = [];
                 self.weekEventObject = {};
                 self.businessClosure = [];
