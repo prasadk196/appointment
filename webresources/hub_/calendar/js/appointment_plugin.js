@@ -1064,6 +1064,7 @@ function SylvanAppointment(){
             var contentWidth = (((self.staffList.length-1)*cwidth)+518);
             //alert(contentWidth);
             wjQuery('.fc-content div.fc-view-resourceDay').css({'width': +contentWidth+'px','background':'#fff'});
+            //wjQuery('#scrollarea').css({'width': +contentWidth+'px','position':'static','overflow':'scroll'});
             if(wjQuery(window).width()>=1100){
                 if (self.staffList.length>4) {
                     wjQuery('#appointment div.fc-content').addClass('fc-scroll-content');
