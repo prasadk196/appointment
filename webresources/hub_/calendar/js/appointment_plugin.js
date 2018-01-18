@@ -1045,6 +1045,10 @@ function SylvanAppointment(){
     this.calendarFixedWidth = function(){
         var self = this;
         // Table Fixed column code +scroll  Start
+        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var d = new Date(wjQuery('.headerDate').text());
+        var calDate = moment(d).format("MM/DD");
+        var dayName = days[d.getDay()];
         var scwidth = (wjQuery(window).width()-518);
         var cwidth;
         if(self.staffList.length==4){
@@ -1069,6 +1073,9 @@ function SylvanAppointment(){
                 if (self.staffList.length>4) {
                     wjQuery('#appointment div.fc-content').addClass('fc-scroll-content');
                     wjQuery('.fc-scroll-content').css('height',wjQuery('.fc-view').height() +'px');
+                    if (wjQuery('.firstColTable').length == 0) {
+                        wjQuery(".fc-view-resourceDay table thead tr").append("<div class='firstColTable'>"+dayName+"<br><span>"+calDate+"</span></div>");
+                    }
                 }
                 if (self.staffList.length<=4) {
                     wjQuery('#appointment div.fc-content').removeClass('fc-scroll-content');
@@ -1083,10 +1090,6 @@ function SylvanAppointment(){
     // First Column fixed Code Start
     this.buildCalfirstCol = function () {
         var self = this;
-        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        var d = new Date(wjQuery('.headerDate').text());
-        var calDate = moment(d).format("MM/DD");
-        var dayName = days[d.getDay()];
         var max = self.calendarOptions.maxTime;
         var min = self.calendarOptions.minTime;
         var slot = self.calendarOptions.slotMinutes;
@@ -1117,7 +1120,6 @@ function SylvanAppointment(){
         if(self.staffList.length>4){
             if(wjQuery('.calendar-firstCol').length == 0){
                 wjQuery(".fc-agenda-divider").after("<div class='calendar-firstCol'></div>");
-                wjQuery(".fc-view-resourceDay table thead tr").prepend("<div class='firstColTable'>"+dayName+"<br><span>"+calDate+"</span></div>");
             }
         }
         if(self.staffList.length<4){

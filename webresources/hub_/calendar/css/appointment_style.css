@@ -526,4 +526,5 @@ table.fc-border-separate{table-layout: fixed;}
     text-align: center;
     border-right: 1px solid #ccc;
     background: #e8ad38;
+    left: 3px;
 }
