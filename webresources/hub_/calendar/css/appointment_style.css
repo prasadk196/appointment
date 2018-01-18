@@ -467,7 +467,7 @@ ul{
 /*=====================FIXED COLUMN===========================*/
 table.fc-border-separate{table-layout: fixed;}
 .fc-agenda .fc-agenda-axis{
-    width: 91px !important;
+    width: 90px !important;
 }
 .fc-agenda .fc-agenda-days thead tr .tableFirstCol,.fc-agenda .fc-agenda-days tbody tr .tableFirstCol{
     width: 400px !important;
@@ -519,4 +519,11 @@ table.fc-border-separate{table-layout: fixed;}
 }
 #calendar .fc-content{
     background: #ccc;
+}
+.firstColTable{width: 92px;
+    padding: 4px;
+    position: fixed;
+    text-align: center;
+    border-right: 1px solid #ccc;
+    background: #e8ad38;
 }
