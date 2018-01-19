@@ -731,7 +731,12 @@ function SylvanAppointment(){
             // allDaySlot:false,
             droppable: true,
             onDrag: function(date, allDay, ev, ui, resource){
-            self.helperStartTime =  moment(date).format('hh:mm A'); 
+                self.helperStartTime =  moment(date).format('hh:mm A'); 
+                if (self.staffList.length > 4) {
+                    if (wjQuery(window).width() > 1100) {
+                        self.scrollVertically();
+                    }
+                }
             },
             drop: function (date, allDay, ev, ui, resource) {
                 self.createEventOnDrop(self, date, allDay, ev, ui, resource, this);
@@ -1133,6 +1138,26 @@ function SylvanAppointment(){
             wjQuery('.firstcolContainer').scrollTop(wjQuery(this).scrollTop());
         })
         
+    }
+
+    this.scrollVertically = function () {
+        var screenWidth = window.screen.width;
+        screenWidth = screenWidth.toString();
+        var minScrollingCoord = screenWidth - 250;
+        var maxScrollingCoord = wjQuery('.fc-agenda-slots').width();
+        var draggedEl = wjQuery('.ui-draggable-dragging');
+        var scollArea = wjQuery('.fc-scroll-content');
+        var scrollWidth = scollArea.scrollLeft();
+        draggedEl = draggedEl[0];
+        if (draggedEl.offsetLeft) {
+            if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
+            scrollWidth = scrollWidth + 250;
+            scollArea.animate({ scrollLeft: scrollWidth } ,"fast");
+            } else if (draggedEl.offsetLeft <= 250 && scrollWidth != 0) {
+            scrollWidth = scrollWidth - 250;
+            scollArea.animate({ scrollLeft: scrollWidth }, "fast");
+        }
+        }
     }
 
     this.filterItems = function (filterTerm, filterFor) {
