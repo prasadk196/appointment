@@ -464,3 +464,7 @@ ul{
 .exception{
     color: #c8c7c7;
 }
+
+.filter-header{
+    text-transform: capitalize;
+}
