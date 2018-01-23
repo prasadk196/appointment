@@ -5,6 +5,7 @@ var currentCalendarDate = moment(new Date()).format("YYYY-MM-DD");
 var STAFF_EXCEPTION_BG = '#ddd';
 var STAFF_EXCEPTION_BORDER = '#ddd';
 var messageList = ["Out of office Appointment conflict"];
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
 setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
@@ -479,7 +480,7 @@ function SylvanAppointment(){
 
             // Loop through all backend appointment hours
             wjQuery.each(args, function(index, appointmentHour) {
-                var appEffectiveStartDate = appointmentHour['hub_effectivestartdate'];
+                var appEffectiveStartDate = moment(appointmentHour['hub_effectivestartdate']).format("MM-DD-YYYY");
                 var appEffectiveEndDate;
                 if(appointmentHour['hub_effectiveenddate'] != undefined){
                     appEffectiveEndDate = moment(appointmentHour['hub_effectiveenddate']).format("MM-DD-YYYY");
@@ -499,8 +500,8 @@ function SylvanAppointment(){
                             if(appointmentHour['hub_days'] == self.getDayValue(j)){
                                 var duration = appointmentHour['aworkhours_x002e_hub_duration'];
                                 for (var i = appointmentHour['hub_starttime']; i < (appointmentHour['hub_endtime']); i+= duration) {
-                                    var startObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i)); 
-                                    var endObj = new Date(moment(j).format('YYYY-MM-DD')+" "+self.convertMinsNumToTime(i+duration)); 
+                                    var startObj = new Date(moment(j).format('MM-DD-YYYY') + " " + self.convertMinsNumToTime(i));
+                                    var endObj = new Date(moment(j).format('MM-DD-YYYY') + " " + self.convertMinsNumToTime(i + duration));
                                     tempList.push({
                                         appointmentHourId:appointmentHour['hub_timingsid'],
                                         type:appointmentHour['aworkhours_x002e_hub_type'],
@@ -1046,7 +1047,7 @@ function SylvanAppointment(){
         else if (filterFor == 'student') {
             availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
                 
-                if (el.memberList.length>0) {
+                if (el.memberList && el.memberList.length > 0) {
                     for (var abcd = 0; abcd < el.memberList.length; abcd++) {
                         if(el.memberList[abcd].studentId == filterTerm){
                             return el;
@@ -1059,7 +1060,7 @@ function SylvanAppointment(){
         else if (filterFor == 'parent') {
             availableEvents = self.appointment.fullCalendar('clientEvents',function(el){
                 
-                if (el.memberList.length>0) {
+                if (el.memberList && el.memberList.length > 0) {
                     for (var i = 0; i < el.memberList.length; i++) {
                         if (el.memberList[i].parentId == filterTerm) {
                             return el;
@@ -3017,6 +3018,13 @@ function SylvanAppointment(){
         });
     }
 
+    if (!('remove' in Element.prototype)) {
+        Element.prototype.remove = function () {
+            if (this.parentNode) {
+                this.parentNode.removeChild(this);
+            }
+        };
+    }
 }
 
 
