@@ -305,7 +305,7 @@ button{
 }
 
 .context-menu-list{
-    z-index: 10 !important;
+    z-index: 110 !important;
 }
 
 .conflict{
@@ -338,7 +338,7 @@ button{
     color: #333333;
     border-radius: 3px;
     max-width: 150px;
-    webkit-box-shadow: 0px 0px 5px #666666;
+    -webkit-box-shadow: 0px 0px 5px #666666;
     box-shadow: 0px 0px 5px #666666;
 }
 
@@ -467,4 +467,9 @@ ul{
 
 .filter-header{
     text-transform: capitalize;
+}/**IE SPECIFIC STYLES**/
+@media screen and (-ms-high-contrast: none) {
+    .fc-event-inner {
+        height:99% !important;
+    }
 }
