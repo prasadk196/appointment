@@ -2238,7 +2238,11 @@ function SylvanAppointment(){
                     populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
                 }
             }else{
-                populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
+                if(eventColorObj.appointmentHour){
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
+                }else{
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
+                }
             }
         }else{
             if(eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId'){
@@ -2336,7 +2340,11 @@ function SylvanAppointment(){
         }
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-            eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1/1</span>';
+            if(eventColorObj.appointmentHour){
+                eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1/1</span>';
+            }else{
+                eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1</span>';
+            }
             eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_unassignedId";
         }else{
             eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_"+appointmentObj['staffId'];
