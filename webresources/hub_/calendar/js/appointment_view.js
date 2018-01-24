@@ -162,6 +162,13 @@ var staff = [
     "hub_startdate@OData.Community.Display.V1.FormattedValue": "12/28/2016",
     "hub_startdate": "2016-12-28T00:00:00Z",
     "hub_staffid": "43f9ff04-2292-e711-80f7-c4346bac4304"
+  },
+  {
+    "@odata.etag": "W/\"3916216\"",
+    "hub_name": "Anup Kumar",
+    "hub_startdate@OData.Community.Display.V1.FormattedValue": "12/28/2016",
+    "hub_startdate": "2016-12-28T00:00:00Z",
+    "hub_staffid": "43f9ff04-2292-e711-80f7-c4346bac4399"
   }
 ];
 
