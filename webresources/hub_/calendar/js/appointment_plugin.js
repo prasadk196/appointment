@@ -735,6 +735,7 @@ function SylvanAppointment(){
                 self.helperStartTime =  moment(date).format('hh:mm A'); 
                 if (self.staffList.length > 4) {
                     if (wjQuery(window).width() > 1100) {
+                        self.bindMouseMovement();
                         self.scrollVertically();
                     }
                 }
@@ -1151,14 +1152,21 @@ function SylvanAppointment(){
         var scrollWidth = scollArea.scrollLeft();
         draggedEl = draggedEl[0];
         if (draggedEl.offsetLeft) {
-            if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
+            if (mouseX > minScrollingCoord && mouseX <= maxScrollingCoord) {
             scrollWidth = scrollWidth + 250;
             scollArea.animate({ scrollLeft: scrollWidth } ,"fast");
-            } else if (draggedEl.offsetLeft <= 250 && scrollWidth != 0) {
+            } else if (mouseX <= 250 && scrollWidth != 0) {
             scrollWidth = scrollWidth - 250;
             scollArea.animate({ scrollLeft: scrollWidth }, "fast");
         }
         }
+    }
+
+    var mouseX;
+    this.bindMouseMovement = function () {
+        wjQuery('#scrollarea').on('mousemove', function (e) {
+            mouseX = e.clientX;
+        })
     }
 
     this.filterItems = function (filterTerm, filterFor) {
