@@ -1164,8 +1164,8 @@ function SylvanAppointment(){
         if(isOpen.length){
             wjQuery("#dialog").dialog("close");
         }
-        self.clearBusinessClosure();
         setTimeout(function () {
+            self.clearBusinessClosure();
             var currentView = self.appointment.fullCalendar('getView');
             // fetch master schedule data based on below flag
             // var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
@@ -1503,20 +1503,20 @@ function SylvanAppointment(){
         // End of Appointment hour validation
         
         // Different type of appointment Validation
-        if(newEvent.length == 0){
-            var availableEvent = self.appointment.fullCalendar('clientEvents',function(el){
-                return  el.type != newAppointmentObj['type'] &&
-                        el.resourceId == newAppointmentObj['staffId'] &&
-                        (el.start.getTime() == newAppointmentObj['startObj'].getTime() ||
-                        el.start.getTime() <= newAppointmentObj['startObj'].getTime() &&
-                        newAppointmentObj['startObj'].getTime() < el.end.getTime() )
-            });
-            if(availableEvent.length){
-                if(messageObject.confirmation.indexOf(" Appointment Type is different") == -1){
-                    messageObject.confirmation.push(" Appointment Type is different");
-                }
-            }
-        }
+        // if(newEvent.length == 0){
+        //     var availableEvent = self.appointment.fullCalendar('clientEvents',function(el){
+        //         return  el.type != newAppointmentObj['type'] &&
+        //                 el.resourceId == newAppointmentObj['staffId'] &&
+        //                 (el.start.getTime() == newAppointmentObj['startObj'].getTime() ||
+        //                 el.start.getTime() <= newAppointmentObj['startObj'].getTime() &&
+        //                 newAppointmentObj['startObj'].getTime() < el.end.getTime() )
+        //     });
+        //     if(availableEvent.length){
+        //         if(messageObject.confirmation.indexOf(" Appointment Type is different") == -1){
+        //             messageObject.confirmation.push(" Appointment Type is different");
+        //         }
+        //     }
+        // }
         
         // Out Of Office Validation
         // var dropable = self.checkForOutofofficeAppointment(newAppointmentObj);
@@ -2311,7 +2311,7 @@ function SylvanAppointment(){
         if(eventIndex != -1){
             this.eventList[eventIndex] = populatedEvent;
             this.appointment.fullCalendar('updateEvent', populatedEvent);
-            this.appointment.fullCalendar( 'refetchEvents');
+            // this.appointment.fullCalendar( 'refetchEvents');
             self.draggable("draggable");
             self.showTooltip();
         }
