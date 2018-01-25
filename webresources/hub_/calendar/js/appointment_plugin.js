@@ -39,6 +39,7 @@ setTimeout(function () {
             buttonImageOnly: true,
             changeMonth: true,
             changeYear: true,
+            autoclose: true,
             showOn: 'button',
             onSelect: function (date) {
                 wjQuery('.headerDate').text(date);
@@ -2231,7 +2232,12 @@ function SylvanAppointment(){
                     if(populatedEvent['noOfApp'] > populatedEvent['capacity']){
                         populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
                     }else{
-                        populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                        if(appointmentObj['isExceptional']){
+                            populatedEvent['capacity'] = populatedEvent['capacity'] + 1;
+                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                        }else{
+                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                        }
                     }
                 }else{
                     populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
