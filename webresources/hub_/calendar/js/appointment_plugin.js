@@ -41,6 +41,7 @@ setTimeout(function () {
             changeMonth: true,
             autoclose: true,
             changeYear: true,
+            autoclose: true,
             showOn: 'button',
             onSelect: function (date) {
                 wjQuery('.headerDate').text(date);
