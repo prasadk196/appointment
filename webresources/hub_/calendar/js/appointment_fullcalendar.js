@@ -3457,7 +3457,8 @@ function ResourceView(element, calendar, viewName) {
         var e, n, p;
         dayHeadCells.each(function(i, _e) {
             e = $(_e);
-            n = e.offset().left;
+            // n = e.offset().left;
+            n = e[0].offsetLeft;
             if (i) {
                 p[1] = n;
             }
@@ -6866,6 +6867,7 @@ function CoordinateGrid(buildFunc) {
 	
 	t.rect = function(row0, col0, row1, col1, originElement) { // row1,col1 is inclusive
 		var origin = originElement.offset();
+		origin.left = originElement[0].offsetLeft;
 		return {
 			top: rows[row0][0] - origin.top,
 			left: cols[col0][0] - origin.left,

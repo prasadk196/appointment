@@ -53,6 +53,7 @@ setTimeout(function () {
                     wjQuery(".loading").show();
                     sylvanAppointment.dateFromCalendar(date, locationId);
                     sylvanAppointment.calendarDate = new Date(date);
+                    fetchResources(locationId);
                 }
                 wjQuery('#datepicker').hide();
             }
@@ -113,41 +114,49 @@ setTimeout(function () {
             if(sylvanAppointment.staffList.length){
                 sylvanAppointment.refreshCalendarEvent(locationId, true);
                 wjQuery('.nextBtn').off('click').on('click', function () {
-                    wjQuery(".loading").show();
-                    wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-                    if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                    var date  = new Date(wjQuery('.headerDate').text());
+                    if(wjQuery('#dayBtn:checked').val() == 'on'){
+                        date = new Date(new Date(date).setDate(date.getDate() + 1));
+                    }
+                    else{
+                        date = new Date(new Date(date).setDate(date.getDate() + 7));
+                    }
+                    wjQuery('.headerDate').text(moment(date).format('MM/DD/YYYY'));
+                    if (moment(date).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
                         wjQuery('.headerDate').addClass('today');
                     }
                     else {
                         wjQuery('.headerDate').removeClass('today');
                     }
                     if(sylvanAppointment.appointment != undefined){
-                        //wjQuery(".loading").show();
+                        wjQuery(".loading").show();
                         sylvanAppointment.next(locationId);
+                        //fetchResources(locationId);
                     }
-                    //fetchResources(locationId);
+                    
                 });
 
             wjQuery('.prevBtn').off('click').on('click', function () {
-                wjQuery(".loading").show();
-                if(wjQuery('#dayBtn:checked').val() == 'on'){
-                    sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 1));
-                }
-                else{
-                    sylvanAppointment.calendarDate = new Date(new Date(sylvanAppointment.calendarDate).setDate(new Date(sylvanAppointment.calendarDate).getDate() - 7));
-                }
-                wjQuery('.headerDate').text(moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY'));
-                if (moment(sylvanAppointment.calendarDate).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
+                var date  = new Date(wjQuery('.headerDate').text());
+                    if(wjQuery('#dayBtn:checked').val() == 'on'){
+                        date = new Date(new Date(date).setDate(date.getDate() - 1));
+                    }
+                    else{
+                        date = new Date(new Date(date).setDate(date.getDate() - 7));
+                    }
+                wjQuery('.headerDate').text(moment(date).format('MM/DD/YYYY'));
+                if (moment(date).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
                     wjQuery('.headerDate').addClass('today');
                 }
                 else {
                     wjQuery('.headerDate').removeClass('today');
                 }
                 if(sylvanAppointment.appointment != undefined){
-                    //wjQuery(".loading").show();
+                    wjQuery(".loading").show();
                     sylvanAppointment.prev(locationId);
+                    //fetchResources(locationId);
                 }
-                //fetchResources(locationId);
+                
             });
             wjQuery('.wkView').off('click').on('click', function () {
                     sylvanAppointment.weekView();
@@ -164,14 +173,13 @@ setTimeout(function () {
             
         }
         fetchResources(locationId);
-        
     }, 500);   
         var filterObject = {
             Staff: [],
             Appointments: data.getAppointmentType() == null ? [] : data.getAppointmentType(),
             time: data.getTime() == null ? [] : data.getTime(),
         }
-        sylvanAppointment.generateFilterObject(filterObject);     
+        sylvanAppointment.generateFilterObject(filterObject); 
 }, 500);
     
 
@@ -724,7 +732,12 @@ function SylvanAppointment(){
             // allDaySlot:false,
             droppable: true,
             onDrag: function(date, allDay, ev, ui, resource){
-            self.helperStartTime =  moment(date).format('hh:mm A'); 
+                self.helperStartTime =  moment(date).format('hh:mm A'); 
+                if (self.staffList.length > 4) {
+                    if (wjQuery(window).width() > 1100) {
+                        self.scrollVertically();
+                    }
+                }
             },
             drop: function (date, allDay, ev, ui, resource) {
                 self.createEventOnDrop(self, date, allDay, ev, ui, resource, this);
@@ -808,6 +821,15 @@ function SylvanAppointment(){
 
         if (wjQuery('.filter-section').length == 0)
             wjQuery(".fc-agenda-divider.fc-widget-header").after("<div class='filter-section'></div>");
+        if (currentView.name == 'resourceDay') {
+            wjQuery('.fc-agenda .fc-agenda-days tr .fc-col0').addClass('tableFirstCol');
+            self.buildCalfirstCol();
+        }
+        else{
+            if (wjQuery('.fc-col0').hasClass('tableFirstCol')) {
+                wjQuery('.fc-agenda .fc-agenda-days tr .fc-col0').removeClass('tableFirstCol');
+            }
+        }
         
     }
     // =====================Filter Code=====================
@@ -1026,6 +1048,118 @@ function SylvanAppointment(){
         wjQuery('.filter-section').css('height', wjQuery('.filter-section').next().height() - 2 + "px");
         wjQuery('.filter-container').css({ 'height': wjQuery('.filter-section').next().height() - 2 + "px", "overflow-y": "auto" });
     }
+    this.calendarFixedWidth = function(){
+        var self = this;
+        // Table Fixed column code +scroll  Start
+        var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        var d = new Date(wjQuery('.headerDate').text());
+        var calDate = moment(d).format("MM/DD");
+        var dayName = days[d.getDay()];
+        var scwidth = (wjQuery(window).width()-518);
+        var cwidth;
+        if(self.staffList.length==4){
+            if (wjQuery(window).width()>1100) {
+                cwidth = (Math.floor(scwidth/3));
+            }
+            else{
+                cwidth = 260;
+            }
+        }
+        else{
+            cwidth = 260;
+            //alert(cwidth);
+        }
+        //wjQuery('table.fc-border-separate').addClass('dayviewTable');
+        wjQuery('.fc-view-resourceDay table.fc-border-separate td,.fc-view-resourceDay table.fc-border-separate th').css('width',+cwidth+'px');
+            var contentWidth = (((self.staffList.length-1)*cwidth)+518);
+            //alert(contentWidth);
+            wjQuery('.fc-content div.fc-view-resourceDay').css({'width': +contentWidth+'px','background':'#fff'});
+            //wjQuery('#scrollarea').css({'width': +contentWidth+'px','position':'static','overflow':'scroll'});
+            if(wjQuery(window).width()>=1100){
+                if (self.staffList.length>4) {
+                    wjQuery('#appointment div.fc-content').addClass('fc-scroll-content');
+                    wjQuery('.fc-scroll-content').css('height',wjQuery('.fc-view').height() +'px');
+                    if (wjQuery('.firstColTable').length == 0) {
+                        wjQuery(".fc-view-resourceDay table thead tr").append("<div class='firstColTable'>"+dayName+"<br><span>"+calDate+"</span></div>");
+                    }
+                }
+                if (self.staffList.length<=4) {
+                    wjQuery('#appointment div.fc-content').removeClass('fc-scroll-content');
+                }
+            }
+            if (wjQuery(window).width()<1100) {
+                wjQuery('#appointment div.fc-content').addClass('fc-scroll-content');
+                wjQuery('.fc-scroll-content').css('height',wjQuery('.fc-view').height() +'px');
+            }
+
+    }
+    // First Column fixed Code Start
+    this.buildCalfirstCol = function () {
+        var self = this;
+        var max = self.calendarOptions.maxTime;
+        var min = self.calendarOptions.minTime;
+        var slot = self.calendarOptions.slotMinutes;
+        wjQuery('.calendar-firstCol').html('<div class="firstcolContainer" style="height:'+(wjQuery('#scrollarea').height()) +'px'+'"></div>');
+        for(var i = min; i<max; i++){
+            for (var j = 0; j < Math.floor(60/slot); j++) {
+                if (j==0 && i<=12) {
+                    wjQuery('.firstcolContainer').append(
+                    '<div class="coldata col_'+(i-min)+'" >' + i +'am'+ '</div>'
+                    
+                    );
+                }
+                else if(j==0 && i>12){
+                     wjQuery('.firstcolContainer').append(
+                    '<div class="coldata col_'+(i-min)+'" >' + (i-12) +'pm'+ '</div>'
+                    
+                    );
+                }
+                else{
+                   wjQuery('.firstcolContainer').append(
+                    '<div class="slotdata">' +"&nbsp;"+ '</div>'
+                    
+                    ); 
+                }    
+            }
+            
+        };
+        if(self.staffList.length>4){
+            if(wjQuery('.calendar-firstCol').length == 0){
+                wjQuery(".fc-agenda-divider").after("<div class='calendar-firstCol'></div>");
+            }
+        }
+        if(self.staffList.length<4){
+            wjQuery('.calendar-firstCol').css('display','none');
+            wjQuery('.firstColTable').css('display','none');
+        }
+        wjQuery('#scrollarea').scroll(function(e){
+            wjQuery('.firstcolContainer').scrollTop(wjQuery(this).scrollTop());
+        })
+        wjQuery('.weekscroller').scroll(function(e){
+            wjQuery('.firstcolContainer').scrollTop(wjQuery(this).scrollTop());
+        })
+        
+    }
+
+    this.scrollVertically = function () {
+        var screenWidth = window.screen.width;
+        screenWidth = screenWidth.toString();
+        var minScrollingCoord = screenWidth - 250;
+        var maxScrollingCoord = wjQuery('.fc-agenda-slots').width();
+        var draggedEl = wjQuery('.ui-draggable-dragging');
+        var scollArea = wjQuery('.fc-scroll-content');
+        var scrollWidth = scollArea.scrollLeft();
+        draggedEl = draggedEl[0];
+        if (draggedEl.offsetLeft) {
+            if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
+            scrollWidth = scrollWidth + 250;
+            scollArea.animate({ scrollLeft: scrollWidth } ,"fast");
+            } else if (draggedEl.offsetLeft <= 250 && scrollWidth != 0) {
+            scrollWidth = scrollWidth - 250;
+            scollArea.animate({ scrollLeft: scrollWidth }, "fast");
+        }
+        }
+    }
 
     this.filterItems = function (filterTerm, filterFor) {
         var self = this;
@@ -1171,6 +1305,8 @@ function SylvanAppointment(){
             // fetch master schedule data based on below flag
             // var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
             if (currentView.name == 'resourceDay') {
+                self.buildCalfirstCol();
+                self.calendarFixedWidth();
                 var currentCalendarDate = self.appointment.fullCalendar('getDate');
                 self.eventList = [];
                 self.businessClosure = [];
@@ -1239,6 +1375,9 @@ function SylvanAppointment(){
                     wjQuery('table.fc-agenda-slots td div').css('backgroundColor', '#ddd');
                 }
             }else if (currentView.name == 'agendaWeek') {
+                if(wjQuery('#appointment div.fc-content').hasClass('fc-scroll-content')){
+                    wjQuery('#appointment div.fc-content').removeClass('fc-scroll-content');
+                }
                 self.eventList = [];
                 self.weekEventObject = {};
                 self.businessClosure = [];
