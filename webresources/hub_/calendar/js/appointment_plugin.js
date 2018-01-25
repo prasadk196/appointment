@@ -39,10 +39,12 @@ setTimeout(function () {
             buttonImage: "/webresources/hub_/calendar/images/calendar.png",
             buttonImageOnly: true,
             changeMonth: true,
+            autoclose: true,
             changeYear: true,
             showOn: 'button',
             onSelect: function (date) {
                 wjQuery('.headerDate').text(date);
+                wjQuery('#datepicker').hide();
                 if (moment(new Date(date)).format('MM/DD/YYYY') == moment(new Date()).format('MM/DD/YYYY')) {
                     wjQuery('.headerDate').addClass('today');
                 }
@@ -55,7 +57,6 @@ setTimeout(function () {
                     sylvanAppointment.calendarDate = new Date(date);
                     fetchResources(locationId);
                 }
-                wjQuery('#datepicker').hide();
             }
         });
 
@@ -2093,7 +2094,7 @@ function SylvanAppointment(){
                 wjQuery(".loading").hide();
             }
         }else{
-            self.alertPopup("Appointment can not be placed in an exceptional appointment hour.");
+            self.alertPopup("The selected appointment is already scheduled for the respective timeslot.");
         }
     }
 
@@ -2379,7 +2380,12 @@ function SylvanAppointment(){
                     if(populatedEvent['noOfApp'] > populatedEvent['capacity']){
                         populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
                     }else{
-                        populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                        if(appointmentObj['isExceptional']){
+                            populatedEvent['capacity'] = populatedEvent['capacity'] + 1;
+                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                        }else{
+                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                        }
                     }
                 }else{
                     populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
