@@ -6877,7 +6877,7 @@ function CoordinateGrid(buildFunc) {
 	};
 
 }
-
+var timeoutBuild;
 function HoverListener(coordinateGrid) {
 
 
@@ -6889,12 +6889,15 @@ function HoverListener(coordinateGrid) {
 	
 	
 	t.start = function(_change, ev, _bindType) {
+		clearTimeout(timeoutBuild);
+		timeoutBuild = setTimeout(function() {
 		change = _change;
 		firstCell = cell = null;
 		coordinateGrid.build();
 		mouse(ev);
 		bindType = _bindType || 'mousemove';
 		$(document).bind(bindType, mouse);
+		}, 50);
 	};
 	
 	
