@@ -745,7 +745,7 @@ function SylvanAppointment(){
             drop: function (date, allDay, ev, ui, resource) { 
                 clearTimeout(timeout);
                 timeout = setTimeout(function() {
-                    t.createEventOnDrop(t, date, allDay, ev, ui, resource, ui.helper.context);
+                    self.createEventOnDrop(self, date, allDay, ev, ui, resource, ui.helper.context);
                 }, 100);},
             handleWindowResize: true,
             height: window.innerHeight - 60,
