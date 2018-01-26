@@ -712,7 +712,7 @@ function SylvanAppointment(){
             self.loadCalendar(self.calendarDate);
         }
     }
-
+    var timeout;
     this.loadCalendar = function (args) {
         var self = this;
         var filters = this.filters;
@@ -741,7 +741,10 @@ function SylvanAppointment(){
                 }
             },
             drop: function (date, allDay, ev, ui, resource) {
-                self.createEventOnDrop(self, date, allDay, ev, ui, resource, this);
+                clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                self.createEventOnDrop(self, date, allDay, ev, ui, resource, ui.helper.context);
+                }, 100);
             },
             handleWindowResize: true,
             height: window.innerHeight - 60,
