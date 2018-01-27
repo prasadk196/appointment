@@ -2316,6 +2316,7 @@ function SylvanAppointment(){
         }
         if(eventIndex != -1){
             this.eventList[eventIndex] = populatedEvent;
+            self.eventList[eventIndex] = this.eventList[eventIndex];
             this.appointment.fullCalendar('updateEvent', populatedEvent);
             // this.appointment.fullCalendar( 'refetchEvents');
             self.draggable("draggable");
@@ -2365,6 +2366,7 @@ function SylvanAppointment(){
         }
         eventObj = self.addConflictMsg(eventObj);
         this.eventList.push(eventObj);
+        self.eventList = this.eventList;
         self.appointment.fullCalendar('removeEvents');
         self.appointment.fullCalendar('removeEventSource');
         self.appointment.fullCalendar('addEventSource', { events: this.eventList });
@@ -2439,6 +2441,7 @@ function SylvanAppointment(){
                 }
             });  
             wjQuery('.fc-view-resourceDay .fc-event-time').css('visibility','hidden');
+            self.eventList = this.eventList;
             self.draggable('draggable');
             self.showTooltip();
             wjQuery(".loading").hide();
