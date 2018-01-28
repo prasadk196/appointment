@@ -1299,6 +1299,7 @@ function SylvanAppointment(){
     this.refreshCalendarEvent = function (locationId, isFetch) {
         var self = this;
         wjQuery('.loading').show();
+        wjQuery('#ui-datepicker-div').hide();
         var isOpen = wjQuery( ".ui-dialog" );
         if(isOpen.length){
             wjQuery("#dialog").dialog("close");
