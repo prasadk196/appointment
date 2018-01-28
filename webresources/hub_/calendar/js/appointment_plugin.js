@@ -1156,8 +1156,8 @@ function SylvanAppointment(){
         var scollArea = wjQuery('.fc-scroll-content');
         var scrollWidth = scollArea.scrollLeft();
         draggedEl = draggedEl[0];
-        if (draggedEl.offsetLeft) {
-            if (mouseX > minScrollingCoord && mouseX <= maxScrollingCoord) {
+        if (draggedEl != undefined && draggedEl.offsetLeft) {
+            if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
             scrollWidth = scrollWidth + 250;
             scollArea.animate({ scrollLeft: scrollWidth } ,"fast");
             } else if (mouseX <= 250 && scrollWidth != 0) {
