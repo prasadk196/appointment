@@ -742,11 +742,12 @@ function SylvanAppointment(){
                     }
                 }
             },
-            drop: function (date, allDay, ev, ui, resource) { 
+            drop: function (date, allDay, ev, ui, resource) {
                 clearTimeout(timeout);
                 timeout = setTimeout(function() {
-                    self.createEventOnDrop(self, date, allDay, ev, ui, resource, ui.helper.context);
-                }, 100);},
+                self.createEventOnDrop(self, date, allDay, ev, ui, resource, ui.helper.context);
+                }, 100);
+            },
             handleWindowResize: true,
             height: window.innerHeight - 60,
             slotMinutes: 15,

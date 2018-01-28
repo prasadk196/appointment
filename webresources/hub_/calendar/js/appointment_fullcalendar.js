@@ -6877,6 +6877,7 @@ function CoordinateGrid(buildFunc) {
 	};
 
 }
+
 var timeoutBuild;
 function HoverListener(coordinateGrid) {
 
