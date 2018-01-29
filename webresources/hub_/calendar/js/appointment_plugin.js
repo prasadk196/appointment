@@ -2005,6 +2005,7 @@ function SylvanAppointment(){
                     self.populateAppointmentEvent([newAppointmentObj]);
                     this.appointmentList.splice(index,1);
                     this.appointmentList.push(newAppointmentObj);
+                    self.appointmentList = this.appointmentList;
                 }else{
                     wjQuery(".loading").hide();
                 }            
