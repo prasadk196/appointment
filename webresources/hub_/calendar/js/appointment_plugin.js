@@ -906,15 +906,7 @@ function SylvanAppointment(){
                         searchVal = searchVal.split("_")[0];
                         var d = new Date();
                         var n = d.getHours();
-                        var hr = 0;
-                        if (searchVal == '2h') {
-                            hr = 2;
-                        }
-                        else{
-                            hr = 4;
-                        }
-                        var scrollNum = hr * 155;
-                        
+                        var scrollNum = ((n - 8) * wjQuery(".fc-slot1").height()) - 2;
                         $("#scrollarea").animate({ scrollTop: scrollNum }, 500, function(){
                             wjQuery(".loading").hide();
                         });
