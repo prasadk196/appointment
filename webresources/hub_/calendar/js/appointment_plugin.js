@@ -1108,9 +1108,14 @@ function SylvanAppointment(){
         wjQuery('.calendar-firstCol').html('<div class="firstcolContainer" style="height:'+(wjQuery('#scrollarea').height()) +'px'+'"></div>');
         for(var i = min; i<max; i++){
             for (var j = 0; j < Math.floor(60/slot); j++) {
-                if (j==0 && i<=12) {
+                if (j==0 && i<12) {
                     wjQuery('.firstcolContainer').append(
                     '<div class="coldata col_'+(i-min)+'" >' + i +'am'+ '</div>'
+                    
+                    );
+                }else if(j==0 && i==12){
+                     wjQuery('.firstcolContainer').append(
+                    '<div class="coldata col_'+(i-min)+'" >' + i +'pm'+ '</div>'
                     
                     );
                 }
