@@ -349,7 +349,7 @@ button{
 
 .custom-conflict{
     z-index: 5000;
-    max-width: 250px;
+    max-width: 100px;
     border: 1px solid #c5c5c5;
     -webkit-box-shadow: 0px 0px 5px #666666;
     box-shadow: 0px 0px 5px #666666;

@@ -2383,23 +2383,23 @@ function SylvanAppointment(){
             if(populatedEvent.hasOwnProperty("appHourId")){
                 if(eventColorObj.appointmentHour){
                     if(populatedEvent['noOfApp'] > populatedEvent['capacity']){
-                        populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
+                        populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
                     }else{
                         if(appointmentObj['isExceptional']){
                             populatedEvent['capacity'] = populatedEvent['capacity'] + 1;
-                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
                         }else{
-                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
+                            populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'" >'+populatedEvent['noOfApp']+'/'+(populatedEvent['capacity'])+'</span>';
                         }
                     }
                 }else{
-                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+populatedEvent['noOfApp']+'" >'+populatedEvent['noOfApp']+'</span>';
                 }
             }else{
                 if(eventColorObj.appointmentHour){
-                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'" >'+populatedEvent['noOfApp']+'/'+populatedEvent['noOfApp']+'</span>';
                 }else{
-                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >'+populatedEvent['noOfApp']+'</span>';
+                    populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+populatedEvent['noOfApp']+'" >'+populatedEvent['noOfApp']+'</span>';
                 }
             }
         }else{
@@ -2500,9 +2500,9 @@ function SylvanAppointment(){
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             if(eventColorObj.appointmentHour){
-                eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1/1</span>';
+                eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="1/1">1/1</span>';
             }else{
-                eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'">1</span>';
+                eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="1">1</span>';
             }
             eventObj["id"] = appointmentObj["type"]+"_"+appointmentObj['startObj']+"_"+appointmentObj['endObj']+"_unassignedId";
         }else{
@@ -2651,9 +2651,9 @@ function SylvanAppointment(){
                         // Week view title condition
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
                             if(eventColorObj.appointmentHour){
-                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">0/'+eventPopulated[0].capacity+'</span>';
+                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"0/'+eventPopulated[0].capacity+'">0/'+eventPopulated[0].capacity+'</span>';
                             }else{
-                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"'+eventColorObj.name+'">0</span>';
+                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"0">0</span>';
                             }
                         }
 
@@ -2707,7 +2707,7 @@ function SylvanAppointment(){
                             eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'],eventColorObj);
                         }else{
                             if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                                eventObj.title = "<span class='app-placeholder placeholder_week tooltip' title='"+eventColorObj.name+"' >0</span>";
+                                eventObj.title = "<span class='app-placeholder placeholder_week tooltip' title='0' >0</span>";
                             }
                         }
                         eventObj['backgroundColor'] = eventColorObj.backgroundColor;
@@ -2778,7 +2778,7 @@ function SylvanAppointment(){
         var html = '';
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
             // if(capacity){
-                html= '<span class="app-placeholder placeholder_week tooltip" title="'+eventColorObj.name+'" >0/'+capacity+'</span>';
+                html= '<span class="app-placeholder placeholder_week tooltip" title="0/'+capacity+'" >0/'+capacity+'</span>';
             // }
         }
         else{
