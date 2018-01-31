@@ -2910,8 +2910,9 @@ function SylvanAppointment(){
         });
         wjQuery('.' + selector).bind("drag", function(event, ui) {
             var elm = ui.helper;
+            wjQuery(ui.helper).css("margin-left", 0);
+            wjQuery(ui.helper).css("margin-top", 0);
             setTimeout(function(){
-                // console.log(event.currentTarget);
                 var name = wjQuery(event.currentTarget).text().replace("location_on","");
                 wjQuery(elm).text(name+" (Starting at "+self.helperStartTime+")");
             },30);
