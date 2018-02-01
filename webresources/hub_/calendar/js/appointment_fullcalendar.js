@@ -3211,7 +3211,7 @@ function ResourceView(element, calendar, viewName) {
         }
 		
         slotScroller =
-        $("<div id='scrollarea' style='position:sticky;width:100%;overflow-x:hidden;overflow-y:auto'/>")
+        $("<div id='scrollarea' style='position:absolute;width:100%;overflow-x:hidden;overflow-y:auto'/>")
         .appendTo(slotLayer);
 				
         slotContent =
@@ -3437,7 +3437,7 @@ function ResourceView(element, calendar, viewName) {
                 var top = timePosition(dayStart, stretchStart);
                 var bottom = timePosition(dayStart, stretchEnd);
                 rect.top = top;
-                rect.height = (bottom - top) / 2;
+                rect.height = (bottom - top)*2;
                 slotBind(
                     renderOverlay(rect, slotContent)
                     );

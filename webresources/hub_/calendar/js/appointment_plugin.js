@@ -2966,10 +2966,14 @@ function SylvanAppointment(){
             }
         });
         wjQuery('.' + selector).bind("drag", function (event, ui) {
-            wjQuery(ui.helper).css("margin-left", 0);
-            wjQuery(ui.helper).css("margin-top", 0);
             var elm = ui.helper;
             setTimeout(function(){
+                wjQuery(elm).css("margin-left", 0);
+                // if (self.staffList.length <= 6) {
+                //     wjQuery(elm).css("margin-top", "80px");
+                // }else{
+                //     wjQuery(elm).css("margin-top", 0);
+                // }
                 // console.log(event.currentTarget);
                 var name = wjQuery(event.currentTarget).text().replace("location_on","");
                 wjQuery(elm).text(name+" (Starting at "+self.helperStartTime+")");
