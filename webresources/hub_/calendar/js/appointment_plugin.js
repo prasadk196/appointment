@@ -37,6 +37,16 @@ setTimeout(function () {
             }
         });
 
+        wjQuery('#addAppointment').off('click').on('click', function () {
+            var parentCenterId = sylvanAppointment.getLocationObject(sylvanAppointment.locationId);
+            if (parentCenterId['_hub_parentcenter_value']) {
+                parentCenterId = parentCenterId['_hub_parentcenter_value'];
+            } else {
+                parentCenterId = parentCenterId['hub_centerid']
+            }
+            var newAppointment = data.openNewAppointment(parentCenterId);
+        });
+        
          wjQuery('#datepicker').datepicker({
             buttonImage: "/webresources/hub_/calendar/images/calendar.png",
             buttonImageOnly: true,
@@ -94,8 +104,8 @@ setTimeout(function () {
                 sylvanAppointment.startDate =  getSunday(sylvanAppointment.calendarDate);
                 sylvanAppointment.endDate =  new Date(new Date(sylvanAppointment.startDate).setDate(new Date(sylvanAppointment.startDate).getDate() + 6));
             }
-
-            var convertedStaffList = sylvanAppointment.formatObjects(data.getAppointmentStaff(locationId,moment(sylvanAppointment.startDate).format('YYYY-MM-DD'),moment(sylvanAppointment.endDate).format('YYYY-MM-DD')), "staffList");
+             var parentCenterObj = sylvanAppointment.getLocationObject(locationId);
+            var convertedStaffList = sylvanAppointment.formatObjects(data.getAppointmentStaff(locationId,moment(sylvanAppointment.startDate).format('YYYY-MM-DD'),moment(sylvanAppointment.endDate).format('YYYY-MM-DD'),  parentCenterObj['_hub_parentcenter_value']), "staffList");
             if(sylvanAppointment.appointment == undefined || sylvanAppointment.appointment.fullCalendar('getView').name == 'resourceDay'){
                 sylvanAppointment.populateStaff(convertedStaffList);
             }else{
@@ -1351,7 +1361,8 @@ function SylvanAppointment(){
                         appointmentHours = [];
                     }
                     self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
-                    var staffExceptions = data.getStaffExceptions(locationId,startDate,endDate);
+                    var parentCenterObj = self.getLocationObject(locationId);
+                    var staffExceptions = data.getStaffExceptions(locationId,startDate,endDate,parentCenterObj['_hub_parentcenter_value']);
                     if (staffExceptions == null) {
                         staffExceptions = [];
                     }
@@ -3404,6 +3415,17 @@ function SylvanAppointment(){
         }
        }
     }
+    
+     this.getLocationObject = function (locationId) {
+        var locationObj = data.getLocation();
+        for (var i = 0; i < locationObj.length; i++) {
+            if (locationId == locationObj[i]['hub_centerid']) {
+                return locationObj[i];
+                break;
+            }
+        }
+    }
+    
 }
 
 
