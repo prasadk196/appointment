@@ -1840,13 +1840,15 @@ function SylvanAppointment() {
                     }
                 }
 
-                if ((eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") ||
-                    eventTitleHTML.length == 2 && eventTitleHTML[0].className == "appointmentTitle" && eventTitleHTML[1].className == "conflict") {
-                    for (var i = 0; i < this.eventList.length; i++) {
-                        if (this.eventList[i].id == prevEvent[0].id)
-                            this.eventList.splice(i, 1);
+                if(prevEvent[0].appHourId == undefined){
+                    if ((eventTitleHTML.length == 1 && eventTitleHTML[0].className == "appointmentTitle") ||
+                        eventTitleHTML.length == 2 && eventTitleHTML[0].className == "appointmentTitle" && eventTitleHTML[1].className == "conflict") {
+                        for (var i = 0; i < this.eventList.length; i++) {
+                            if (this.eventList[i].id == prevEvent[0].id)
+                                this.eventList.splice(i, 1);
+                        }
+                        this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
                     }
-                    this.appointment.fullCalendar('removeEvents', prevEvent[0].id);
                 }
                 var studentIndex = prevEvent[0].memberList.map(function (x) {
                     return x.id;
@@ -1889,9 +1891,11 @@ function SylvanAppointment() {
                     }
                 }
             } else {
-                for (var i = 0; i < this.eventList.length; i++) {
-                    if (this.eventList[i].id == prevEvent[0].id)
-                        this.eventList.splice(i, 1);
+                if(prevEvent[0].appHourId == undefined){
+                    for (var i = 0; i < this.eventList.length; i++) {
+                        if (this.eventList[i].id == prevEvent[0].id)
+                            this.eventList.splice(i, 1);
+                    }
                 }
                 prevEvent[0] = self.addConflictMsg(prevEvent[0]);
                 this.appointment.fullCalendar('removeEvents', prevEvent[0]);
@@ -2668,6 +2672,7 @@ function SylvanAppointment() {
         var self = this;
         appointmentHours = appointmentHours == null ? [] : appointmentHours;
         if (appointmentHours.length) {
+            var appEventList = [];
             wjQuery.each(appointmentHours, function (index, appointmentHrObj) {
                 var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
                 var eventId = appointmentHrObj["type"] + "_" + appointmentHrObj['startObj'] + "_" + appointmentHrObj['endObj'] + "_unassignedId";
@@ -2758,14 +2763,15 @@ function SylvanAppointment() {
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
                     }
 
-                    self.eventList.push(eventObj);
+                    appEventList.push(eventObj);
                     self.appointment.fullCalendar('removeEventSource');
                     self.appointment.fullCalendar('removeEvents');
-                    self.appointment.fullCalendar('addEventSource', self.eventList);
+                    self.appointment.fullCalendar('addEventSource', appEventList);
                     self.appointment.fullCalendar('refetchEvents');
                 }
             });
-            this.eventList = self.eventList;
+            this.eventList = appEventList;
+            self.eventList = appEventList;
             wjQuery(".loading").hide();
             this.draggable('draggable');
             this.showTooltip();
