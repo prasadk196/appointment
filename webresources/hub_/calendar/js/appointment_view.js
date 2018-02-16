@@ -1,4 +1,4 @@
-var OUT_OF_OFFICE = 13;
+var OUT_OF_OFFICE = 112;
 var MASTER_SCHEDULE_CONST = 35;
 var locations =  [
     {

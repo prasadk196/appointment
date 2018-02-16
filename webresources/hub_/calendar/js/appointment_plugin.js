@@ -2800,7 +2800,7 @@ function SylvanAppointment() {
                     start: exceptionObj['startObj'],
                     end: exceptionObj['endObj'],
                     allDay: false,
-                    title: "<span class='appointmentTitle'>Staff not available</span>",
+                    title: "<span class='appointmentTitle'>Staff Exception</span>",
                     type: OUT_OF_OFFICE,
                     borderColor: STAFF_EXCEPTION_BORDER,
                     color: "#333",
