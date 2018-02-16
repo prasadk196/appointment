@@ -1,4 +1,4 @@
-var OUT_OF_OFFICE = 12;
+var OUT_OF_OFFICE = 13;
 var MASTER_SCHEDULE_CONST = 35;
 var locations =  [
     {
@@ -26,120 +26,129 @@ var locations =  [
 
   var appointmentType = [
     {
-      type:0,
-      name:"Instructional",
-      borderColor:"#d7cbe0",
-      backgroundColor:"#f8f4fc",
-      display:"parent",
-      appointmentHour:false
+        type: 0,
+        name: "Instructional",
+        borderColor: "#d7cbe0",
+        backgroundColor: "#f8f4fc",
+        display: "parent",
+        appointmentHour: false
     },
     {
-      type:1,
-      name:"Center Visit",
-      borderColor:"#7bc143",
-      backgroundColor:"#dff0d5",
-      display:"parent",
-      appointmentHour:true
+        type: 1,
+        name: "Center Visit",
+        borderColor: "#7bc143",
+        backgroundColor: "#dff0d5",
+        display: "parent",
+        appointmentHour: true
     },
     {
-      type:2,
-      name:"Practice Test",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      appointmentHour:true
+        type: 2,
+        name: "Practice Test",
+        borderColor: "#9acaea",
+        backgroundColor: "#ebf5fb",
+        display: "student",
+        appointmentHour: true
     },
     {
-      type:3,
-      name:"School Visit",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"parent",
-      appointmentHour:false
+        type: 3,
+        name: "School Visit",
+        borderColor: "#9acaea",
+        backgroundColor: "#ebf5fb",
+        display: "parent",
+        appointmentHour: false
     },
     {
-      type:4,
-      name:"Welcome Conference",
-      borderColor:"#7bc143",
-      backgroundColor:"#dff0d5",
-      display:"parent",
-      appointmentHour:false
+        type: 4,
+        name: "Welcome Conference",
+        borderColor: "#7bc143",
+        backgroundColor: "#dff0d5",
+        display: "parent",
+        appointmentHour: false
     },
     {
-      type:5,
-      name:"Enrollment Conference",
-      borderColor:"#7bc143",
-      backgroundColor:"#dff0d5",
-      display:"parent",
-      appointmentHour:false
+        type: 5,
+        name: "Enrollment Conference",
+        borderColor: "#7bc143",
+        backgroundColor: "#dff0d5",
+        display: "parent",
+        appointmentHour: false
     },
     {
-      type:6,
-      name:"Initial Assessment",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      appointmentHour:true
+        type: 6,
+        name: "Initial Assessment",
+        borderColor: "#9acaea",
+        backgroundColor: "#ebf5fb",
+        display: "student",
+        appointmentHour: true
     },
     {
-      type:7,
-      name:"Progress Assessment",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      appointmentHour:false
+        type: 7,
+        name: "Progress Assessment",
+        borderColor: "#9acaea",
+        backgroundColor: "#ebf5fb",
+        display: "student",
+        appointmentHour: false
     },
     {
-      type:8,
-      name:"Ongoing Conference",
-      borderColor:"#eacc82",
-      backgroundColor:"#fcf7db",
-      display:"parent",
-      appointmentHour:false
+        type: 8,
+        name: "Ongoing Conference",
+        borderColor: "#eacc82",
+        backgroundColor: "#fcf7db",
+        display: "parent",
+        appointmentHour: false
     },
     {
-      type:9,
-      name:"Care Call",
-      borderColor:"#d7cbe0",
-      backgroundColor:"#f8f4fc",
-      display:"parent",
-      appointmentHour:false
+        type: 9,
+        name: "Care Call",
+        borderColor: "#d7cbe0",
+        backgroundColor: "#f8f4fc",
+        display: "parent",
+        appointmentHour: false
     },
     {
-      type:10,
-      name:"Event",
-      borderColor:"#d7cbe0",
-      backgroundColor:"#f8f4fc",
-      display:"parent",
-      appointmentHour:true
+        type: 10,
+        name: "Event",
+        borderColor: "#d7cbe0",
+        backgroundColor: "#f8f4fc",
+        display: "parent",
+        appointmentHour: true
     },
     {
-      type:11,
-      name:"Starter Session",
-      borderColor:"#9acaea",
-      backgroundColor:"#ebf5fb",
-      display:"student",
-      appointmentHour:true
+        type: 11,
+        name: "Starter Session",
+        borderColor: "#9acaea",
+        backgroundColor: "#ebf5fb",
+        display: "student",
+        appointmentHour: true
     },
     {
-      type:OUT_OF_OFFICE,
-      name:"Out of Office",
-      borderColor:"#666",
-      backgroundColor:"#ccc",
-      display:"parent",
-      appointmentHour:false
+        type: 12,
+        name: "Miscellaneous",
+        borderColor: "#d7cbe0",
+        backgroundColor: "#f8f4fc",
+        display: "parent",
+        appointmentHour: false
+    },
+    {
+        type: OUT_OF_OFFICE,
+        name: "Out of Office",
+        borderColor: "#666",
+        backgroundColor: "#ccc",
+        display: "parent",
+        appointmentHour: false
+    }
+];
+ 
+  var time = [
+    {
+      id:"2h_time",
+      name:"2 Hours"
+    },
+    {
+      id:"4h_time",
+      name:"4 Hours"
     }
   ];
-var time = [
-  {
-    id:"2h_time",
-    name:"2 Hours"
-  },
-  {
-    id:"4h_time",
-    name:"4 Hours"
-  }
-];
 
 var staff = [
     {

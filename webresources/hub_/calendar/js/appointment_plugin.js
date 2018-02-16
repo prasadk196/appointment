@@ -8,6 +8,7 @@ var messageList = ["Out of office Appointment conflict"];
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 var ATTENDED = 1;
 var NO_SHOW = 2;
+var MiscellaneousType = 12;
 
 setTimeout(function () {
     var sylvanAppointment = new SylvanAppointment();
@@ -293,6 +294,8 @@ function SylvanAppointment() {
         }
         else if (label == "appointmentList") {
             tempList = [];
+            // Get requiredAttendees only to display name for Miscellaneous appointment. 
+            var requiredAttendees = args['requiredAttendees'];
             wjQuery.each(args, function (index, appointmentObj) {
                 if (index != 'requiredAttendees') {
                     var startObj = "";
@@ -337,6 +340,12 @@ function SylvanAppointment() {
                                 entityType: appointmentObj['_ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname']
                             }
                         };
+
+                        if(obj.type == MiscellaneousType){
+                            obj['parentId'] = obj['requiredattendees'][0]['partyid'];
+                            obj['parentName'] = obj['requiredattendees'][0]['partyid_formattedValue'];
+                        }
+
                         if (appointmentObj['_hub_staff_value'] != undefined) {
                             obj.staffId = appointmentObj['_hub_staff_value'];
                             obj.staffValue = appointmentObj['_hub_staff_value@OData.Community.Display.V1.FormattedValue'];
