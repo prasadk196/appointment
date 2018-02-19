@@ -2435,7 +2435,7 @@ function SylvanAppointment() {
             if (eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId') {
                 populatedEvent.title = "<span class='appointmentTitle'>" + eventColorObj.name + "</span>";
                 var exceptionalCount = 0;
-                if (appointmentObj['isExceptional']) {
+                if (appointmentObj['isExceptional']  || appointmentObj.status == ATTENDED || appointmentObj.status == NO_SHOW) {
                     exceptionalCount = 0;
                 }
                 else {
@@ -2446,7 +2446,8 @@ function SylvanAppointment() {
                         for (var i = 0; i < populatedEvent.memberList.length; i++) {
                             var populatedStudentId = appointmentObj['type'] + "_" + populatedEvent.memberList[i]['studentId'] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj["staffId"];
                             var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
-                            if (!populatedEvent.memberList[i].isExceptional) {
+                            if (!populatedEvent.memberList[i].isExceptional && populatedEvent.memberList[i].status != ATTENDED
+                                    && populatedEvent.memberList[i].status != NO_SHOW) {
                                 exceptionalCount += 1;
                             }
                             populatedEvent.title += "<span class='draggable drag-student' activityid='" + populatedEvent.memberList[i]['id'] + "' studentId='" + populatedStudentId + "' >" + populatedEvent.memberList[i]['studentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
@@ -2462,7 +2463,8 @@ function SylvanAppointment() {
                                 if (otherAppointment[0].memberList.length) {
                                     var count = 0;
                                     for (var member = 0; member < otherAppointment[0].memberList.length; member++) {
-                                        if (!otherAppointment[0].memberList[member].isExceptional) {
+                                        if (!otherAppointment[0].memberList[member].isExceptional  && otherAppointment[0].memberList[member].status != ATTENDED
+                                    && otherAppointment[0].memberList[member].status != NO_SHOW) {
                                             count++;
                                         }
                                     }
@@ -2481,7 +2483,8 @@ function SylvanAppointment() {
                         for (var i = 0; i < populatedEvent.memberList.length; i++) {
                             var populatedParentId = appointmentObj['type'] + "_" + populatedEvent.memberList[i]['parentId'] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj["staffId"];
                             var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
-                            if (!populatedEvent.memberList[i].isExceptional) {
+                            if (!populatedEvent.memberList[i].isExceptional && populatedEvent[0].memberList[i].status != ATTENDED
+                                    && otherAppointment[0].populatedEvent[i].status != NO_SHOW) {
                                 exceptionalCount += 1;
                             }
                             populatedEvent.title += "<span class='draggable drag-parent' activityid='" + populatedEvent.memberList[i]['id'] + "' parentId='" + populatedParentId + "' >" + populatedEvent.memberList[i]['parentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
@@ -3298,7 +3301,7 @@ function SylvanAppointment() {
         var response = data.markAsNoShowOrAttended(objAppointment);
         wjQuery(".loading").hide();
         if (typeof (response) == "boolean" && response) {
-            elm.remove();
+            //elm.remove();
             if (elm.hasAttribute("parentid")) {
                 uniqueId = wjQuery(elm).attr("parentid").split('_');
                 eventFor = 'parent';
@@ -3310,9 +3313,7 @@ function SylvanAppointment() {
             if (index != -1) {
                 var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'];
                 var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
-                self.updatePrevEvent(prevEvent, elm, eventFor, uniqueId, activityId);
-                self.appointmentList.splice(index, 1);
-                self.appointment.fullCalendar('refetchEvents');
+                self.appointmentList[index].status = status;
                 self.checkAppointmentHour("", prevEvent, 'context');
             }
         }
@@ -3325,112 +3326,125 @@ function SylvanAppointment() {
             var appointmentHourId;
             var eventId;
             var appointmentHour;
+            var attendedOrNoshow;
             if (newAppointment) {
                 appointmentHourId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_unassignedId";
                 eventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + newAppointment['staffId'];
                 appointmentHour = self.appointment.fullCalendar('clientEvents', appointmentHourId);
+                attendedOrNoshow = newAppointment.status != ATTENDED && newAppointment.status != NO_SHOW;
             }
-            var preAppointmentHour;
-            var availableCapacity = 0;
-            if (prevEvent && prevEvent.length) {
-                preAppointmentHour = prevEvent[0]["type"] + "_" + prevEvent[0]['start'] + "_" + prevEvent[0]['end'] + "_unassignedId";
-            }
-            if (appointmentHour && appointmentHour.length && newAppointment && !newAppointment.isExceptional) {
-                var eventTitleHTML = wjQuery(appointmentHour[0].title);
-                var existingMember = 0;
-                wjQuery.each(self.staffList, function (k, staff) {
-                    var noOfMembers = 0;
-                    if (staff) {
-                        var otherEventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + staff.id;
-                        var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
-                        if (otherAppointment && otherAppointment.length) {
-                            if (otherAppointment[0].memberList.length) {
-                                var count = 0;
-                                for (var member = 0; member < otherAppointment[0].memberList.length; member++) {
-                                    if (!otherAppointment[0].memberList[member].isExceptional) {
-                                        count++;
-                                    }
+        var preAppointmentHour;
+        var availableCapacity = 0;
+        if (prevEvent && prevEvent.length) {
+            preAppointmentHour = prevEvent[0]["type"] + "_" + prevEvent[0]['start'] + "_" + prevEvent[0]['end'] + "_unassignedId";
+        }
+        if (appointmentHour && appointmentHour.length && newAppointment && !newAppointment.isExceptional) {
+            var eventTitleHTML = wjQuery(appointmentHour[0].title);
+            var existingMember = 0;
+            wjQuery.each(self.staffList, function (k,staff) {
+                var noOfMembers = 0;
+                if (staff) {
+                    var otherEventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + staff.id;
+                    var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
+                    if (otherAppointment && otherAppointment.length) {
+                        if (otherAppointment[0].memberList.length) {
+                            var count = 0;
+                            for (var member = 0; member < otherAppointment[0].memberList.length; member++) {
+                                if (!otherAppointment[0].memberList[member].isExceptional && otherAppointment[0].memberList[member].status != ATTENDED
+                                    && otherAppointment[0].memberList[member].status != NO_SHOW) {
+                                    count++;
                                 }
-                                noOfMembers = count;
                             }
+                            noOfMembers = count;
                         }
-                        existingMember += noOfMembers;
+                    }
+                    existingMember += noOfMembers;
+                }
+            });
+            if (existingMember) {
+                availableCapacity = appointmentHour[0].capacity - (existingMember) ;
+                if (attendedOrNoshow) {
+                    availableCapacity -= 1;
+                }
+            } else {
+                availableCapacity = appointmentHour[0].capacity
+                if (attendedOrNoshow) {
+                    availableCapacity -= 1;
+                }
+            }
+            //if (newAppointment.staffId == "unassignedId") {
+             //   availableCapacity = availableCapacity - 1;
+            //}
+            if (appointmentHour[0].memberList && appointmentHour[0].memberList.length) {
+                availableCapacity = availableCapacity + appointmentHour[0].memberList.length;
+            }
+            appointmentHour[0].title = "";
+            wjQuery.each(eventTitleHTML, function (k, v) {
+                if (availableCapacity >= k) {
+                    appointmentHour[0].title += v.outerHTML;
+                }
+            })
+        }
+        if (prevEvent && prevEvent.length) {
+            prevEvent = prevEvent[0];
+            preAppointmentHour = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_unassignedId";
+            var prevAppointment = self.appointment.fullCalendar('clientEvents', preAppointmentHour);
+            if (prevAppointment && prevAppointment.length && appointmentHourId != preAppointmentHour) {
+                var placeHolder;
+                var preEventTitleHTML = wjQuery(prevAppointment[0].title);
+                wjQuery.each(preEventTitleHTML, function (k, v) {
+                    if ($(v)[0].innerHTML == "Student name") {
+                        placeHolder = "<span class='app-placeholder'>Student name</span>";
+                    } else {
+                        placeHolder = "<span class='app-placeholder'>Customer name</span>";
                     }
                 });
-                if (existingMember) {
-                    availableCapacity = appointmentHour[0].capacity - (existingMember + 1);
-                } else {
-                    availableCapacity = appointmentHour[0].capacity - 1;
-                }
-                //if (newAppointment.staffId == "unassignedId") {
-                //   availableCapacity = availableCapacity - 1;
-                //}
-                if (appointmentHour[0].memberList && appointmentHour[0].memberList.length) {
-                    availableCapacity = availableCapacity + appointmentHour[0].memberList.length;
-                }
-                appointmentHour[0].title = "";
-                wjQuery.each(eventTitleHTML, function (k, v) {
-                    if (availableCapacity >= k) {
-                        appointmentHour[0].title += v.outerHTML;
-                    }
-                })
-            }
-            if (prevEvent && prevEvent.length) {
-                prevEvent = prevEvent[0];
-                preAppointmentHour = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_unassignedId";
-                var prevAppointment = self.appointment.fullCalendar('clientEvents', preAppointmentHour);
-                if (prevAppointment && prevAppointment.length && appointmentHourId != preAppointmentHour) {
-                    var placeHolder;
-                    var preEventTitleHTML = wjQuery(prevAppointment[0].title);
-                    wjQuery.each(preEventTitleHTML, function (k, v) {
-                        if ($(v)[0].innerHTML == "Student name") {
-                            placeHolder = "<span class='app-placeholder'>Student name</span>";
-                        } else {
-                            placeHolder = "<span class='app-placeholder'>Customer name</span>";
+                if (prevAppointment.length && !prevEvent.isExceptional) {
+                    var prevAppointmentCapacity = 0;
+                    var existingMember = 0;
+                    wjQuery.each(self.staffList, function (k, staff) {
+                        var noOfMembers = 0;
+                        if (staff) {
+                            var otherEventId = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_" + staff.id;
+                            var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
+                            if (otherAppointment && otherAppointment.length) {
+                                if (otherAppointment[0].memberList.length) {
+                                    var count = 0;
+                                    for (var member = 0; member < otherAppointment[0].memberList.length; member++) {
+                                        if (!otherAppointment[0].memberList[member].isExceptional && otherAppointment[0].memberList[member].status != ATTENDED
+                                    && otherAppointment[0].memberList[member].status != NO_SHOW) {
+                                            count++;
+                                        }
+                                    }
+                                    noOfMembers = count;
+                                }
+                            }
+                            existingMember += noOfMembers;
                         }
                     });
-                    if (prevAppointment.length && !prevEvent.isExceptional) {
-                        var prevAppointmentCapacity = 0;
-                        var existingMember = 0;
-                        wjQuery.each(self.staffList, function (k, staff) {
-                            var noOfMembers = 0;
-                            if (staff) {
-                                var otherEventId = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_" + staff.id;
-                                var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
-                                if (otherAppointment && otherAppointment.length) {
-                                    if (otherAppointment[0].memberList.length) {
-                                        var count = 0;
-                                        for (var member = 0; member < otherAppointment[0].memberList.length; member++) {
-                                            if (!otherAppointment[0].memberList[member].isExceptional) {
-                                                count++;
-                                            }
-                                        }
-                                        noOfMembers = count;
-                                    }
-                                }
-                                existingMember += noOfMembers;
-                            }
-                        });
-                        if (existingMember) {
-                            prevAppointmentCapacity = prevAppointment[0].capacity - (existingMember);
-                        } else {
-                            prevAppointmentCapacity = prevAppointment[0].capacity;
-                        }
-                        prevAppointment[0].title = "";
-                        prevAppointment[0].title = preEventTitleHTML[0].outerHTML;
-                        if (prevAppointment[0].memberList.length) {
-                            for (var i = 0; i < prevAppointment[0].memberList.length; i++) {
-                                prevAppointment[0].title += preEventTitleHTML[i + 1].outerHTML;
-                            }
-                        }
-                        for (var k = 0; k < prevAppointmentCapacity; k++) {
-                            prevAppointment[0].title += placeHolder;
-                        };
+                    if (existingMember) {
+                        prevAppointmentCapacity = prevAppointment[0].capacity - (existingMember);
+                    } else {
+                        prevAppointmentCapacity = prevAppointment[0].capacity;
                     }
+                    prevAppointment[0].title = "";
+                    prevAppointment[0].title = preEventTitleHTML[0].outerHTML;
+                    if (prevAppointment[0].memberList.length) {
+                        for (var i = 0; i < prevAppointment[0].memberList.length; i++) {
+                            prevAppointment[0].title += preEventTitleHTML[i + 1].outerHTML;
+                        }
+                    }
+                    for(var k = 0;k < prevAppointmentCapacity; k++) {
+                            prevAppointment[0].title += placeHolder;
+                    };
+                    self.appointment.fullCalendar('refetchEvents');
+                    self.draggable('draggable');
                 }
             }
         }
+       }
     }
+    
 
     this.getLocationObject = function (locationId) {
         var locationObj = data.getLocation();
@@ -3443,6 +3457,3 @@ function SylvanAppointment() {
     }
 
 }
-
-
-
