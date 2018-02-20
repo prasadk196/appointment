@@ -334,6 +334,7 @@ function SylvanAppointment() {
                             studentId: appointmentObj['_hub_student_value'],
                             studentName: appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
                             parentId: appointmentObj['_regardingobjectid_value'],
+                            status: appointmentObj['hub_appointmentstatus'],
                             parentName: appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
                             objOwner: {
                                 id: appointmentObj['_ownerid_value'],
@@ -1579,24 +1580,29 @@ function SylvanAppointment() {
                                     )
                         })
                         if (checkEventexit.length) {
-                            var eventTypes = self.getEventColor(newAppointmentObj.type);
+                            // var eventTypes = self.getEventColor(newAppointmentObj.type);
                             wjQuery.each(checkEventexit, function (k, v) {
                                 for (var i = 0; i < v.memberList.length; i++) {
-                                    var subEventType = self.getEventColor(v.memberList[i].type);
-                                    if (subEventType.display == eventTypes.display) {
-                                        if (eventTypes.display == 'student') {
-                                            isexist = newAppointmentObj.studentId == v.memberList[i].studentId;
-                                        }
-                                        else {
-                                            isexist = newAppointmentObj.parentId == v.memberList[i].parentId;
-                                        }
-                                        if (isexist) {
-                                            break;
-                                        }
+                                    if( newAppointmentObj.studentId == v.memberList[i].studentId && 
+                                        newAppointmentObj.parentId == v.memberList[i].parentId  ){
+                                        isexist = true;
+                                        break;
                                     }
+                                    // var subEventType = self.getEventColor(v.memberList[i].type);
+                                    // if (subEventType.display == eventTypes.display) {
+                                    //     if (eventTypes.display == 'student') {
+                                    //         isexist = newAppointmentObj.studentId == v.memberList[i].studentId;
+                                    //     }
+                                    //     else {
+                                    //         isexist = newAppointmentObj.parentId == v.memberList[i].parentId;
+                                    //     }
+                                    //     if (isexist) {
+                                    //         break;
+                                    //     }
+                                    // }
                                 }
                                 if (isexist) {
-                                    return false;
+                                    return true;
                                 }
                             });
                         }
@@ -2445,7 +2451,7 @@ function SylvanAppointment() {
                     exceptionalCount = 1;
                 }
                 if (eventColorObj.display == "student") {
-                    if (populatedEvent.memberList) {
+                    if (populatedEvent.memberList.length) {
                         for (var i = 0; i < populatedEvent.memberList.length; i++) {
                             var populatedStudentId = appointmentObj['type'] + "_" + populatedEvent.memberList[i]['studentId'] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj["staffId"];
                             var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
@@ -2482,12 +2488,12 @@ function SylvanAppointment() {
                     populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount), eventColorObj);
                     self.addContext(studentId, eventColorObj.display, appointmentObj);
                 } else {
-                    if (populatedEvent.memberList) {
+                    if (populatedEvent.memberList.length) {
                         for (var i = 0; i < populatedEvent.memberList.length; i++) {
                             var populatedParentId = appointmentObj['type'] + "_" + populatedEvent.memberList[i]['parentId'] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj["staffId"];
                             var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
-                            if (!populatedEvent.memberList[i].isExceptional && populatedEvent[0].memberList[i].status != ATTENDED
-                                    && otherAppointment[0].populatedEvent[i].status != NO_SHOW) {
+                            if (!populatedEvent.memberList[i].isExceptional && populatedEvent.memberList[i].status != ATTENDED
+                                    && populatedEvent.memberList[i].status != NO_SHOW) {
                                 exceptionalCount += 1;
                             }
                             populatedEvent.title += "<span class='draggable drag-parent' activityid='" + populatedEvent.memberList[i]['id'] + "' parentId='" + populatedParentId + "' >" + populatedEvent.memberList[i]['parentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
@@ -2549,7 +2555,8 @@ function SylvanAppointment() {
             conflictMsg: [],
             outOfOffice: appointmentObj["outofoffice"],
             resourceId: appointmentObj['staffId'],
-            noOfApp: 1
+            noOfApp: 1,
+            status:appointmentObj['status']
         }
 
         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
