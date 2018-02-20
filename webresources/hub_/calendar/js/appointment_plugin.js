@@ -2488,7 +2488,7 @@ function SylvanAppointment() {
                     populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount), eventColorObj);
                     self.addContext(studentId, eventColorObj.display, appointmentObj);
                 } else {
-                    if (populatedEvent.memberList.length) {
+                    if (populatedEvent.memberList.length)  {
                         for (var i = 0; i < populatedEvent.memberList.length; i++) {
                             var populatedParentId = appointmentObj['type'] + "_" + populatedEvent.memberList[i]['parentId'] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj["staffId"];
                             var outOfOfficeClass = (populatedEvent.memberList[i]["outofoffice"]) ? "display-block" : "display-none";
