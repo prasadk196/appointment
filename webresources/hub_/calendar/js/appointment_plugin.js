@@ -1026,8 +1026,9 @@ function SylvanAppointment() {
                             radio: false
                         });
                 } else if (key == "Appointments") {
-                    self.filters[key].push({ type: val.type, name: val.name, display: val.display, appointmentHour: val.appointmentHour, radio: false });
-
+                    if(val.showFilter){
+                        self.filters[key].push({ type: val.type, name: val.name, display: val.display, appointmentHour: val.appointmentHour, radio: false });
+                    }
                 } else if (key == "time") {
                     self.filters[key].push({ id: val.id, name: val.name, radio: true });
 
@@ -2009,7 +2010,9 @@ function SylvanAppointment() {
             // if(resource.id != 'unassignedId'){
             var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
             newAppointmentObj['staffId'] = resource.id;
-            newAppointmentObj['isExceptional'] = isExceptional;
+            if(!newAppointmentObj['isExceptional']){
+                newAppointmentObj['isExceptional'] = isExceptional;
+            }
             newAppointmentObj['staffValue'] = resource.name;
             newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'], newAppointmentObj['endObj'], date);
             newAppointmentObj['startObj'] = date;

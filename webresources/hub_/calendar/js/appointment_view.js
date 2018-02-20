@@ -30,6 +30,7 @@ var locations =  [
         name: "Instructional",
         borderColor: "#d7cbe0",
         backgroundColor: "#f8f4fc",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -38,6 +39,7 @@ var locations =  [
         name: "Center Visit",
         borderColor: "#7bc143",
         backgroundColor: "#dff0d5",
+        showFilter:true,
         display: "parent",
         appointmentHour: true
     },
@@ -46,6 +48,7 @@ var locations =  [
         name: "Practice Test",
         borderColor: "#9acaea",
         backgroundColor: "#ebf5fb",
+        showFilter:true,
         display: "student",
         appointmentHour: true
     },
@@ -54,6 +57,7 @@ var locations =  [
         name: "School Visit",
         borderColor: "#9acaea",
         backgroundColor: "#ebf5fb",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -62,6 +66,7 @@ var locations =  [
         name: "Welcome Conference",
         borderColor: "#7bc143",
         backgroundColor: "#dff0d5",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -70,6 +75,7 @@ var locations =  [
         name: "Enrollment Conference",
         borderColor: "#7bc143",
         backgroundColor: "#dff0d5",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -78,6 +84,7 @@ var locations =  [
         name: "Initial Assessment",
         borderColor: "#9acaea",
         backgroundColor: "#ebf5fb",
+        showFilter:true,
         display: "student",
         appointmentHour: true
     },
@@ -86,6 +93,7 @@ var locations =  [
         name: "Progress Assessment",
         borderColor: "#9acaea",
         backgroundColor: "#ebf5fb",
+        showFilter:true,
         display: "student",
         appointmentHour: false
     },
@@ -94,6 +102,7 @@ var locations =  [
         name: "Ongoing Conference",
         borderColor: "#eacc82",
         backgroundColor: "#fcf7db",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -102,6 +111,7 @@ var locations =  [
         name: "Care Call",
         borderColor: "#d7cbe0",
         backgroundColor: "#f8f4fc",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -110,6 +120,7 @@ var locations =  [
         name: "Event",
         borderColor: "#d7cbe0",
         backgroundColor: "#f8f4fc",
+        showFilter:true,
         display: "parent",
         appointmentHour: true
     },
@@ -118,6 +129,7 @@ var locations =  [
         name: "Starter Session",
         borderColor: "#9acaea",
         backgroundColor: "#ebf5fb",
+        showFilter:true,
         display: "student",
         appointmentHour: true
     },
@@ -126,6 +138,7 @@ var locations =  [
         name: "Miscellaneous",
         borderColor: "#d7cbe0",
         backgroundColor: "#f8f4fc",
+        showFilter:true,
         display: "parent",
         appointmentHour: false
     },
@@ -134,6 +147,7 @@ var locations =  [
         name: "Out of Office",
         borderColor: "#666",
         backgroundColor: "#ccc",
+        showFilter:false,
         display: "parent",
         appointmentHour: false
     }
