@@ -2036,6 +2036,10 @@ function SylvanAppointment() {
                 } else {
                     newAppointmentObj['id'] = responseObj;
                 }
+
+                if(self.appointmentList[index]['startObj'].getTime() != date.getTime()){
+                       newAppointmentObj['status'] = SCHEDULE;
+                }
                 self.populateAppointmentEvent([newAppointmentObj], prevEvent);
                 this.appointmentList.splice(index, 1);
                 this.appointmentList.push(newAppointmentObj);
