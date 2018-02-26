@@ -1819,5 +1819,14 @@ function Data(){
   this.getappointmentExceptions = function(locationId,startDate,endDate){
       return appointmentExceptions;
   }
+  
+    this.markAsNoShowOrAttended = function (objAppointment) {
+      return true;
+  }
+
+  this.getAccountClosure = function(locId,month,year){
+      return false;
+  }
+
 
 }
