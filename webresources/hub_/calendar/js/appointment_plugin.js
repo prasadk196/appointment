@@ -213,7 +213,7 @@ function SylvanAppointment() {
     this.businessClosure = [];
     this.parents = [];
     this.students = [];
-
+    this.accountClosure = false;
     this.clearEvents = function () {
         var self = this;
         this.filters = new Object();
@@ -1347,11 +1347,18 @@ function SylvanAppointment() {
                 self.eventList = [];
                 self.businessClosure = [];
                 startDate = endDate = moment(currentCalendarDate).format("YYYY-MM-DD");
+                var parentCenterObj = self.getLocationObject(locationId);
+                var parentCenterId;
+                if (parentCenterObj['_hub_parentcenter_value']) {
+                    parentCenterId = parentCenterObj['_hub_parentcenter_value'];
+                } else {
+                    parentCenterId = parentCenterObj['hub_centerid']
+                }
+                self.accountClosure = data.getAccountClosure(parentCenterId, (currentCalendarDate.getMonth() + 1), currentCalendarDate.getFullYear());
                 self.businessClosure = data.getBusinessClosure(locationId, startDate, endDate) == null ? [] : data.getBusinessClosure(locationId, startDate, endDate);
                 if (self.businessClosure == null) {
                     self.businessClosure = [];
                 }
-
                 var findingLeaveFlag = true;
                 if (self.businessClosure.length) {
                     for (var i = 0; i < self.businessClosure.length; i++) {
@@ -1374,7 +1381,7 @@ function SylvanAppointment() {
                         appointmentHours = [];
                     }
                     self.populateAppointmentHours(self.formatObjects(appointmentHours, "appointmentHours"));
-                    var parentCenterObj = self.getLocationObject(locationId);
+                    
                     var staffExceptions = data.getStaffExceptions(locationId, startDate, endDate, parentCenterObj['_hub_parentcenter_value']);
                     if (staffExceptions == null) {
                         staffExceptions = [];
@@ -2879,6 +2886,7 @@ function SylvanAppointment() {
         if (label == "appointmentHour") {
             obj.appException = {
                 name: "Appointment exception",
+                disabled: self.checkAccountClosure(), 
                 callback: function (key, options) {
                     wjQuery(".loading").show();
                     options = wjQuery.extend(true, {}, options);
@@ -2907,6 +2915,7 @@ function SylvanAppointment() {
             if (uniqueId[4] != 'unassignedId') {
                 obj.moveToUnassigned = {
                     name: "Move to Unassigned",
+                    disabled: self.checkAccountClosure(), 
                     callback: function (key, options) {
                         wjQuery(".loading").show();
                         options = wjQuery.extend(true, {}, options);
@@ -2918,6 +2927,7 @@ function SylvanAppointment() {
             }
             obj.cancel = {
                 name: "Cancel",
+                disabled: self.checkAccountClosure(),
                 callback: function (key, options) {
                     wjQuery(".loading").show();
                     options = wjQuery.extend(true, {}, options);
@@ -2929,6 +2939,7 @@ function SylvanAppointment() {
 
             obj.markAsAttended = {
                 name: "Mark as Attended",
+                disabled: self.checkAccountClosure(),
                 callback: function (key, options) {
                     wjQuery(".loading").show();
                     options = wjQuery.extend(true, {}, options);
@@ -2945,6 +2956,7 @@ function SylvanAppointment() {
 
             obj.noShow = {
                 name: "No Show",
+                disabled: self.checkAccountClosure(),
                 callback: function (key, options) {
                     wjQuery(".loading").show();
                     options = wjQuery.extend(true, {}, options);
@@ -2985,31 +2997,33 @@ function SylvanAppointment() {
 
     this.draggable = function (selector) {
         var self = this;
-        wjQuery('.' + selector).draggable({
-            revert: true,
-            revertDuration: 0,
-            appendTo: '#scrollarea',
-            helper: "clone",
-            cursor: "move",
-            scroll: true,
-            cursorAt: { top: 0 },
-            drag: function () {
-                // if (sofExpanded) {
-                //     wjQuery('.sof-pane').css('opacity', '.1');
-                // }
-                // if (taExpanded) {
-                //     wjQuery('.ta-pane').css('opacity', '.1');
-                // }
-            },
-            stop: function () {
-                // if (sofExpanded) {
-                //     wjQuery('.sof-pane').css('opacity', '1');
-                // }
-                // if (taExpanded) {
-                //     wjQuery('.ta-pane').css('opacity', '1');
-                // }
-            }
-        });
+        if (!self.accountClosure) {
+            wjQuery('.' + selector).draggable({
+                revert: true,
+                revertDuration: 0,
+                appendTo: '#scrollarea',
+                helper: "clone",
+                cursor: "move",
+                scroll: true,
+                cursorAt: { top: 0 },
+                drag: function () {
+                    // if (sofExpanded) {
+                    //     wjQuery('.sof-pane').css('opacity', '.1');
+                    // }
+                    // if (taExpanded) {
+                    //     wjQuery('.ta-pane').css('opacity', '.1');
+                    // }
+                },
+                stop: function () {
+                    // if (sofExpanded) {
+                    //     wjQuery('.sof-pane').css('opacity', '1');
+                    // }
+                    // if (taExpanded) {
+                    //     wjQuery('.ta-pane').css('opacity', '1');
+                    // }
+                }
+            });
+        }
         wjQuery('.' + selector).bind("drag", function (event, ui) {
             var elm = ui.helper;
             setTimeout(function () {
@@ -3469,6 +3483,15 @@ function SylvanAppointment() {
                 break;
             }
         }
+    }
+
+    this.checkAccountClosure = function () {
+        var self = this;
+        var closed = false;
+        if (self.accountClosure) {
+            closed = true;
+        }
+        return closed;
     }
 
 }
