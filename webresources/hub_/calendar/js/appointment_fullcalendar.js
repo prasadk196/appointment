@@ -3437,7 +3437,7 @@ function ResourceView(element, calendar, viewName) {
                 var top = timePosition(dayStart, stretchStart);
                 var bottom = timePosition(dayStart, stretchEnd);
                 rect.top = top;
-                rect.height = (bottom - top)*2;
+                rect.height = (bottom - top) * 2;
                 slotBind(
                     renderOverlay(rect, slotContent)
                     );
@@ -3765,6 +3765,7 @@ function ResourceView(element, calendar, viewName) {
             clearOverlays();
             if (cell) {
                 if (cellIsAllDay(cell)) {
+                    trigger('onDrag');
                     renderCellOverlay(cell.row, cell.col, cell.row, cell.col);
                 }else{
                     var d1 = cellDate(cell);
@@ -6906,7 +6907,7 @@ function HoverListener(coordinateGrid) {
 		_fixUIEvent(ev); // see below
         var parentOffset = wjQuery('#scrollarea div').offset(); 
 	    var relX = ev.pageX - parentOffset.left;
-	    var relY = ev.pageY - parentOffset.top + 100;
+	    var relY = ev.pageY - parentOffset.top + 140;
 		var newCell = coordinateGrid.cell(relX, relY);
 		if (!newCell != !cell || newCell && (newCell.row != cell.row || newCell.col != cell.col)) {
 			if (newCell) {
