@@ -389,10 +389,6 @@ ul{
     opacity: 1;
 }
 
-.fc-agenda-allday{
-    display: none;
-}
-
 .fc-agenda-axis{
     width: 78px !important;
 }
@@ -540,4 +536,22 @@ table.fc-border-separate{table-layout: fixed;}
     background: #e8ad38;
     left: 3px;
 
+}
+.fc-agenda-allday tr th.fc-widget-header{
+    position: fixed;
+    z-index: 99;
+    background-color: #fff;
+    text-align: center;
+    padding-top: 12px;
+    height: 26px;
+    padding-right: 5px;
+}
+#allDayEventSection .fc-event {
+    height: 40px;
+}
+#allDayEventSection .fc-event .fc-event-title {
+    display:inline-block;
+}
+#allDayEventSection {
+    overflow-x:hidden !important;
 }
