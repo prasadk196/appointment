@@ -1173,9 +1173,12 @@ function SylvanAppointment() {
         screenWidth = screenWidth.toString();
         var minScrollingCoord = screenWidth - 250;
         var maxScrollingCoord = wjQuery('.fc-agenda-slots').width();
+        var minHeight = window.innerHeight - 250;
         var draggedEl = wjQuery('.ui-draggable-dragging');
+        var horScroll = wjQuery('#scrollarea');
         var scollArea = wjQuery('.fc-scroll-content');
         var scrollWidth = scollArea.scrollLeft();
+        var scrollHeight = horScroll.scrollTop();
         draggedEl = draggedEl[0];
         if (draggedEl != undefined && draggedEl.offsetLeft) {
             if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
@@ -1184,6 +1187,13 @@ function SylvanAppointment() {
             } else if (mouseX <= 250 && scrollWidth != 0) {
                 scrollWidth = scrollWidth - 250;
                 scollArea.animate({ scrollLeft: scrollWidth }, "fast");
+            }
+            if (draggedEl.offsetTop > minHeight) {
+                scrollHeight = scrollHeight + 250;
+                horScroll.animate({ scrollTop: scrollHeight }, "fast");
+            } else if (scrollHeight != 0 && draggedEl.offsetTop < 70) {
+                scrollHeight = scrollHeight - 250;
+                horScroll.animate({ scrollTop: scrollHeight }, "fast");
             }
         }
     }
@@ -2471,9 +2481,7 @@ function SylvanAppointment() {
             if (eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId') {
                 populatedEvent.title = "";
                 if (!appointmentObj['allDayAppointment']) {
-                    populatedEvent.title = "<span class='appointmentTitle'>" + eventColorObj.name + "</span><span class='draggable";
-                } else {
-                    populatedEvent.title += "<span class='draggable full-day-appt";
+                    populatedEvent.title = "<span class='appointmentTitle'>" + eventColorObj.name + "</span>";
                 }
                 var exceptionalCount = 0;
                 if (appointmentObj['isExceptional']  || appointmentObj.status == ATTENDED || appointmentObj.status == NO_SHOW) {
@@ -2490,6 +2498,11 @@ function SylvanAppointment() {
                             if (!populatedEvent.memberList[i].isExceptional && populatedEvent.memberList[i].status != ATTENDED
                                     && populatedEvent.memberList[i].status != NO_SHOW) {
                                 exceptionalCount += 1;
+                            }
+                            if (!appointmentObj['allDayAppointment']) {
+                                populatedEvent.title += "<span class='draggable";
+                            } else {
+                                populatedEvent.title += "<span class='draggable full-day-appt";
                             }
                             populatedEvent.title += " drag-student' activityid='" + populatedEvent.memberList[i]['id'] + "' studentId='" + populatedStudentId + "' >" + populatedEvent.memberList[i]['studentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
                         }
@@ -2516,6 +2529,11 @@ function SylvanAppointment() {
                         }
                     });
                     var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
+                    if (!appointmentObj['allDayAppointment']) {
+                        populatedEvent.title += "<span class='draggable";
+                    } else {
+                        populatedEvent.title += "<span class='draggable full-day-appt";
+                    }
                     populatedEvent.title += " drag-student' activityid='" + appointmentObj['id'] + "' studentId='" + studentId + "' >" + appointmentObj['studentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
                     populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount), eventColorObj);
                     self.addContext(studentId, eventColorObj.display, appointmentObj);
@@ -2528,10 +2546,20 @@ function SylvanAppointment() {
                                     && populatedEvent.memberList[i].status != NO_SHOW) {
                                 exceptionalCount += 1;
                             }
+                            if (!appointmentObj['allDayAppointment']) {
+                                populatedEvent.title += "<span class='draggable";
+                            } else {
+                                populatedEvent.title += "<span class='draggable full-day-appt";
+                            }
                             populatedEvent.title += " drag-parent' activityid='" + populatedEvent.memberList[i]['id'] + "' parentId='" + populatedParentId + "' >" + populatedEvent.memberList[i]['parentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
                         }
                     }
                     var outOfOfficeClass = (appointmentObj["outofoffice"]) ? "display-block" : "display-none";
+                    if (!appointmentObj['allDayAppointment']) {
+                        populatedEvent.title += "<span class='draggable";
+                    } else {
+                        populatedEvent.title += "<span class='draggable full-day-appt";
+                    }
                     populatedEvent.title += " drag-parent' activityid='" + appointmentObj['id'] + "' parentId='" + parentId + "' >" + appointmentObj['parentName'] + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
                     populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount), eventColorObj);
                     self.addContext(parentId, eventColorObj.display, appointmentObj);
@@ -3036,10 +3064,10 @@ function SylvanAppointment() {
             wjQuery('.' + selector).draggable({
                 revert: true,
                 revertDuration: 0,
-                appendTo: '#scrollarea',
+                appendTo: '.fc-view > div:first',
                 helper: "clone",
                 cursor: "move",
-                scroll: true,
+                scroll: false,
                 cursorAt: { top: 0 },
                 drag: function () {
                     // if (sofExpanded) {
