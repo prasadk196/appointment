@@ -94,7 +94,7 @@ setTimeout(function () {
                 fetchResources(locationId);
             }
         }
-
+        
         function fetchResources(locationId) {
             wjQuery(".loading").show();
             sylvanAppointment.locationId = locationId;
@@ -805,11 +805,13 @@ function SylvanAppointment() {
             },
             eventRender: function (event, element, view) {
                 if (view.name == 'agendaWeek' && event.allDay) {
-                    wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
+                    /*wjQuery('.fc-col' + event.start.getDay()).not('.fc-widget-header').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('background-color', '#ddd');
                     wjQuery('.fc-event-skin').css('border-color', '#ddd');
-                    wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
-
+                    wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible'
+                    */
+                    wjQuery('.fc-event-hori .fc-event-skin').attr("title", "Miscellaneous");
+                    wjQuery('.fc-event-hori .fc-event-skin').css("cursor", "pointer");
                 }
                 else {
                     wjQuery('.fc-event.fc-event-hori').css('overflow-y', 'visible');
@@ -830,7 +832,6 @@ function SylvanAppointment() {
             this.calendarOptions.date = args.getDate();
         }
         self.appointment = wjQuery('#appointment').fullCalendar(this.calendarOptions);
-
         self.loadMasterInformation();
     }
 
@@ -998,6 +999,7 @@ function SylvanAppointment() {
         });
 
     }
+
     this.calendarFilter = function () {
         var self = this;
         this.buildFilterBody();
@@ -1175,10 +1177,10 @@ function SylvanAppointment() {
         var maxScrollingCoord = wjQuery('.fc-agenda-slots').width();
         var minHeight = window.innerHeight - 250;
         var draggedEl = wjQuery('.ui-draggable-dragging');
-        var horScroll = wjQuery('#scrollarea');
+        var vertScroll = wjQuery('#scrollarea');
         var scollArea = wjQuery('.fc-scroll-content');
         var scrollWidth = scollArea.scrollLeft();
-        var scrollHeight = horScroll.scrollTop();
+        var scrollHeight = vertScroll.scrollTop();
         draggedEl = draggedEl[0];
         if (draggedEl != undefined && draggedEl.offsetLeft) {
             if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
@@ -1190,10 +1192,10 @@ function SylvanAppointment() {
             }
             if (draggedEl.offsetTop > minHeight) {
                 scrollHeight = scrollHeight + 250;
-                horScroll.animate({ scrollTop: scrollHeight }, "fast");
+                vertScroll.animate({ scrollTop: scrollHeight }, "fast");
             } else if (scrollHeight != 0 && draggedEl.offsetTop < 70) {
                 scrollHeight = scrollHeight - 250;
-                horScroll.animate({ scrollTop: scrollHeight }, "fast");
+                vertScroll.animate({ scrollTop: scrollHeight }, "fast");
             }
         }
     }
@@ -3326,7 +3328,7 @@ function SylvanAppointment() {
             html = "<div class='each-appt' style='width:100%'>" +
                             "<span class='appt-title'></b>" + apptObj.name + "</b></span>";
             if (event.hasOwnProperty("memberList") && event.memberList.length) {
-                html += "<table class='table table-striped table-bordered table-sm'><thead><tr><th>#</th><th>Student Name</th> <th>Parent Name</th></tr></thead><tbody>";
+                html += "<table class='table table-striped table-bordered table-sm'><thead><tr><th>#</th><th>Student Name</th> <th>Customer Name</th></tr></thead><tbody>";
                 for (var h = 0; h < event.memberList.length; h++) {
                     var memberObj = event.memberList[h];
                     if ((memberObj.studentName != undefined && memberObj.studentName != '') && (memberObj.parentName != undefined && memberObj.parentName != '')) {
