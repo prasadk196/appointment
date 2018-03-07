@@ -555,3 +555,18 @@ table.fc-border-separate{table-layout: fixed;}
 #allDayEventSection {
     overflow-x:hidden !important;
 }
+.fc-view table:first-child + div {
+    height:100%;
+}
+#scrollarea {
+    height:calc(100% - 107px) !important;
+}
+.fc-view-agendaWeek .fc-agenda-allday .fc-day-content div {
+    height:100%;
+}
+.fc-view-agendaWeek .fc-event-hori {
+    height:37px;
+}
+.fc-event-hori .placeholder_week {
+    display:inline-block;
+}
