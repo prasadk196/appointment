@@ -1175,7 +1175,7 @@ function SylvanAppointment() {
         screenWidth = screenWidth.toString();
         var minScrollingCoord = screenWidth - 250;
         var maxScrollingCoord = wjQuery('.fc-agenda-slots').width();
-        var minHeight = window.innerHeight - 250;
+        var minHeight = window.innerHeight - 50;
         var draggedEl = wjQuery('.ui-draggable-dragging');
         var vertScroll = wjQuery('#scrollarea');
         var scollArea = wjQuery('.fc-scroll-content');
@@ -1183,17 +1183,17 @@ function SylvanAppointment() {
         var scrollHeight = vertScroll.scrollTop();
         draggedEl = draggedEl[0];
         if (draggedEl != undefined && draggedEl.offsetLeft) {
-            if (draggedEl.offsetLeft > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
+            if (mouseX > minScrollingCoord && draggedEl.offsetLeft <= maxScrollingCoord) {
                 scrollWidth = scrollWidth + 250;
                 scollArea.animate({ scrollLeft: scrollWidth }, "fast");
             } else if (mouseX <= 250 && scrollWidth != 0) {
                 scrollWidth = scrollWidth - 250;
                 scollArea.animate({ scrollLeft: scrollWidth }, "fast");
             }
-            if (draggedEl.offsetTop > minHeight) {
+            if (mouseY > minHeight) {
                 scrollHeight = scrollHeight + 250;
                 vertScroll.animate({ scrollTop: scrollHeight }, "fast");
-            } else if (scrollHeight != 0 && draggedEl.offsetTop < 70) {
+            } else if (scrollHeight != 0 && mouseY < 160) {
                 scrollHeight = scrollHeight - 250;
                 vertScroll.animate({ scrollTop: scrollHeight }, "fast");
             }
@@ -1201,9 +1201,11 @@ function SylvanAppointment() {
     }
 
     var mouseX;
+    var mouseY;
     this.bindMouseMovement = function () {
         wjQuery('.fc-view ').on('mousemove', function (e) {
             mouseX = e.clientX;
+            mouseY = e.clientY;
         })
     }
 
@@ -1349,7 +1351,7 @@ function SylvanAppointment() {
         setTimeout(function () {
             self.clearBusinessClosure();
             var currentView = self.appointment.fullCalendar('getView');
-
+            wjQuery('#scrollarea').scrollTop("0");
             // fetch master schedule data based on below flag
             // var isFromMasterSchedule = self.findDataSource(currentCalendarDate,currentView);
             if (currentView.name == 'resourceDay') {
