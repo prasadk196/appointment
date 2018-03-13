@@ -3038,9 +3038,9 @@ function SylvanAppointment() {
                 obj.noShow.visible = false;
             }
             if (label == "student") {
-                wjQuery.contextMenu('destroy', 'span[studentId="' + id + '"]');
+                wjQuery.contextMenu('destroy', 'span[activityId="' + appointmentObj.id + '"]');
                 wjQuery.contextMenu({
-                    selector: 'span[studentId="' + id + '"]',
+                    selector: 'span[activityId="' + appointmentObj.id + '"]',
                     build: function ($trigger, e) {
                         return {
                             items: obj
@@ -3049,9 +3049,9 @@ function SylvanAppointment() {
                 });
             }
             else {
-                wjQuery.contextMenu('destroy', 'span[parentId="' + id + '"]');
+                wjQuery.contextMenu('destroy', 'span[activityId="' + appointmentObj.id + '"]');
                 wjQuery.contextMenu({
-                    selector: 'span[parentId="' + id + '"]',
+                    selector: 'span[activityId="' + appointmentObj.id + '"]',
                     build: function ($trigger, e) {
                         return {
                             items: obj
@@ -3531,7 +3531,9 @@ function SylvanAppointment() {
                     prevAppointment[0].title = preEventTitleHTML[0].outerHTML;
                     if (prevAppointment[0].memberList.length) {
                         for (var i = 0; i < prevAppointment[0].memberList.length; i++) {
-                            prevAppointment[0].title += preEventTitleHTML[i + 1].outerHTML;
+                            if (preEventTitleHTML[i + 1]) {
+                                prevAppointment[0].title += preEventTitleHTML[i + 1].outerHTML;
+                            }
                         }
                     }
                     for(var k = 0;k < prevAppointmentCapacity; k++) {
