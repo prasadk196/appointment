@@ -1169,7 +1169,9 @@ function SylvanAppointment() {
         })
 
     }
-
+    /*  scroll's the calendar in both x and y direction while dragging
+     *       
+     */
     this.scrollVertically = function () {
         var screenWidth = window.screen.width;
         screenWidth = screenWidth.toString();
@@ -2729,7 +2731,7 @@ function SylvanAppointment() {
                 }
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
 
-                if (populatedEvent.length) {
+                if (populatedEvent.length && populatedEvent.allDayAppointment == appointmentObj.allDayAppointment) {
                     self.updateEventObj(appointmentObj, populatedEvent[0], eventId);
                 } else {
                     self.addEventObj(appointmentObj);
@@ -3068,7 +3070,7 @@ function SylvanAppointment() {
             wjQuery('.' + selector).draggable({
                 revert: true,
                 revertDuration: 0,
-                appendTo: '.fc-view > div:first',
+                appendTo: '.fc-view > div:first',   //appended to make helper text visible in full day slot
                 helper: "clone",
                 cursor: "move",
                 scroll: false,
