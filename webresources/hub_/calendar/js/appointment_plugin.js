@@ -1577,16 +1577,17 @@ function SylvanAppointment() {
                     newAppointmentObj['endObj'] = new Date(date.setHours(20, 0, 0));
                     newAppointmentObj['startObj'] = new Date(date.setHours(8, 0, 0));
                 }
-                var newEventId = newAppointmentObj['type'] + "_" + newAppointmentObj['startObj'] + "_" + newAppointmentObj['endObj'] + "_" + newAppointmentObj['staffId'];
-                var prevEventId = newAppointmentObj['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'];
-                if (newEventId != prevEventId) {
+                var newEventId = newAppointmentObj['type'] + "_" + newAppointmentObj['startObj'] + "_" + newAppointmentObj['endObj'] + "_" + newAppointmentObj['staffId'] + "_" + newAppointmentObj.allDayAppointment;
+                var prevEventId = newAppointmentObj['type'] + "_" + self.appointmentList[index]['startObj'] + "_" +
+                    self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'] + "_" + self.appointmentList[index].allDayAppointment;
+                var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
+                var newEvent = self.appointment.fullCalendar('clientEvents', newEventId);
+                if (newEventId != prevEventId || (!prevEvent[0].allDay && allDay)) {
                     // Check For alert Validation(Not Allowed to drop validation)
                     var isStaffExceptions = self.checkForStaffException(newAppointmentObj);
                     if (isStaffExceptions || isStaffExceptions == 2) {
                         self.alertPopup("Staff not available at this time.Please schedule the appointment on a different time.");
                     } else {
-                        var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
-                        var newEvent = self.appointment.fullCalendar('clientEvents', newEventId);
                         if (allDay && prevEvent[0].allDay || (!allDay && prevEvent[0].allDay) || (allDay && prevEvent[0].type == 12)) {
                             self.updateAppointmentOnDrop(self, date, true, ev, ui, resource, elm, false);
                         } else if (!allDay && !prevEvent[0].allDay) {
@@ -1614,7 +1615,7 @@ function SylvanAppointment() {
                                 // var eventTypes = self.getEventColor(newAppointmentObj.type);
                                 wjQuery.each(checkEventexit, function (k, v) {
                                     for (var i = 0; i < v.memberList.length; i++) {
-                                        if( newAppointmentObj.studentId == v.memberList[i].studentId && 
+                                        if (!v.allDay && newAppointmentObj.studentId == v.memberList[i].studentId &&
                                             newAppointmentObj.parentId == v.memberList[i].parentId  ){
                                             isexist = true;
                                             break;
@@ -2061,8 +2062,9 @@ function SylvanAppointment() {
                 newAppointmentObj['endObj'] = new Date(date.setHours(20, 0, 0));
                 newAppointmentObj['startObj'] = new Date(date.setHours(8, 0, 0));
             }
-            var newEventId = newAppointmentObj['type'] + "_" + newAppointmentObj['startObj'] + "_" + newAppointmentObj['endObj'] + "_" + newAppointmentObj['staffId'];
-            var prevEventId = newAppointmentObj['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'];
+            var newEventId = newAppointmentObj['type'] + "_" + newAppointmentObj['startObj'] + "_" + newAppointmentObj['endObj'] + "_" + newAppointmentObj['staffId'] + "_" + newAppointmentObj.allDayAppointment;
+            var prevEventId = newAppointmentObj['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] +
+                "_" + self.appointmentList[index]['staffId'] + "_" + self.appointmentList[index].allDayAppointment;
             var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
             var newEvent = self.appointment.fullCalendar('clientEvents', newEventId);
             var responseObj = self.saveAppointment(newAppointmentObj, self.appointmentList[index]);
@@ -2116,7 +2118,7 @@ function SylvanAppointment() {
                 if (eachEvent.hasOwnProperty("memberList")) {
                     for (var ka = 0; ka < eachEvent['memberList'].length; ka++) {
                         var eachEventMember = eachEvent['memberList'][ka];
-                        if (eachEventMember[eventColorObj.display + "Id"] == uniqIdArry[1]) {
+                        if (!eachEvent.allDay && eachEventMember[eventColorObj.display + "Id"] == uniqIdArry[1]) {
                             allowToDrop = false;
                             break;
                         }
@@ -2136,7 +2138,8 @@ function SylvanAppointment() {
                 newAppointmentObj['staffId'] = "unassignedId";
                 newAppointmentObj['resourceId'] = "unassignedId";
                 newAppointmentObj['staffValue'] = "Unassigned";
-                var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'];
+                var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] +
+                    "_" + self.appointmentList[index]['staffId'] + "_" + self.appointmentList[index].allDayAppointment;
                 var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
                 var errArry = self.checkEventValidation(unassignedEvent, prevEvent, newAppointmentObj, uniqueId);
                 if (errArry.alert.length) {
@@ -2335,7 +2338,8 @@ function SylvanAppointment() {
         if (index != -1) {
             var responseObj = data.cancelAppointment({ 'activityid': self.appointmentList[index].id });
             if (responseObj) {
-                var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'];
+                var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] +
+                    "_" + self.appointmentList[index]['staffId'] + "_" + self.appointmentList[index].allDayAppointment;
                 var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
                 self.updatePrevEvent(prevEvent, element, eventFor, uniqIdArry, activityId);
                 self.appointmentList.splice(index, 1);
@@ -2517,7 +2521,7 @@ function SylvanAppointment() {
                     wjQuery.each(self.staffList, function (k, staff) {
                         var noOfMembers = 0;
                         if (staff && staff.id != "unassignedId") {
-                            var otherEventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + staff.id;
+                            var otherEventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + staff.id + "_" + appointmentObj.allDayAppointment;
                             var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
                             if (otherAppointment && otherAppointment.length) {
                                 if (otherAppointment[0].memberList.length) {
@@ -2636,7 +2640,7 @@ function SylvanAppointment() {
             }
             eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId";
         } else {
-            eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId'];
+            eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId'] + "_" + appointmentObj.allDayAppointment;
             if (eventColorObj.display == "student") {
                 var studentId = appointmentObj['type'] + "_" + appointmentObj['studentId'] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj["staffId"];
                 eventObj['title'] = "";
@@ -2724,14 +2728,14 @@ function SylvanAppointment() {
                 if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
                     eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId";
                 } else {
-                    eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId'];
+                    eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId']+"_" +appointmentObj.allDayAppointment;
                     if (!appointmentObj["allDayAppointment"]) {
                         self.checkAppointmentHour(appointmentObj, prevEvent);
                     }
                 }
                 var populatedEvent = self.appointment.fullCalendar('clientEvents', eventId);
 
-                if (populatedEvent.length && populatedEvent.allDayAppointment == appointmentObj.allDayAppointment) {
+                if (populatedEvent.length && populatedEvent[0].allDay == appointmentObj.allDayAppointment) {
                     self.updateEventObj(appointmentObj, populatedEvent[0], eventId);
                 } else {
                     self.addEventObj(appointmentObj);
@@ -3413,7 +3417,8 @@ function SylvanAppointment() {
             }
             index = self.findUniqueAppointment(uniqueId, activityId);
             if (index != -1) {
-                var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] + "_" + self.appointmentList[index]['staffId'];
+                var prevEventId = self.appointmentList[index]['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] +
+                    "_" + self.appointmentList[index]['staffId'] + "_" + self.appointmentList[index].allDayAppointment;
                 var prevEvent = self.appointment.fullCalendar('clientEvents', prevEventId);
                 self.appointmentList[index].status = status;
                 self.checkAppointmentHour("", prevEvent, 'context');
