@@ -336,6 +336,7 @@ function SylvanAppointment() {
                             studentName: appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
                             parentId: appointmentObj['_regardingobjectid_value'],
                             status: appointmentObj['hub_appointmentstatus'],
+                            appointmentHourId: appointmentObj['hub_timingsid'],
                             parentName: appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
                             objOwner: {
                                 id: appointmentObj['_ownerid_value'],
@@ -848,7 +849,6 @@ function SylvanAppointment() {
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').css('text-align', 'center');
             wjQuery('thead .fc-agenda-axis.fc-widget-header.fc-first').html(dayOfWeek + " <br/> " + dayofMonth);
         }
-
         if (wjQuery('.filter-section').length == 0)
             wjQuery(".fc-agenda-divider.fc-widget-header").after("<div class='filter-section'></div>");
         if (currentView.name == 'resourceDay') {
@@ -2051,9 +2051,6 @@ function SylvanAppointment() {
             // if(resource.id != 'unassignedId'){
             var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
             newAppointmentObj['staffId'] = resource.id;
-            if(!newAppointmentObj['isExceptional']){
-                newAppointmentObj['isExceptional'] = isExceptional;
-            }
             newAppointmentObj['staffValue'] = resource.name;
             newAppointmentObj['allDayAppointment'] = allDay;
             newAppointmentObj['endObj'] = self.findAppointmentDuration(newAppointmentObj['startObj'], newAppointmentObj['endObj'], date);
@@ -2061,6 +2058,14 @@ function SylvanAppointment() {
             if (allDay) {
                 newAppointmentObj['endObj'] = new Date(date.setHours(20, 0, 0));
                 newAppointmentObj['startObj'] = new Date(date.setHours(8, 0, 0));
+            }
+            if (!newAppointmentObj['isExceptional']) {
+                newAppointmentObj['isExceptional'] = isExceptional;
+                var newAppointmentHour = newAppointmentObj['type'] + "_" + newAppointmentObj['startObj'] + "_" + newAppointmentObj['endObj'] + "_unassignedId_" + newAppointmentObj.allDayAppointment;
+                var appointmentHourEvent = self.appointment.fullCalendar('clientEvents', newAppointmentHour);
+                if (appointmentHourEvent.length) {
+                    newAppointmentObj['appointmentHourId'] = appointmentHourEvent[0].appHourId;
+                }
             }
             var newEventId = newAppointmentObj['type'] + "_" + newAppointmentObj['startObj'] + "_" + newAppointmentObj['endObj'] + "_" + newAppointmentObj['staffId'] + "_" + newAppointmentObj.allDayAppointment;
             var prevEventId = newAppointmentObj['type'] + "_" + self.appointmentList[index]['startObj'] + "_" + self.appointmentList[index]['endObj'] +
@@ -2109,8 +2114,12 @@ function SylvanAppointment() {
             uniqIdArry = uniqueId.split('_');
             eventFor = 'student';
         }
+        var fullDayFlag = false;
+        if($(element).hasClass("full-day-appt")){
+            fullDayFlag = true;
+        }
         var eventColorObj = self.getEventColor(uniqIdArry[0]);
-        var unassignedEvent = self.appointment.fullCalendar('clientEvents', uniqIdArry[0] + "_" + uniqIdArry[2] + "_" + uniqIdArry[3] + "_unassignedId");
+        var unassignedEvent = self.appointment.fullCalendar('clientEvents', uniqIdArry[0] + "_" + uniqIdArry[2] + "_" + uniqIdArry[3] + "_unassignedId_" + fullDayFlag);
         var allowToDrop = true;
         if (unassignedEvent.length) {
             for (var k = 0; k < unassignedEvent.length; k++) {
@@ -2290,6 +2299,9 @@ function SylvanAppointment() {
         newAppointment.regardingobjectid = newAppointmentObj.parentId;
         newAppointment.requiredattendees = newAppointmentObj.requiredattendees;
         newAppointment.hub_exception = newAppointmentObj.isExceptional;
+        if (!newAppointmentObj.isExceptional) {
+            newAppointment.hub_timingsid = newAppointmentObj.appointmentHourId;
+        }
         newAppointment.hub_student_name = newAppointmentObj.studentName;
         newAppointment.hub_diagnosticserviceid = newAppointmentObj.diagnosticId;
         newAppointment.hub_diagnosticserviceid_name = newAppointmentObj.diagnosticName;
@@ -2313,6 +2325,9 @@ function SylvanAppointment() {
         prevAppointment.regardingobjectid = prevAppointmentObj.parentId;
         prevAppointment.requiredattendees = prevAppointmentObj.requiredattendees;
         prevAppointment.hub_exception = prevAppointmentObj.isExceptional;
+        if (!prevAppointmentObj.isExceptional) {
+            prevAppointment.hub_timingsid = prevAppointmentObj.appointmentHourId;
+        }
         prevAppointment.hub_student_name = prevAppointmentObj.studentName;
         prevAppointment.hub_diagnosticserviceid = prevAppointmentObj.diagnosticId;
         prevAppointment.hub_diagnosticserviceid_name = prevAppointmentObj.diagnosticName;
@@ -2638,7 +2653,7 @@ function SylvanAppointment() {
             } else {
                 eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="1">1</span>';
             }
-            eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId";
+            eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId_"+ appointmentObj.allDayAppointment;
         } else {
             eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId'] + "_" + appointmentObj.allDayAppointment;
             if (eventColorObj.display == "student") {
@@ -2726,9 +2741,9 @@ function SylvanAppointment() {
             wjQuery.each(appointmentList, function (index, appointmentObj) {
                 var eventId = "";
                 if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                    eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId";
+                    eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId_" + appointmentObj.allDayAppointment;
                 } else {
-                    eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId']+"_" +appointmentObj.allDayAppointment;
+                    eventId = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId'] + "_" + appointmentObj.allDayAppointment;
                     if (!appointmentObj["allDayAppointment"]) {
                         self.checkAppointmentHour(appointmentObj, prevEvent);
                     }
@@ -2782,7 +2797,7 @@ function SylvanAppointment() {
             var appEventList = [];
             wjQuery.each(appointmentHours, function (index, appointmentHrObj) {
                 var eventColorObj = self.getEventColor(appointmentHrObj["type"]);
-                var eventId = appointmentHrObj["type"] + "_" + appointmentHrObj['startObj'] + "_" + appointmentHrObj['endObj'] + "_unassignedId";
+                var eventId = appointmentHrObj["type"] + "_" + appointmentHrObj['startObj'] + "_" + appointmentHrObj['endObj'] + "_unassignedId_false";
                 var eventPopulated = self.appointment.fullCalendar('clientEvents', eventId);
                 if (eventPopulated.length) {
                     // Appointment hour exception validation
@@ -3435,15 +3450,15 @@ function SylvanAppointment() {
             var appointmentHour;
             var attendedOrNoshow;
             if (newAppointment) {
-                appointmentHourId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_unassignedId";
-                eventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + newAppointment['staffId'];
+                appointmentHourId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_unassignedId_" + newAppointment.allDayAppointment;
+                eventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + newAppointment['staffId'] + "_" + newAppointment.allDayAppointment;
                 appointmentHour = self.appointment.fullCalendar('clientEvents', appointmentHourId);
                 attendedOrNoshow = newAppointment.status != ATTENDED && newAppointment.status != NO_SHOW;
             }
         var preAppointmentHour;
         var availableCapacity = 0;
         if (prevEvent && prevEvent.length) {
-            preAppointmentHour = prevEvent[0]["type"] + "_" + prevEvent[0]['start'] + "_" + prevEvent[0]['end'] + "_unassignedId";
+            preAppointmentHour = prevEvent[0]["type"] + "_" + prevEvent[0]['start'] + "_" + prevEvent[0]['end'] + "_unassignedId_" + prevEvent[0].allDayAppointment;
         }
         if (appointmentHour && appointmentHour.length && newAppointment && !newAppointment.isExceptional) {
             var eventTitleHTML = wjQuery(appointmentHour[0].title);
@@ -3451,7 +3466,7 @@ function SylvanAppointment() {
             wjQuery.each(self.staffList, function (k,staff) {
                 var noOfMembers = 0;
                 if (staff) {
-                    var otherEventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + staff.id;
+                    var otherEventId = newAppointment["type"] + "_" + newAppointment['startObj'] + "_" + newAppointment['endObj'] + "_" + staff.id + "_" + newAppointment.allDayAppointment;
                     var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
                     if (otherAppointment && otherAppointment.length) {
                         if (otherAppointment[0].memberList.length) {
@@ -3494,7 +3509,7 @@ function SylvanAppointment() {
         }
         if (prevEvent && prevEvent.length) {
             prevEvent = prevEvent[0];
-            preAppointmentHour = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_unassignedId";
+            preAppointmentHour = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_unassignedId_" + prevEvent.allDay;
             var prevAppointment = self.appointment.fullCalendar('clientEvents', preAppointmentHour);
             if (prevAppointment && prevAppointment.length && appointmentHourId != preAppointmentHour) {
                 var placeHolder;
@@ -3512,7 +3527,7 @@ function SylvanAppointment() {
                     wjQuery.each(self.staffList, function (k, staff) {
                         var noOfMembers = 0;
                         if (staff) {
-                            var otherEventId = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_" + staff.id;
+                            var otherEventId = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_" + staff.id + "_" + prevEvent.allDay;
                             var otherAppointment = self.appointment.fullCalendar('clientEvents', otherEventId);
                             if (otherAppointment && otherAppointment.length) {
                                 if (otherAppointment[0].memberList.length) {
