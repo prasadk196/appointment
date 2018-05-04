@@ -1837,8 +1837,8 @@ function SylvanAppointment() {
                         )
             });
             if (isexception.length && !newAppointmentObj['allDayAppointment']) {
-                if (messageObject.alert.indexOf("Appointment can not be placed in an exceptional appointment hour.") == -1) {
-                    messageObject.alert.push("Appointment can not be placed in an exceptional appointment hour.");
+                if (messageObject.confirmation.indexOf("Appointment hour is removed") == -1) {
+                    messageObject.confirmation.push("Appointment hour is removed");
                 }
                 break;
             }
@@ -2425,10 +2425,10 @@ function SylvanAppointment() {
                 }
             } else {
                 wjQuery(".loading").hide();
-                self.alertPopup("Not allowed to create appointment exception.");
+                self.alertPopup("Not allowed to remove appointment slot.");
             }
         } else {
-            self.alertPopup("Not allowed to create appointment exception.");
+            self.alertPopup("Not allowed to remove appointment slot.");
         }
     }
 
@@ -2973,7 +2973,7 @@ function SylvanAppointment() {
         var self = this;
         if (label == "appointmentHour") {
             obj.appException = {
-                name: "Appointment exception",
+                name: "Remove appointment slot",
                 disabled: self.checkAccountClosure(), 
                 callback: function (key, options) {
                     wjQuery(".loading").show();
@@ -3460,7 +3460,7 @@ function SylvanAppointment() {
         if (prevEvent && prevEvent.length) {
             preAppointmentHour = prevEvent[0]["type"] + "_" + prevEvent[0]['start'] + "_" + prevEvent[0]['end'] + "_unassignedId_" + prevEvent[0].allDayAppointment;
         }
-        if (appointmentHour && appointmentHour.length && newAppointment && !newAppointment.isExceptional) {
+        if (appointmentHour && appointmentHour.length && newAppointment && !newAppointment.isExceptional && appointmentHour[0].backgroundColor != STAFF_EXCEPTION_BG) {
             var eventTitleHTML = wjQuery(appointmentHour[0].title);
             var existingMember = 0;
             wjQuery.each(self.staffList, function (k,staff) {
@@ -3511,7 +3511,7 @@ function SylvanAppointment() {
             prevEvent = prevEvent[0];
             preAppointmentHour = prevEvent["type"] + "_" + prevEvent['start'] + "_" + prevEvent['end'] + "_unassignedId_" + prevEvent.allDay;
             var prevAppointment = self.appointment.fullCalendar('clientEvents', preAppointmentHour);
-            if (prevAppointment && prevAppointment.length && appointmentHourId != preAppointmentHour) {
+            if (prevAppointment && prevAppointment.length && appointmentHourId != preAppointmentHour && prevAppointment[0].backgroundColor != STAFF_EXCEPTION_BG) {
                 var placeHolder;
                 var preEventTitleHTML = wjQuery(prevAppointment[0].title);
                 wjQuery.each(preEventTitleHTML, function (k, v) {
