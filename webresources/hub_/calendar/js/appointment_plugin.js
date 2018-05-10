@@ -482,7 +482,7 @@ function SylvanAppointment() {
             wjQuery.each(args, function (index, appException) {
                 var startObj = new Date(appException['hub_date@OData.Community.Display.V1.FormattedValue'] + " " + self.convertMinsNumToTime(appException['hub_start_time']));
                 var endObj = new Date(appException['hub_date@OData.Community.Display.V1.FormattedValue'] + " " + self.convertMinsNumToTime(appException['hub_end_time']));
-                var eventId = appException['aworkhours_x002e_hub_type'] + "_" + startObj + "_" + endObj + "_" + "unassignedId";
+                var eventId = appException['aworkhours_x002e_hub_type'] + "_" + startObj + "_" + endObj + "_" + "unassignedId_false";
                 var obj = {
                     eventId: eventId,
                     appointmentHourId: appException['hub_timingsid'],
