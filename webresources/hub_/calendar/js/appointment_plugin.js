@@ -3640,13 +3640,13 @@ function SylvanAppointment() {
             // 3. staff id
             var uniqIdArry = eventId.split("_");
             var idArry = wjQuery.extend(true, [], uniqIdArry);
-            var appointmentHourObj = this.appointmentHours.filter(function (y) {
-                return y.appointmentHourId == appHourId &&
+            var appointmentHourObj = this.appointmentHourException.filter(function (y) {
+                return y.type == uniqIdArry[0] &&
                         y.startObj == uniqIdArry[1] &&
                         y.endObj == uniqIdArry[2];
             });
             if (appointmentHourObj.length) {
-                var response = data.addexceptionback(appointmentHourObj[0].recordId);
+                var response = data.addexceptionback(appointmentHourObj[0].id);
                 if (response) {
                     var eventColorObj = self.getEventColor(appointmentHourObj[0]["type"]);
                     var appointmentEvent = self.appointment.fullCalendar('clientEvents', eventId);
