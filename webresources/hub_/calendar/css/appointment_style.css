@@ -568,5 +568,11 @@ table.fc-border-separate{table-layout: fixed;}
     height:37px;
 }
 .fc-event-hori .placeholder_week {
-    display:inline-block;
+    display: inline-block;
+}
+.custom-desc {z-index:999;max-width:250px;}
+.custom-desc .ui-tooltip-content {
+    padding:10px;
+    font-size:14px;
+    box-shadow: 5px 4px 10px 0px #666666;
 }
