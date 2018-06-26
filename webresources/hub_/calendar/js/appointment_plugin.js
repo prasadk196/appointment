@@ -705,7 +705,7 @@ function SylvanAppointment() {
                     wjQuery(".loc-dropdown .selectedCenter").val(locationData[i].hub_centerid);
                 }
                 locationList.push('<li><a tabindex="-1" value-id=' + locationData[i].hub_centerid + ' href="javascript:void(0)">' + locationData[i].hub_centername + '</a></li>');
-                if (defaultCenter.length && defaultCenter[0].hub_appointment_center == locationData[i].hub_centerid) {
+                if (defaultCenter.length && defaultCenter[0].hub_center == locationData[i].hub_centerid) {
                     index = i;
                 }
             }
@@ -1598,6 +1598,12 @@ function SylvanAppointment() {
             } else if (elm.hasAttribute("studentid")) {
                 uniqueId = wjQuery(elm).attr("studentid").split('_');
                 eventFor = 'student';
+            }
+            if (moment(self.calendarDate).format("MM-DD-YYYY") != moment(date).format("MM-DD-YYYY")) {
+                var month = new Date(self.calendarDate).getMonth();
+                var day = new Date(self.calendarDate).getDate();
+                date = new Date(new Date(date).setMonth(month));
+                date = new Date(new Date(date).setDate(day));
             }
             var eventColorObj = self.getEventColor(uniqueId[0]);
             var index = self.findUniqueAppointment(uniqueId, activityId);
@@ -3700,19 +3706,30 @@ function SylvanAppointment() {
             // 3. staff id
             var uniqIdArry = eventId.split("_");
             var idArry = wjQuery.extend(true, [], uniqIdArry);
-            var appointmentHourObj = this.appointmentHourException.filter(function (y) {
-                return y.type == uniqIdArry[0] &&
+            var index = -1;
+            var appointmentHourObj = this.appointmentHourException.filter(function (y, k) {
+                if (y.type == uniqIdArry[0] &&
                         y.startObj == uniqIdArry[1] &&
-                        y.endObj == uniqIdArry[2];
+                        y.endObj == uniqIdArry[2]) {
+                    index = k;
+                    return y;
+                }
             });
             if (appointmentHourObj.length) {
-                var response = data.addexceptionback(appointmentHourObj[0].id);
+                var recordId;
+                if (appointmentHourObj[0].recordId) {
+                    recordId = appointmentHourObj[0].recordId;
+                } else {
+                    recordId = appointmentHourObj[0].id;
+                }
+                var response = data.addexceptionback(recordId);
                 if (response) {
                     var eventColorObj = self.getEventColor(appointmentHourObj[0]["type"]);
                     var appointmentEvent = self.appointment.fullCalendar('clientEvents', eventId);
                     appointmentEvent[0]["backgroundColor"] = eventColorObj.backgroundColor;
                     appointmentEvent[0]["borderColor"] = eventColorObj.borderColor;
                     appointmentEvent[0].title = appointmentEvent[0].title;
+                    this.appointmentHourException.splice(index, 1);
                     self.appointment.fullCalendar('updateEvent', appointmentEvent);
                     wjQuery.contextMenu('destroy', 'span[id="' + appointmentEvent[0]['id'] + '"]');
                     self.addContext(appointmentEvent[0]['id'], 'appointmentHour');
