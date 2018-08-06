@@ -352,7 +352,7 @@ function SylvanAppointment() {
                             studentId: appointmentObj['_hub_student_value'],
                             studentName: appointmentObj['_hub_student_value@OData.Community.Display.V1.FormattedValue'],
                             parentId: appointmentObj['_regardingobjectid_value'],
-                            appointmentHourId: appointmentObj['hub_timingsid'],
+                            appointmentHourId: appointmentObj['_hub_timingsid_value'],
                             parentName: appointmentObj['_regardingobjectid_value@OData.Community.Display.V1.FormattedValue'],
                             objOwner: {
                                 id: appointmentObj['_ownerid_value'],
