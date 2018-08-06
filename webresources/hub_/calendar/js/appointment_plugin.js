@@ -1645,18 +1645,20 @@ function SylvanAppointment() {
                             return wjQuery(appointmentHour).attr("appHourId") == appointmetnHourId;
                         });
                     }
+                    var allowValidation = true;
                     if (newEvent.length > 1 || appointmentHourEvent.length > 1) {
                         var duplicateEvents = newEvent;
                         if (appointmentHourEvent.length > 1) {
                             duplicateEvents = appointmentHourEvent;
                         }
                         self.appointmentHourSelectionPopup(duplicateEvents, self, date, allDay, ev, ui, resource, elm);
+                        allowValidation = false;
                     }
                     // Check For alert Validation(Not Allowed to drop validation)
                     var isStaffExceptions = self.checkForStaffException(newAppointmentObj);
-                    if (isStaffExceptions || isStaffExceptions == 2) {
+                    if ((isStaffExceptions || isStaffExceptions == 2) && allowValidation) {
                         self.alertPopup("Staff not available at this time.Please schedule the appointment on a different time.");
-                    } else {
+                    } else if (allowValidation) {
                         if (allDay && prevEvent[0].allDay || (!allDay && prevEvent[0].allDay) || (allDay && prevEvent[0].type == 12)) {
                             self.updateAppointmentOnDrop(self, date, true, ev, ui, resource, elm, false, appointmetnHourId);
                         } else if (!allDay && !prevEvent[0].allDay) {
