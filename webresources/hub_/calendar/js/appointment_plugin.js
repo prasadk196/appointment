@@ -803,13 +803,13 @@ function SylvanAppointment() {
             },
             drop: function (date, allDay, ev, ui, resource) {
                 clearTimeout(timeout);
-                if (wjQuery('.headerDate').text() != moment(date).format("MM/DD/YYYY")) {
-                    var currentCalendarDate = new Date(wjQuery('.headerDate').text());
-                    date.setDate(currentCalendarDate.getDate());
-                    date.setMonth(currentCalendarDate.getMonth());
-                    date.setFullYear(currentCalendarDate.getFullYear());
-                };
                 timeout = setTimeout(function () {
+                    if (wjQuery('.headerDate').text() != moment(date).format("MM/DD/YYYY")) {
+                        var currentCalendarDate = new Date(wjQuery('.headerDate').text());
+                        date.setDate(currentCalendarDate.getDate());
+                        date.setMonth(currentCalendarDate.getMonth());
+                        date.setFullYear(currentCalendarDate.getFullYear());
+                    };
                     self.createEventOnDrop(self, date, allDay, ev, ui, resource, ui.helper.context);
                 }, 100);
             },
@@ -1608,12 +1608,6 @@ function SylvanAppointment() {
                 uniqueId = wjQuery(elm).attr("studentid").split('_');
                 eventFor = 'student';
             }
-            if (moment(self.calendarDate).format("MM-DD-YYYY") != moment(date).format("MM-DD-YYYY")) {
-                var month = new Date(self.calendarDate).getMonth();
-                var day = new Date(self.calendarDate).getDate();
-                date = new Date(new Date(date).setMonth(month));
-                date = new Date(new Date(date).setDate(day));
-            }
             var eventColorObj = self.getEventColor(uniqueId[0]);
             var index = self.findUniqueAppointment(uniqueId, activityId);
             if (index != -1) {
@@ -2252,6 +2246,10 @@ function SylvanAppointment() {
         var eventColorObj = self.getEventColor(uniqIdArry[0]);
         var unassignedEvent = self.appointment.fullCalendar('clientEvents', uniqIdArry[0] + "_" + uniqIdArry[2] + "_" + uniqIdArry[3] + "_unassignedId_" + fullDayFlag);
         var allowToDrop = true;
+        var index = self.findUniqueAppointment(uniqIdArry, activityId);
+        unassignedEvent = unassignedEvent.filter(function (y) {
+            return y.appHourId == self.appointmentList[index].appointmentHourId;
+        })
         if (unassignedEvent.length) {
             for (var k = 0; k < unassignedEvent.length; k++) {
                 var eachEvent = unassignedEvent[k];
@@ -2272,7 +2270,7 @@ function SylvanAppointment() {
         }
         if (allowToDrop) {
             var uniqIdArry1 = uniqIdArry;
-            var index = self.findUniqueAppointment(uniqIdArry, activityId);
+           
             if (index != -1) {
                 var newAppointmentObj = wjQuery.extend(true, {}, self.appointmentList[index]);
                 newAppointmentObj['staffId'] = "unassignedId";
@@ -2514,7 +2512,7 @@ function SylvanAppointment() {
                     var newEventId = idArry.join("_");
                     var newEvent = self.appointment.fullCalendar('clientEvents', newEventId);
                     if (newEvent.length) {
-                        if (newEvent.appHourId && appHourId == newEvent.appHourId) {
+                        if (newEvent[0].appHourId && appHourId == newEvent[0].appHourId) {
                             allowException = false;
                             break;
                         }
@@ -3075,7 +3073,7 @@ function SylvanAppointment() {
                         }
                         eventObj['backgroundColor'] = STAFF_EXCEPTION_BG;
                         eventObj['borderColor'] = STAFF_EXCEPTION_BORDER;
-                        self.addContext(eventId, "appointmentException", appointmentHrObj);
+                        self.addContext(eventId, "appointmentException", eventObj);
                     }
 
                     appEventList.push(eventObj);
