@@ -2554,7 +2554,7 @@ function SylvanAppointment() {
                         appointmentEvent[0].title = wjQuery(appointmentEvent[0].title)[0].outerHTML;
                         self.appointment.fullCalendar('updateEvent', appointmentEvent);
                         //self.appointment.fullCalendar('refetchEvents');
-                        wjQuery.contextMenu('destroy', 'span[apphourid="' + appHrExp['id'] + '"]');
+                        wjQuery.contextMenu('destroy', 'span[apphourid="' + appHrExp['id'] + '"][id="' + appointmentEvent[0].id + '"]');
                         self.addContext(appHrExp['eventId'], 'appointmentException', appointmentEvent[0]);
                         self.draggable('draggable');
                         wjQuery(".loading").hide();
@@ -2707,7 +2707,7 @@ function SylvanAppointment() {
                     populatedEvent.title += " drag-student' activityid='" + appointmentObj['id'] + "' studentId='" + studentId + "' >" + displayString + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
                     if (populatedEvent.backgroundColor != STAFF_EXCEPTION_BG) {
                         populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount), eventColorObj);
-                        wjQuery.contextMenu('destroy', 'span[apphourid="' + populatedEvent.appHourId + '"]');
+                        wjQuery.contextMenu('destroy', 'span[apphourid="' + populatedEvent.appHourId + '"][id="'+ populatedEvent.id+'"]');
                     }
                     self.addContext(studentId, eventColorObj.display, appointmentObj);
                 } else {
@@ -2736,7 +2736,7 @@ function SylvanAppointment() {
                     populatedEvent.title += " drag-parent' activityid='" + appointmentObj['id'] + "' parentId='" + parentId + "' >" + displayString + "<i class='" + outOfOfficeClass + " material-icons tooltip' title='Out of office' >location_on</i></span>";
                     if (populatedEvent.backgroundColor != STAFF_EXCEPTION_BG) {
                         populatedEvent.title += self.addPlaceHolders((populatedEvent.capacity - exceptionalCount), eventColorObj);
-                        wjQuery.contextMenu('destroy', 'span[apphourid="' + populatedEvent.appHourId + '"]');
+                        wjQuery.contextMenu('destroy', 'span[apphourid="' + populatedEvent.appHourId + '"][id="'+ populatedEvent.id+'"]');
                     }
                     self.addContext(parentId, eventColorObj.display, appointmentObj);
                 }
@@ -3062,7 +3062,7 @@ function SylvanAppointment() {
                         }
                         eventObj['backgroundColor'] = eventColorObj.backgroundColor;
                         eventObj['borderColor'] = eventColorObj.borderColor;
-                        self.addContext(eventObj.appHourId, "appointmentHour", appointmentHrObj);
+                        self.addContext(eventObj.appHourId, "appointmentHour", eventObj);
                     } else {
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
                             eventObj.title = '<span class="app-placeholder placeholder_week" ></span>';
@@ -3175,9 +3175,9 @@ function SylvanAppointment() {
                     }, 300);
                 }
             }
-            wjQuery.contextMenu('destroy', 'span[appHourId="' + id + '"]');
+            wjQuery.contextMenu('destroy', 'span[appHourId="' + id + '"][id="'+ appointmentObj.id +'"]');
             wjQuery.contextMenu({
-                selector: 'span[appHourId="' + id + '"]',
+                selector: 'span[appHourId="' + id + '"][id="' + appointmentObj.id + '"]',
                 build: function ($trigger, e) {
                     return {
                         items: obj
@@ -3195,9 +3195,9 @@ function SylvanAppointment() {
                     }, 300);
                 }
             }
-            wjQuery.contextMenu('destroy', 'span[appHourId="' + appointmentObj.appHourId + '"]');
+            wjQuery.contextMenu('destroy', 'span[appHourId="' + appointmentObj.appHourId + '"][id="' + appointmentObj.id + '"]');
             wjQuery.contextMenu({
-                selector: 'span[appHourId="' + appointmentObj.appHourId + '"]',
+                selector: 'span[appHourId="' + appointmentObj.appHourId + '"][id="' + appointmentObj.id + '"]',
                 build: function ($trigger, e) {
                     return {
                         items: obj
@@ -3725,10 +3725,10 @@ function SylvanAppointment() {
              //   availableCapacity = availableCapacity - 1;
             //}
             if (appointmentHour[0].memberList && appointmentHour[0].memberList.length) {
-                wjQuery.contextMenu('destroy', 'span[apphourid="' + appointmentHour[0].appHourId + '"]');
+                wjQuery.contextMenu('destroy', 'span[apphourid="' + appointmentHour[0].appHourId + '"]["id="' + appointmentHour[0].id + '"]');
                 availableCapacity = availableCapacity + appointmentHour[0].memberList.length;
             } else {
-                self.addContext(appointmentHour[0].appHourId, "appointmentHour");
+                self.addContext(appointmentHour[0].appHourId, "appointmentHour", appointmentHour[0]);
             }
             appointmentHour[0].title = "";
             wjQuery.each(eventTitleHTML, function (k, v) {
@@ -3791,14 +3791,14 @@ function SylvanAppointment() {
                     prevAppointment[0].title = "";
                     prevAppointment[0].title = preEventTitleHTML[0].outerHTML;
                     if (prevAppointment[0].memberList.length) {
-                        wjQuery.contextMenu('destroy', 'span[apphourid="' + prevAppointment[0].apphourid + '"]');
+                        wjQuery.contextMenu('destroy', 'span[apphourid="' + prevAppointment[0].apphourid + '"][id="' + prevAppointment[0].id + '"]');
                         for (var i = 0; i < prevAppointment[0].memberList.length; i++) {
                             if (preEventTitleHTML[i + 1]) {
                                 prevAppointment[0].title += preEventTitleHTML[i + 1].outerHTML;
                             }
                         }
                     } else {
-                        self.addContext(prevAppointment[0].apphourid, "appointmentHour");
+                        self.addContext(prevAppointment[0].apphourid, "appointmentHour", prevAppointment[0]);
                     }
                     for(var k = 0;k < prevAppointmentCapacity; k++) {
                             prevAppointment[0].title += placeHolder;
@@ -3872,8 +3872,8 @@ function SylvanAppointment() {
                     appointmentEvent[0].title = appointmentEvent[0].title;
                     self.appointmentHourException.splice(index, 1);
                     self.appointment.fullCalendar('updateEvent', appointmentEvent);
-                    wjQuery.contextMenu('destroy', 'span[appHourId="' + appointmentEvent[0]['appHourId'] + '"]');
-                    self.addContext(appointmentEvent[0]['appHourId'], 'appointmentHour');
+                    wjQuery.contextMenu('destroy', 'span[appHourId="' + appointmentEvent[0]['appHourId'] + '"][id="' + appointmentEvent[0].id + '"]');
+                    self.addContext(appointmentEvent[0]['appHourId'], 'appointmentHour', appointmentEvent[0]);
                     self.checkAppointmentHour("", appointmentEvent, 'context');
                     self.draggable('draggable');
                     wjQuery(".loading").hide();
