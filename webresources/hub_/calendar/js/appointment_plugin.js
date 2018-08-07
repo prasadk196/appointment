@@ -509,7 +509,7 @@ function SylvanAppointment() {
                 var eventId = appException['aworkhours_x002e_hub_type'] + "_" + startObj + "_" + endObj + "_" + "unassignedId_false";
                 var obj = {
                     eventId: eventId,
-                    appointmentHourId: appException['hub_timingsid'],
+                    appointmentHourId: appException['_hub_timingsid_value'],
                     id: appException['hub_appointment_slot_exceptionid'],
                     type: appException['aworkhours_x002e_hub_type'],
                     workHourId:appException["aworkhours_x002e_hub_workhoursid"],
@@ -2994,7 +2994,7 @@ function SylvanAppointment() {
                     eventPopulated.push(eventObj);
                     // Appointment hour exception validation
                     var isexception = self.appointmentHourException.filter(function (x) {
-                        return x.eventId == eventId;
+                        return x.eventId == eventId && x.appointmentHourId == appointmentHrObj.appointmentHourId;
                     });
                     if (isexception.length) {
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
@@ -3049,7 +3049,7 @@ function SylvanAppointment() {
                     }
                     // Appointment hour exception validation
                     var isexception = self.appointmentHourException.filter(function (x) {
-                        return x.eventId == eventId;
+                        return x.eventId == eventId && x.appointmentHourId == appointmentHrObj.appointmentHourId;
                     });
 
                     if (isexception.length == 0) {
