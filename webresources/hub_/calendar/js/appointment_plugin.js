@@ -2641,12 +2641,16 @@ function SylvanAppointment() {
                     populatedEvent['title'] = '<span class="app-placeholder placeholder_week tooltip" title="' + populatedEvent['noOfApp'] + '" >' + populatedEvent['noOfApp'] + '</span>';
                 }
             }
-        } else {
+        } 
             var displayString = self.getAppointmentEventTitle(appointmentObj, eventColorObj);
             if (eventColorObj.appointmentHour && populatedEvent.resourceId == 'unassignedId') {
-                populatedEvent.title = "";
-                if (!appointmentObj['allDayAppointment']) {
+                if (self.appointment.fullCalendar('getView').name != 'agendaWeek') {
+                    populatedEvent.title = "";
+                }
+                if (!appointmentObj['allDayAppointment'] && self.appointment.fullCalendar('getView').name != 'agendaWeek') {
                     populatedEvent.title = "<span class='appointmentTitle' id='" + populatedEvent.id + "' appHourId='"+populatedEvent.appHourId+"'>" + eventColorObj.name + "</span>";
+                } else if (!appointmentObj['allDayAppointment']) {
+                    populatedEvent.title += "<span class='appointmentTitle' id='" + populatedEvent.id + "' appHourId='" + populatedEvent.appHourId + "'>" + eventColorObj.name + "</span>";
                 }
                 var exceptionalCount = 0;
                 if (appointmentObj['isExceptional']  || appointmentObj.status == ATTENDED || appointmentObj.status == NO_SHOW) {
@@ -2753,7 +2757,7 @@ function SylvanAppointment() {
                     self.addContext(parentId, eventColorObj.display, appointmentObj);
                 }
             }
-        }
+        
         populatedEvent.type = appointmentObj['type'];
         if (populatedEvent.backgroundColor != STAFF_EXCEPTION_BG) {
             populatedEvent.borderColor = eventColorObj.borderColor;
@@ -2810,7 +2814,7 @@ function SylvanAppointment() {
                 eventObj['title'] = '<span class="app-placeholder placeholder_week tooltip" title="1">1</span>';
             }
             eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_unassignedId_"+ appointmentObj.allDayAppointment;
-        } else {
+        } 
             var displayString = self.getAppointmentEventTitle(appointmentObj, eventColorObj);
             eventObj["id"] = appointmentObj["type"] + "_" + appointmentObj['startObj'] + "_" + appointmentObj['endObj'] + "_" + appointmentObj['staffId'] + "_" + appointmentObj.allDayAppointment;
             if (eventColorObj.display == "student") {
@@ -2836,7 +2840,7 @@ function SylvanAppointment() {
                 }
                 self.addContext(parentId, eventColorObj.display, appointmentObj);
             }
-        }
+        
         eventObj = self.addConflictMsg(eventObj);
         this.eventList.push(eventObj);
         self.eventList = this.eventList;
@@ -2994,7 +2998,7 @@ function SylvanAppointment() {
                     });
                     if (isexception.length) {
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                            eventPopulated[0].title = '<span class="app-placeholder placeholder_week" ></span>';
+                            eventPopulated[0].title += '<span class="app-placeholder placeholder_week" ></span>';
                         }
                     } else{
                         eventPopulated[0].capacity += appointmentHrObj['capacity'];
@@ -3002,10 +3006,11 @@ function SylvanAppointment() {
 
                         // Week view title condition
                         if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                            etitle = eventColorObj.name;
                             if (eventColorObj.appointmentHour) {
-                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"0/' + eventPopulated[0].capacity + '">0/' + eventPopulated[0].capacity + '</span>';
+                                eventPopulated[0].title = '<span class="appointmentTitle" id="' + eventId + '">' + etitle + '</span><span class="app-placeholder placeholder_week tooltip" title"0/' + eventPopulated[0].capacity + '">0/' + eventPopulated[0].capacity + '</span>';
                             } else {
-                                eventPopulated[0].title = '<span class="app-placeholder placeholder_week tooltip" title"0">0</span>';
+                                eventPopulated[0].title = '<span class="appointmentTitle" id="' + eventId + '">' + etitle + '</span><span class="app-placeholder placeholder_week tooltip" title"0">0</span>';
                             }
                         }
 
@@ -3023,14 +3028,7 @@ function SylvanAppointment() {
                     }
                 } else {
                     var eventObj = {};
-                    var etitle = '';
-                    if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                        etitle = '';
-                    }
-                    else {
-                        etitle = eventColorObj.name;
-                    }
-
+                    etitle = eventColorObj.name;
                     eventObj = {
                         id: eventId,
                         resourceId: 'unassignedId',
@@ -3059,7 +3057,7 @@ function SylvanAppointment() {
                             eventObj.title += self.addPlaceHolders(appointmentHrObj['capacity'], eventColorObj);
                         } else {
                             if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
-                                eventObj.title = "<span class='app-placeholder placeholder_week tooltip' title='0' >0</span>";
+                                eventObj.title += "<span class='app-placeholder placeholder_week tooltip' title='0' >0</span>";
                             }
                         }
                         eventObj['backgroundColor'] = eventColorObj.backgroundColor;
@@ -3081,6 +3079,9 @@ function SylvanAppointment() {
                     self.appointment.fullCalendar('removeEvents');
                     self.appointment.fullCalendar('addEventSource', appEventList);
                     self.appointment.fullCalendar('refetchEvents');
+                    if (self.appointment.fullCalendar('getView').name == 'agendaWeek') {
+                        wjQuery("body").off("contextmenu").on("contextmenu", ".fc-view-agendaWeek span", function () { return false;})
+                    }
                 }
             });
             this.eventList = appEventList;
