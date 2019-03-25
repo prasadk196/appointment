@@ -483,8 +483,8 @@ function SylvanAppointment() {
                         id: staffObj["astaff_timings_x002e_hub_staffid"],
                         name: staffObj["astaff_timings_x002e_hub_staffid@OData.Community.Display.V1.FormattedValue"],
                         availableDays: [],
-                        start: staffObj["astaff_timings_x002e_hub_startdate@OData.Community.Display.V1.FormattedValue"],
-                        end: staffObj["astaff_timings_x002e_hub_enddate@OData.Community.Display.V1.FormattedValue"],
+                        start: staffObj["hub_effectivestartdate@OData.Community.Display.V1.FormattedValue"],
+                        end: staffObj["hub_effectiveenddate@OData.Community.Display.V1.FormattedValue"],
                         startTime: staffObj["hub_starttime@OData.Community.Display.V1.FormattedValue"],
                         endTime: staffObj["hub_endtime@OData.Community.Display.V1.FormattedValue"]
                     };
@@ -541,7 +541,7 @@ function SylvanAppointment() {
                 appEffectiveStartDate = new Date(appEffectiveStartDate + ' ' + '00:00').getTime();
                 appEffectiveEndDate = new Date(appEffectiveEndDate + ' ' + '23:59').getTime();
 
-                for (var j = currentView.start.getTime() ; j < currentView.end.getTime() ; j = j + (24 * 60 * 60 * 1000)) {
+                for (var j = currentView.start.getTime() ; j <= currentView.end.getTime() ; j = j + (24 * 60 * 60 * 1000)) {
                     var pushObj = self.leaveDays.filter(function (elm) {
                         return elm.getTime() == j;
                     });
@@ -1826,7 +1826,6 @@ function SylvanAppointment() {
             var availableStaff = self.formatObjects(data.getStaffAvailable(self.locationId, startDate, endDate), "staffAvailable");
             if (availableStaff.length) {
                 var availStaff = [];
-                var counter = 1;
                 for (var p = 0; p < availableStaff.length; p++) {
                     var processFlag = false;
                     var startObj = new Date(availableStaff[p].start);
@@ -1842,14 +1841,7 @@ function SylvanAppointment() {
                                 availStaff.push(availableStaff[p]);
                             }
                         }
-                    } else {
-                        if (counter == availableStaff.length) {
-                            if (messageObject.confirmation.indexOf(" Staff is not available") == -1) {
-                                messageObject.confirmation.push(" Staff is not available");
-                            }
-                        }
                     }
-                    counter++;
                 }
                 if (availStaff.length) {
                     var availability = false;
@@ -3242,7 +3234,6 @@ function SylvanAppointment() {
 
             obj.markAsAttended = {
                 name: "Mark as Attended",
-                disabled: self.checkAccountClosure(),
                 callback: function (key, options) {
                     Xrm.Utility.showProgressIndicator("Processing Please wait...");
                     options = wjQuery.extend(true, {}, options);
@@ -3259,7 +3250,6 @@ function SylvanAppointment() {
 
             obj.noShow = {
                 name: "No Show",
-                disabled: self.checkAccountClosure(),
                 callback: function (key, options) {
                     Xrm.Utility.showProgressIndicator("Processing Please wait...");
                     options = wjQuery.extend(true, {}, options);
