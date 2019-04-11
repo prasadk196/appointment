@@ -578,9 +578,9 @@ table.fc-border-separate{table-layout: fixed;}
 }
 #selectionDialog .individualAppointmentContainer{
     display: inline-block;
-    height: 250px;
-    min-width: 200px;
-    width:200px;
+    height: 200px;
+    min-width: 150px;
+    max-width:200px;
     padding: 4px;
     border: 1px solid #d5d5d5;
     margin: 8px;
@@ -599,12 +599,23 @@ table.fc-border-separate{table-layout: fixed;}
 }
 
 #selectionDialog .contentContainer {
-    padding:8px;
-    text-align:center;
+    padding: 8px;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 250px;
+    white-space: nowrap;
 }
 
 #selectionDialog .appointmentTitle{
     padding:4px;
     font-size:15px;
     color:#000;
+}
+.ellipsis {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 100px;
+    float: left;
 }
